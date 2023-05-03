@@ -1,6 +1,6 @@
 import json
 import os
-
+import operator
 
 # 对数据按照类型和id进行分组
 def dataType():
