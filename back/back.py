@@ -14,7 +14,7 @@ def getJson():
     mapName = ['boundary','crosswalk','lane','signal','stopline']
     res = {}
     for name in mapName:
-        with open('D:/2023ChinaVis/back/data/题目1 高价值场景可视分析/高价值场景可视分析/road10map/'+name+'road10.geojson', 'r', encoding='utf-8') as f:
+        with open('back\static\data\ChinaVis Data/road10map/'+name+'road10.geojson', 'r', encoding='utf-8') as f:
             data = json.load(f) 
         res[name] = data
     return res 
