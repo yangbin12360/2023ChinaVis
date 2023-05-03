@@ -3,7 +3,7 @@ from shapely.geometry import LineString,Polygon
 import os
 import json
 
-
+# 判断行人是否与边界线存在交点
 
 file_path1 = './static/data/BoundryRoads/boundry2.json'
 with open(file_path1, "r", encoding="utf-8") as f:

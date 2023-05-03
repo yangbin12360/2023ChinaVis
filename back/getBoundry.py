@@ -1,5 +1,7 @@
 import json
 
+# 获取边界轨迹线的数据，针对不同的车辆需要不同的边界线组合
+
 file_path=['./static/data/ChinaVis Data/road10map/boundaryroad_car.geojson',
            './static/data/ChinaVis Data/road10map/boundaryroad_people.geojson',
            './static/data/ChinaVis Data/road10map/boundaryroad_non.geojson']

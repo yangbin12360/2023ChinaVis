@@ -1,5 +1,6 @@
 import json
 
+# 获取两个特殊的人行道
 file_path=['./static/data/ChinaVis Data/road10map/crosswalkroad10.geojson']
 
 def getPolygon(file_path):
