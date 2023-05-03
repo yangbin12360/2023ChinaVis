@@ -1,7 +1,7 @@
 import os
 import json
 
-
+# 过滤掉车辆的轨迹数据中不合理的数据，比如只有一个坐标点，无法画成线
 def filterItem():
     # 获取文件夹下的所有子文件夹
     subfolders = [f.path for f in os.scandir('./static/data/DataProcess') if f.is_dir()]

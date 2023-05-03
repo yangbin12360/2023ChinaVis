@@ -3,7 +3,7 @@ from shapely.geometry import LineString
 import os
 import json
 
-
+# 判断非机动车是否与边界线存在交点
 
 file_path1 = './static/data/BoundryRoads/boundry3.json'
 with open(file_path1, "r", encoding="utf-8") as f:

@@ -2,7 +2,7 @@ import os
 import json
 import operator
 
-
+# 按时间戳顺序对每辆车的轨迹数据进行排序
 def sortItem():
     # 获取文件夹下的所有子文件夹
     subfolders = [f.path for f in os.scandir('./static/data/DataProcess') if f.is_dir()]
