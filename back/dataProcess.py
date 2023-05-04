@@ -210,6 +210,24 @@ def getPolygon():
             f.write(json_string) 
 
 
+# 过滤掉车辆的轨迹数据中不合理的数据，比如只有一个坐标点，无法画成线
+def filterItem():
+    # 获取文件夹下的所有子文件夹
+    subfolders = [f.path for f in os.scandir('./static/data/DataProcess') if f.is_dir()]
+
+    # 遍历所有子文件夹，读取子文件夹中的文件
+    for subfolder in subfolders:
+        # 遍历子文件夹中的所有文件
+        for filename in os.listdir(subfolder):
+            filepath = os.path.join(subfolder, filename)
+            # 处理文件
+            f=open(filepath, 'r')
+            data = json.load(f)
+            if len(data) <2:
+                f.close()
+                os.remove(filepath)
+
+
 # 判断机动车是否与车道边界线存在交点           
 def car_cross():
     
