@@ -29,8 +29,6 @@ def dataType():
     f = open("./static/data/DataProcess/" + nowType + "/" + str(i) + ".json", "w")
     f.write(json.dumps(allData[i]))
 
-
-
 # 按时间戳顺序对每辆车的轨迹数据进行排序
 def sortItem():
     # 获取文件夹下的所有子文件夹
@@ -49,8 +47,54 @@ def sortItem():
                 # 将修改后的数据写入到原文件
                 with open(filepath, 'w') as f:
                     json.dump(data_sorted, f)
-    
-                    
+
+# 提取机动车超速情况
+def Overspeeding():
+    # 提取机动车超速情况，存到./static/data/DataProcess/overSpeeding.json文件中
+    # 设置文件夹路径
+    speed_THRESHOLD = 16.7 # 设置速度阈值为60km/h 所有车道限速都是60km/h
+    root_folder_path = 'back/static/data/DataProcess'
+    overSpeeding_path = 'back/static/data/DataProcess/overSpeeding.json'
+    overSpeeding_data = []
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        if not os.path.isdir(folder_path) or folder_name not in [ '1','4','6']:#机动车才被检测
+            continue
+        for file_name in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            if(len(data) < 5): #文件中低于5帧的数据不处理
+                continue
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            velo_list=[]
+            for item in data:
+                velo_list.append(item['velocity'])
+            Overspeeding =[]
+            start = end = 0 #超速起始帧和终止帧
+            for i in range(5, len(data),5):# 每隔 5 帧（1s）判断一次速度
+                if  velo_list[i]>speed_THRESHOLD and  velo_list[i-5]<=speed_THRESHOLD: 
+                    start = end = i
+                elif velo_list[i]>speed_THRESHOLD and velo_list[i-5]>speed_THRESHOLD:
+                    end +=1
+                elif velo_list[i]<=speed_THRESHOLD and velo_list[i-5]>speed_THRESHOLD and i!=5:
+                    Overspeeding.append([start,end])
+            if len(Overspeeding) > 0:
+                for i in range(len(Overspeeding)): #将急加速数据存入SpeedUp_data列表中
+                    overSpeeding_data.append({
+                        'type':data[Overspeeding[i][0]]['type'],
+                        'id': data[Overspeeding[i][0]]['id'],
+                        'start_time': data[Overspeeding[i][0]]['time_meas'],
+                        'end_time': data[Overspeeding[i][1]]['time_meas'],
+                        'mean_velo': (data[Overspeeding[i][0]]['velocity']+data[Overspeeding[i][1]]['velocity'])/2,
+                    })
+        print(folder_path+"done!")
+    with open(overSpeeding_path, 'w') as f:
+        json.dump(overSpeeding_data, f)
+    print("Done!")   
+
 # 提取机动车急加急减情况
 def speedUpDown():
     # 提取机动车急加急加情况，存到./static/data/DataProcess/speedUp.json和speedDown.json文件中
@@ -75,7 +119,7 @@ def speedUpDown():
                 data = json.load(f)
             if(len(data) < 5): #文件中低于5帧的数据不处理
                 continue
-            # data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
             accel_list=[] #加速度列表
             for i in range(0, len(data),5):# 每隔 5 帧（1s）计算一次加速度
                 curr_speed = data[i]['velocity']
@@ -139,8 +183,7 @@ def speedUpDown():
         json.dump(SpeedUp_data, f)
     with open(SpeedDown_path, 'w') as f:
         json.dump(SpeedDown_data, f)
-    print("Done!")
-    
+    print("Done!")   
     
 # 获取边界线geojson数据的坐标用于shapely库画线，针对不同的车辆需要不同的边界线组合 
 def getBoundry(file_path):
@@ -178,7 +221,6 @@ def getBoundry(file_path):
         with open('./static/data/BoundryRoads/'+'boundry'+str(i)+ ".json", 'w') as f:
             f.write(json_string)       
 
-
 # 获取两个特殊的人行道，假定行人不闯红灯，判断行人是否横穿马路需要把人行道的情况去掉
 def getPolygon():
     for i,filepath in enumerate(file_path, start=1):
@@ -208,7 +250,6 @@ def getPolygon():
         # 打开文件并写入JSON字符串
         with open('./static/data/BoundryRoads/crosswalk/'+'poly'+str(i)+ ".json", 'w') as f:
             f.write(json_string) 
-
 
 # 判断机动车是否与车道边界线存在交点           
 def car_cross():
@@ -263,9 +304,7 @@ def car_cross():
     car_cross_path = './static/data/DataResult/car_cross.json'
     with open(car_cross_path, 'w') as f:
         json.dump(car_cross_data, f)
-        
-   
-            
+       
 # 判断行人是否与边界线存在交点   
 def people_cross():
     #获取边界
@@ -355,9 +394,6 @@ def nomotor_cross():
     nomotor_cross_path = './static/data/DataResult/nomotor_cross.json'
     with open(nomotor_cross_path, 'w') as f:
         json.dump(nomotor_id, f)
-
-
-       
 
 # 将所有机动车数据按照朝向进行分类--拥堵需要分辨不同的朝向（需先在DataProcess文件夹下新建文件夹HeadingData）
 def heading_type():
