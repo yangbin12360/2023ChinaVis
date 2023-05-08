@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react"; // 导入 React 和 useRef 和
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_final.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
 import car from "../../assets/gltf/testcar.glb";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -42,7 +42,10 @@ const TestThree = ({}) => {
       1000
     );
     // camera.position.set(10, 100, 250);
-    camera.position.set(0, 0, 250);
+    camera.position.set(0, -100, 250);
+    // let x_axis = new THREE.Vector3( 1, 0, 0 );
+    // let quaternion = new THREE.Quaternion();
+    // camera.position.applyQuaternion(quaternion.setFromAxisAngle(x_axis,move.angle));
 
     // 创建渲染器
     const renderer = new THREE.WebGLRenderer();
@@ -52,7 +55,9 @@ const TestThree = ({}) => {
     // 创建光源
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(5, 1, 1);
-    scene.add(light);
+    // scene.add(light);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambient);
     /**GLTF模型导入 */
     // 导入地图模型
     const loader = new GLTFLoader();
@@ -63,13 +68,15 @@ const TestThree = ({}) => {
       scene.add(gltf.scene);
     });
     // 导入小车模型
-    let model;
+    let model1,model2;
     loader.load(car, (gltf) => {
-      console.log("car模型已经加载");
-      model = gltf.scene;
-      scene.add(model);
+      model1 = gltf.scene.clone();
+      model2 = gltf.scene.clone();
+      scene.add(model1);
+      scene.add(model2);
       // 在模型加载完成后，开始移动模型
       moveModel(0);
+      moveModel2(0);
     });
     /**临时绘制地图轨迹 */
     // 处理GeoJSON数据
@@ -110,8 +117,8 @@ const TestThree = ({}) => {
         }
       });
     };
-    handleGeoJSON(data[mapName[0]]);
-    handleGeoJSON(data[mapName[1]]);
+    // handleGeoJSON(data[mapName[0]]);
+    // handleGeoJSON(data[mapName[1]]);
     // handleGeoJSON(data[mapName[2]]);
     // handleGeoJSON(data[mapName[4]]);
     /**小车轨迹绘制 */
@@ -133,6 +140,24 @@ const TestThree = ({}) => {
         timeStamps.push(car.time_meas);
       }
     });
+    let positions2 = []; //位置坐标
+    let indexArr2 = []; //位置索引
+    let indexCar2 = 0; //小车索引
+    let timeStamps2 = []; //时间戳数组
+    data["car2"].forEach((car) => {
+      const strPosition = car.position;
+      const objPostion = JSON.parse(strPosition);
+      const arr = [objPostion.x, objPostion.y];
+      const coordinates = arr;
+      //暂时将在动的轨迹坐标放入
+      if (car.is_moving == 1) {
+        positions2.push(new THREE.Vector3(coordinates[0], coordinates[1]));
+        indexArr2.push(indexCar2);
+        indexCar2 = indexCar + 1;
+        timeStamps2.push(car.time_meas);
+      }
+    });
+    console.log("positions2",positions2);
     //创建小车轨迹
     const material = new THREE.LineBasicMaterial({
       color: "green",
@@ -146,16 +171,17 @@ const TestThree = ({}) => {
     let currentCoordIndex = 0;
     const moveModel = (index) => {
       if (index >= positions.length - 1) {
+        // destroyModel(model1,scene);
         return;
       }
-      console.log("第",index,"次的时间为：",converTimestamp(timeStamps[index]));
+      // console.log("car1第",index,"次的时间为：",converTimestamp(timeStamps[index]));
       currentCoordIndex = index;
       // 创建一个新的 tween 对象，以在 0.2 秒内将模型从当前坐标移动到下一个坐标
-      const tween = new TWEEN.Tween(positions[currentCoordIndex])
+      const tween1 = new TWEEN.Tween(positions[currentCoordIndex])
         .to(positions[currentCoordIndex + 1], 200)
         .onUpdate((positions) => {
           // 更新模型的位置
-          model.position.copy(positions)
+          model1.position.copy(positions)
         })
         .onComplete(() => {
           // 当 tween 对象完成时，递归调用 moveModel 函数
@@ -163,6 +189,26 @@ const TestThree = ({}) => {
         })
         .start(); // 开始 tween 动画
     };
+    let currentCoordIndex2 = 0;
+    const moveModel2 = (index)=>{
+      if (index >= positions2.length - 1) {
+        destroyModel(model2,scene);
+        return;
+      }
+      console.log("car2第",index,"次的时间为：",converTimestamp(timeStamps2[index]));
+      currentCoordIndex2 = index;
+      const tween2 = new TWEEN.Tween(positions2[currentCoordIndex2])
+      .to(positions2[currentCoordIndex2 + 1], 200)
+      .onUpdate((positions2) => {
+        // 更新模型的位置
+        model2.position.copy(positions2)
+      })
+      .onComplete(() => {
+        // 当 tween 对象完成时，递归调用 moveModel 函数
+        moveModel2(currentCoordIndex2 + 1);
+      })
+      .start(); // 开始 tween 动画
+    }
      //创建天空盒  （6张图片都需要换）
     //         scene.background = new THREE.CubeTextureLoader().load([sky,sky,sky,sky,sky,sky]);
     //         // 创建一个地面
@@ -219,5 +265,51 @@ const converTimestamp = (timestamp)=>{
   
     // 返回日期和时间字符串
     return date.toLocaleString('en-US', { hour12: false });
+}
+// 生成多个模型实例，目前针对单一类型
+const createModels = (modelNum,scene,gltf) =>{
+  //存放多个模型实例
+  let instanceArray = []
+  for(let i=0;i<modelNum;i++){
+    const instance = gltf.scene.clone();
+    instance.name = 'car${i}'
+    instanceArray.push(instance);
+    scene.add(instance);
+  }
+  return instanceArray;
+}
+//移动坐标存放,还得改
+const movePositions =(data)=>{
+  let positions = []; //位置坐标
+  let indexArr = []; //位置索引
+  let indexCar = 0; //小车索引
+  let timeStamps = []; //时间戳数组
+  data.forEach((car) => {
+    const strPosition = car.position;
+    const objPostion = JSON.parse(strPosition);
+    const arr = [objPostion.x, objPostion.y];
+    const coordinates = arr;
+    //暂时将在动的轨迹坐标放入
+    if (car.is_moving == 1) {
+      positions.push(new THREE.Vector3(coordinates[0], coordinates[1]));
+      indexArr.push(indexCar);
+      indexCar = indexCar + 1;
+      timeStamps.push(car.time_meas);
+    }
+  });
+  return [positions,indexArr,timeStamps];
+}
+//销毁模型
+const destroyModel = (model,scene)=>{
+   // 从场景中移除模型
+   scene.remove(model);
+     // 释放模型的几何体、材质和纹理资源
+  model.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.geometry.dispose();
+      child.material.dispose();
+      if (child.material.map) child.material.map.dispose();
+    }
+  });
 }
 export default TestThree; // 导出 Polygon 组件

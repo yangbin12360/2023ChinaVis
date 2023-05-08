@@ -14,12 +14,16 @@ def getJson():
     mapName = ['boundary','crosswalk','lane','signal','stopline']
     res = {}
     for name in mapName:
-        with open('back\static\data\ChinaVis Data/road10map/'+name+'road10.geojson', 'r', encoding='utf-8') as f:
+        with open('../back\static\data\ChinaVis Data/road10map/'+name+'road10.geojson', 'r', encoding='utf-8') as f:
             data = json.load(f) 
         res[name] = data
-    with open('../back/static/data\DataProcess/1/162801427.json ')as f:
+    with open('../back/static/data\DataProcess/1/171547107.json ')as f:
         data1 = json.load(f)
+    with open('../back/static/data\DataProcess/6/188078451.json ')as f:
+        data2 = json.load(f)
+    #时间戳排序
     res["car"] = sorted(data1, key=lambda x: x['time_meas'])
+    res["car2"] = sorted(data2, key=lambda x: x['time_meas'])
     return res
 
 if __name__ == '__main__':
