@@ -6,38 +6,76 @@ import random
 from shapely.ops import linemerge
 from shapely.ops import polygonize
 
+import time
+import numpy as np
+
 # 对数据按照类型和id进行分组
 def dataType():
-  allData = {}
-  # 获取所有数据文件夹
-  for i in range(10):
-    # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
-    f = open("./static/data/ChinaVis Data/part-0000" + str(i) +"-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
-    data = f.read().split("\n")
-    # 按照id将数据分组
-    for j in data:
-      try:
-        nowData = json.loads(j)
-        if(nowData["id"] not in allData):
-          allData[nowData["id"]] = []
-        allData[nowData["id"]].append(nowData)
-      except:
-        print(j)
-  
-  # 按照数据的类型进行分组保存
-  for i in allData:
-    nowType = str(allData[i][0]["type"])
-    if(not os.path.exists("./static/data/DataProcess/" + nowType)):
-      os.makedirs("./static/data/DataProcess/" + nowType)
-    f = open("./static/data/DataProcess/" + nowType + "/" + str(i) + ".json", "w")
-    f.write(json.dumps(allData[i]))
+    allData = {}
+    # 获取所有数据文件夹
+    for i in range(10):
+        # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
+        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
+                 "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
+        data = f.read().split("\n")
+        # 按照id将数据分组
+        for j in data:
+            try:
+                nowData = json.loads(j)
+                if(nowData["id"] not in allData):
+                    allData[nowData["id"]] = []
+                allData[nowData["id"]].append(nowData)
+            except:
+                print(j)
+
+    # 按照数据的类型进行分组保存
+    for i in allData:
+        nowType = str(allData[i][0]["type"])
+        if(not os.path.exists("./static/data/DataProcess/" + nowType)):
+            os.makedirs("./static/data/DataProcess/" + nowType)
+        f = open("./static/data/DataProcess/" +
+                 nowType + "/" + str(i) + ".json", "w")
+        f.write(json.dumps(allData[i]))
 
 
 
-# 按时间戳顺序对每辆车的轨迹数据进行排序
+
+# 按时间戳顺序对每辆车的轨迹数据进行排序 
+def dataTypebytime_meas():   
+    allData = {}
+    # 获取所有数据文件夹
+    for i in range(10):
+        # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
+        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
+                 "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
+        data = f.read().split("\n")
+        # 按照id将数据分组
+        for j in data:
+            try:
+                nowData = json.loads(j)
+                nowTime = float(nowData["time_meas"]) / 1000000
+                nowTime = time.localtime(nowTime)
+                nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
+                if(nowTime not in allData):
+                    allData[nowTime] = []
+                allData[nowTime].append(nowData)
+            except:
+                print(j)
+    
+
+    # 按照数据的类型进行分组保存
+    for i in allData:
+        data = time.mktime(time.strptime(i, "%Y-%m-%d %H:%M:%S"))
+        if(not os.path.exists("./static/data/DataProcess/time_meas")):
+            os.makedirs("./static/data/DataProcess/time_meas")
+        f = open("./static/data/DataProcess/time_meas/" + str(data) + ".json", "w")
+        f.write(json.dumps(allData[i]))
+
+
 def sortItem():
     # 获取文件夹下的所有子文件夹
-    subfolders = [f.path for f in os.scandir('./static/data/DataProcess') if f.is_dir()]
+    subfolders = [f.path for f in os.scandir(
+        './static/data/DataProcess') if f.is_dir()]
 
     # 遍历所有子文件夹，读取子文件夹中的文件
     for subfolder in subfolders:
@@ -48,29 +86,25 @@ def sortItem():
             with open(filepath, 'r') as f:
                 data = json.load(f)
                 # 处理数据，进行排序
-                data_sorted = sorted(data, key=operator.itemgetter('time_meas'))
+                data_sorted = sorted(
+                    data, key=operator.itemgetter('time_meas'))
                 # 将修改后的数据写入到原文件
                 with open(filepath, 'w') as f:
                     json.dump(data_sorted, f)
-    
-                    
-# 提取机动车急加急减情况
-def speedUpDown():
-    # 提取机动车急加急加情况，存到./static/data/DataProcess/speedUp.json和speedDown.json文件中
+
+# 提取机动车超速情况
+def Overspeeding():
+    # 提取机动车超速情况，存到./static/data/DataProcess/overSpeeding.json文件中
     # 设置文件夹路径
-    speedUp_THRESHOLD = 2.78  # 设置加速度阈值为 2.78 m/s^2
-    speedDown_THRESHOLD = -2.78
-    time_THRESHOLD = 2 #异常持续时间阈值
+    speed_THRESHOLD = 16.7 # 设置速度阈值为60km/h 所有车道限速都是60km/h
     root_folder_path = 'back/static/data/DataProcess'
-    SpeedUp_path = 'back/static/data/DataProcess/speedUp.json'
-    SpeedDown_path = 'back/static/data/DataProcess/speedDown.json'
-    SpeedUp_data = []  # 急加速数据
-    SpeedDown_data=[] #急减速数据
+    overSpeeding_path = 'back/static/data/DataProcess/overSpeeding.json'
+    overSpeeding_data = []
     # 遍历根文件夹
     for folder_name in os.listdir(root_folder_path):
         folder_path = os.path.join(root_folder_path, folder_name)
         # 判断是否为需要处理的文件夹
-        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:#机动车才被检测
+        if not os.path.isdir(folder_path) or folder_name not in [ '1','4','6']:#机动车才被检测
             continue
         for file_name in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file_name)
@@ -78,7 +112,59 @@ def speedUpDown():
                 data = json.load(f)
             if(len(data) < 5): #文件中低于5帧的数据不处理
                 continue
-            # data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            velo_list=[]
+            for item in data:
+                velo_list.append(item['velocity'])
+            Overspeeding =[]
+            start = end = 0 #超速起始帧和终止帧
+            for i in range(5, len(data),5):# 每隔 5 帧（1s）判断一次速度
+                if  velo_list[i]>speed_THRESHOLD and  velo_list[i-5]<=speed_THRESHOLD: 
+                    start = end = i
+                elif velo_list[i]>speed_THRESHOLD and velo_list[i-5]>speed_THRESHOLD:
+                    end +=1
+                elif velo_list[i]<=speed_THRESHOLD and velo_list[i-5]>speed_THRESHOLD and i!=5:
+                    Overspeeding.append([start,end])
+            if len(Overspeeding) > 0:
+                for i in range(len(Overspeeding)): #将急加速数据存入SpeedUp_data列表中
+                    overSpeeding_data.append({
+                        'type':data[Overspeeding[i][0]]['type'],
+                        'id': data[Overspeeding[i][0]]['id'],
+                        'start_time': data[Overspeeding[i][0]]['time_meas'],
+                        'end_time': data[Overspeeding[i][1]]['time_meas'],
+                        'mean_velo': (data[Overspeeding[i][0]]['velocity']+data[Overspeeding[i][1]]['velocity'])/2,
+                    })
+        print(folder_path+"done!")
+    with open(overSpeeding_path, 'w') as f:
+        json.dump(overSpeeding_data, f)
+    print("Done!")   
+
+# 提取机动车急加急减情况
+def speedUpDown():
+    # 提取机动车急加急加情况，存到./static/data/DataProcess/speedUp.json和speedDown.json文件中
+    # 设置文件夹路径
+    speedUp_THRESHOLD = 2.78  # 设置加速度阈值为 2.78 m/s^2
+    speedDown_THRESHOLD = -2.78
+    time_THRESHOLD = 2  # 异常持续时间阈值
+    root_folder_path = 'back/static/data/DataProcess'
+    SpeedUp_path = 'back/static/data/DataProcess/speedUp.json'
+    SpeedDown_path = 'back/static/data/DataProcess/speedDown.json'
+    SpeedUp_data = []  # 急加速数据
+    SpeedDown_data = []  # 急减速数据
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        # 机动车才被检测
+        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:
+            continue
+        for file_name in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            if(len(data) < 5):  # 文件中低于5帧的数据不处理
+                continue
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
             accel_list=[] #加速度列表
             for i in range(0, len(data),5):# 每隔 5 帧（1s）计算一次加速度
                 curr_speed = data[i]['velocity']
@@ -87,34 +173,34 @@ def speedUpDown():
                     accel_list.append(0)
                 else:
                     accel_list.append((curr_speed - prev_speed) / 1)
-            startUp = endUp = 0 #急加速起始帧和终止帧
-            startDown = endDown = 0 #急减速起始帧和终止帧
-            speedUp_list = [] #急加速列表
-            speedDown_list =[] #急减速列表
+            startUp = endUp = 0  # 急加速起始帧和终止帧
+            startDown = endDown = 0  # 急减速起始帧和终止帧
+            speedUp_list = []  # 急加速列表
+            speedDown_list = []  # 急减速列表
             # 遍历加速度列表,找出急加速的起始帧和终止帧
-            for i in range(1,len(accel_list)-1):
+            for i in range(1, len(accel_list)-1):
                 if accel_list[i] >= speedUp_THRESHOLD and accel_list[i-1] >= speedUp_THRESHOLD:
-                    endUp+=1
-                    len_speedUp+=1
+                    endUp += 1
+                    len_speedUp += 1
                 if accel_list[i] >= speedUp_THRESHOLD and accel_list[i-1] < speedUp_THRESHOLD:
-                    startUp = endUp=i
+                    startUp = endUp = i
                     len_speedUp = 1
                 if accel_list[i] < speedUp_THRESHOLD and accel_list[i-1] >= speedUp_THRESHOLD and len_speedUp >= time_THRESHOLD:
-                    speedUp_list.append((startUp, endUp,len_speedUp))
-                    # print(f"急加速发生在车辆 {data[0]['id']} 的第 {data[5*startUp]['seq']} 到第 {data[5*endUp]['seq']} 帧，加速度为 {accel_list[i-1]} m/s^2")  
+                    speedUp_list.append((startUp, endUp, len_speedUp))
+                    # print(f"急加速发生在车辆 {data[0]['id']} 的第 {data[5*startUp]['seq']} 到第 {data[5*endUp]['seq']} 帧，加速度为 {accel_list[i-1]} m/s^2")
                 if accel_list[i] <= speedDown_THRESHOLD and accel_list[i-1] <= speedDown_THRESHOLD:
-                    endDown+=1
-                    len_speedDown+=1
+                    endDown += 1
+                    len_speedDown += 1
                 if accel_list[i] <= speedDown_THRESHOLD and accel_list[i-1] > speedDown_THRESHOLD:
-                    startDown = endDown=i
+                    startDown = endDown = i
                     len_speedDown = 1
                 if accel_list[i] > speedDown_THRESHOLD and accel_list[i-1] <= speedDown_THRESHOLD and len_speedDown >= time_THRESHOLD:
-                    speedDown_list.append((startDown, endDown,len_speedDown))
+                    speedDown_list.append((startDown, endDown, len_speedDown))
                     # print(f"急减速发生在车辆 {data[0]['id']} 的第 {data[5*startDown]['seq']} 到第 {data[5*endDown]['seq']} 帧，加速度为 {accel_list[i-1]} m/s^2")
             if len(speedUp_list) > 0:
-                for i in range(len(speedUp_list)): #将急加速数据存入SpeedUp_data列表中
+                for i in range(len(speedUp_list)):  # 将急加速数据存入SpeedUp_data列表中
                     SpeedUp_data.append({
-                        'type':data[0]['type'],
+                        'type': data[0]['type'],
                         'id': data[0]['id'],
                         'speedUp_time': speedUp_list[i][2],
                         'start_time': data[5*speedUp_list[i][0]]['time_meas'],
@@ -124,10 +210,10 @@ def speedUpDown():
                         'start_velocity': data[5*speedUp_list[i][0]]['velocity'],
                         'end_velocity': data[5*speedUp_list[i][1]]['velocity']
                     })
-            if len(speedDown_list)>0: # 将急减速数据存入SpeedDown_data列表中
+            if len(speedDown_list) > 0:  # 将急减速数据存入SpeedDown_data列表中
                 for i in range(len(speedDown_list)):
                     SpeedDown_data.append({
-                        'type':data[0]['type'],
+                        'type': data[0]['type'],
                         'id': data[0]['id'],
                         'speedDown_time': speedDown_list[i][2],
                         'start_time': data[5*speedDown_list[i][0]]['time_meas'],
@@ -630,9 +716,9 @@ def get_people_Boundry():
 
 #判断车辆的是否存在切入切出的行为，并记录id和发生时间戳
 def car_cross():
-    
-    car_cross_data=[]
-    #获取边界数据，用于画线
+
+    car_cross_data = []
+    # 获取边界数据，用于画线
     boundry_path = './static/data/BoundryRoads/boundry1.json'
     with open(boundry_path, "r", encoding="utf-8") as f:
         boundryRoad = json.load(f)
@@ -642,7 +728,8 @@ def car_cross():
     for folder_name in os.listdir(root_folder_path):
         folder_path = os.path.join(root_folder_path, folder_name)
         # 判断是否为需要处理的文件夹
-        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:#机动车才被检测
+        # 机动车才被检测
+        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:
             continue
         # 获取文件夹中的所有文件
         file_list = os.listdir(folder_path)
@@ -656,7 +743,7 @@ def car_cross():
             time_data=[]   #保存发生时间
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            #获取车辆轨迹
+            # 获取车辆轨迹
             for item in data:
                 pos = json.loads(item['position'])
                 arr = []
@@ -708,7 +795,7 @@ def car_cross():
                     'count':count,
                     'time_arr':time_data
                 })
-    
+
     car_cross_path = './static/data/DataResult/car_cross.json'
     with open(car_cross_path, 'w') as f:
         json.dump(car_cross_data, f) 
@@ -1122,5 +1209,5 @@ def is_moving():
 4. 如果车辆停在停止线前表明当前为红灯
 '''
 if __name__ == '__main__':
-  dataType()
-
+    # dataType()
+    dataTypebytime_meas()
