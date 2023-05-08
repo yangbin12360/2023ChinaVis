@@ -395,7 +395,7 @@ def nomotor_cross():
     with open(nomotor_cross_path, 'w') as f:
         json.dump(nomotor_id, f)
 
-# 将所有机动车数据按照朝向进行分类--拥堵需要分辨不同的朝向（需先在DataProcess文件夹下新建文件夹HeadingData）
+# 将所有机动车数据按照朝向进行分类--拥堵需要分辨不同的朝向（需先在DataProcess文件夹下新建文件夹HeadingData）---朝向可能还需要再讨论
 def heading_type():
     # 朝向阈值
     north_THRESHOLD = [-2.3562, -0.7854]
@@ -521,8 +521,62 @@ def congestion():# 提取拥堵数据
         print(filename+'拥堵数据提取完成')
     with open(Congestion_path, 'a') as f:
         json.dump(Congestion_data, f)
-    
 
+# 提取机动车逆行情况，存到./static/data/DataProcess/reverse.json文件中---朝向可能还需要再讨论
+def reverse():
+    # 设置文件夹路径
+    # 设置朝向阈值
+    threshold = 3.14 #方向相反
+    root_folder_path = 'back/static/data/DataProcess'
+    file_path1 = 'back/static/data/DataProcess/polygons_people.json'
+    reverse_path ='back/static/data/DataProcess/reverse.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        car_polygons = json.load(f)
+    # 遍历根文件夹
+    # 将所有机动车道按照车道编号分组
+    reverse_data=[]
+    car_lane_dict = {}
+    for i in range(len(car_polygons)):
+        car_lane_dict[i] = []
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:#机动车才被检测
+            continue
+        print(folder_path)
+        reverse = [] #存储逆行车辆数据
+        for file_name in os.listdir(folder_path):#对于所有json文件，遍历
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            data=sorted(data, key=operator.itemgetter('time_meas'))#所有数据按照序列号排序
+            line_car=[]#存储当前车出现在过哪条车道-辅助判断逆行-不用于存储数据
+            for i in range(0,len(data),8):# 遍历每s的数据，找出车出现在过哪些车道，并将车辆数据存储到相应的机动车道中
+                pos = json.loads(data[i]['position'])
+                point1 = Point(pos['x'],pos['y'])
+                for j in range(len(car_polygons)):
+                    polygon = car_polygons[j]
+                    if Polygon(polygon).contains(point1) and j not in line_car: #判断该车在哪条机动车道内
+                        line_car.append(j)
+                        car_lane_dict[j].append([data[i]['type'],data[i]['id'],data[i]['heading'],data[i]['time_meas']])                        
+    for i in range(8):#对每个车道的车辆数据进行处理
+        if len(car_lane_dict[i])>0:
+            third_nums = np.array(car_lane_dict[i])[:, 2]  # 提取每个数字的第三个数
+            avg_third_num = np.mean(third_nums)  # 计算平均值
+            for car in car_lane_dict[i]:
+                if abs(car[2] - avg_third_num) > threshold:  # 
+                    reverse.append(car)
+    if len(reverse) > 0:
+        for i in range(len(reverse)): #将急加速数据存入SpeedUp_data列表中
+            reverse_data.append({
+                        'type':reverse[i][0],
+                        'id': reverse[i][1],
+                        'heading': reverse[i][2],
+                        'time': reverse[i][3]
+                    })
+    with open(reverse_path, 'w') as f:
+        json.dump(reverse_data, f)
+    print("Done!")   
 '''
 反推红绿灯时间：
 1. 获取所有道路的方向、停止线所在经纬度
