@@ -285,19 +285,11 @@ def heading_type():
 
 
 # 提取拥堵数据到DataProcess/congestion.json中（需先运行heading_type函数）
-<<<<<<< HEAD
-def congestion():  # 提取拥堵数据
-    time_THRESHOLD = 600  # 时间阈值 10min
-    speed_THRESHOLD = 1.39  # 速度阈值 5km/h
-    Congestion_path = 'back/static/data/DataProcess/congestion.json'  # 拥堵数据存储路径
-    folder = 'back\static\data\DataProcess/HeadingData'
-=======
 def congestion():# 提取拥堵数据
     time_THRESHOLD = 600# 时间阈值 10min
     speed_THRESHOLD = 1.39 # 速度阈值 5km/h
     Congestion_path = 'back/static/data/DataProcess/congestion.json' # 拥堵数据存储路径
     folder = 'D:/2023ChinaVis/back\static\data\DataProcess\HeadingData'
->>>>>>> 762255a7f6fd13a2a75cb83c26f6ecacb4711bf9
     Congestion_data = []
     for filename in os.listdir('D:/2023ChinaVis/back\static\data\DataProcess\HeadingData'):
         with open(os.path.join(folder, filename)) as f:
@@ -1538,10 +1530,5 @@ def getLightData():
 
 if __name__ == '__main__':
     # dataType()
-<<<<<<< HEAD
     getLightData()
     
-=======
-    # dataTypebytime_meas()
-    congestion()
->>>>>>> 762255a7f6fd13a2a75cb83c26f6ecacb4711bf9
