@@ -284,9 +284,9 @@ def congestion():# 提取拥堵数据
     time_THRESHOLD = 600# 时间阈值 10min
     speed_THRESHOLD = 1.39 # 速度阈值 5km/h
     Congestion_path = 'back/static/data/DataProcess/congestion.json' # 拥堵数据存储路径
-    folder = 'back\static\data\DataProcess/HeadingData'
+    folder = 'D:/2023ChinaVis/back\static\data\DataProcess\HeadingData'
     Congestion_data = []
-    for filename in os.listdir('back\static\data\DataProcess/HeadingData'):
+    for filename in os.listdir('D:/2023ChinaVis/back\static\data\DataProcess\HeadingData'):
         with open(os.path.join(folder, filename)) as f:
             data = json.load(f)
         seq_list = [] # 存储序列号
@@ -357,6 +357,7 @@ def congestion():# 提取拥堵数据
         print(filename+'拥堵数据提取完成')
     with open(Congestion_path, 'a') as f:
         json.dump(Congestion_data, f)
+    print("Done!")
 
 
 # 提取机动车逆行情况，存到./static/data/DataProcess/reverse.json文件中---朝向可能还需要再讨论
@@ -1267,4 +1268,5 @@ def is_moving():
 '''
 if __name__ == '__main__':
     # dataType()
-    dataTypebytime_meas()
+    # dataTypebytime_meas()
+    congestion()
