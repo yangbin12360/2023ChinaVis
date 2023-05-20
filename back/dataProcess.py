@@ -1258,13 +1258,7 @@ def is_moving():
     with open(long_time_path, 'w') as f:
         json.dump(long_time_data, f)           
         
-'''
-反推红绿灯时间：
-1. 获取所有道路的方向、停止线所在经纬度
-2. 判断车辆所在道路，以及车速
-3. 判断距离停止线最近的车辆是否在减速/停止前进
-4. 如果车辆停在停止线前表明当前为红灯
-'''
+
 if __name__ == '__main__':
     # dataType()
     dataTypebytime_meas()
