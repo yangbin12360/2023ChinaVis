@@ -8,3 +8,8 @@ export const helloReact = () => {
 export const getJson = () => {
   return post("/getJson");
 };
+
+//获取cosswalkRoad10的json数据
+export const getList= () => {
+  return post("/getList");
+};

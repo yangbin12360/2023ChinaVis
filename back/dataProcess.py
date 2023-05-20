@@ -1267,4 +1267,4 @@ def is_moving():
 '''
 if __name__ == '__main__':
     # dataType()
-    dataTypebytime_meas()
+    dataType()
