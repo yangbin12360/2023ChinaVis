@@ -8,7 +8,7 @@ import car from "../../assets/gltf/testcar.gltf";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 //import sky from '../../assets/fig/sky.jpg';
 import * as TWEEN from "@tweenjs/tween.js";
-import road_background from './static/road_pic/road_background.png';
+//import road_background from './static/road_pic/road_background.png';
 import sky_up from '../../assets/fig/nz.png';
 import sky_right from '../../assets/fig/px.png';
 import sky_left from '../../assets/fig/nx.png';
