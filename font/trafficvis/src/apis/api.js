@@ -8,3 +8,14 @@ export const helloReact = () => {
 export const getJson = () => {
   return post("/getJson");
 };
+
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+export const getTimeJson =(startTime)=>{
+  return post('/getTimeJson',{
+    startTime:startTime
+  })
+}
