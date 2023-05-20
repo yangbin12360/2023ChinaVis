@@ -3,10 +3,6 @@ import Box from "../components/Box/box";
 import MainView from "../components/mainView/mainView"
 import ControlPanel from "../components/controlPanel/controlPanel"
 import './layout.css'
-const style = {
-    background: '#0092ff',
-    padding: '8px 0',
-  };
 
 const Layout = () => {
     
