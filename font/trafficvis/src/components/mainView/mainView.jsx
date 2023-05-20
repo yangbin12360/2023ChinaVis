@@ -3,16 +3,16 @@ import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
-import car from "../../assets/gltf/testcar.glb";
+import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import road_back from "../../assets/road_pic/road_background.jpg";
-import sky_up from "../../assets/road_pic/py.png";
-import sky_right from "../../assets/road_pic/px.png";
-import sky_left from "../../assets/road_pic/nx.png";
-import sky_front from "../../assets/road_pic/nz.png";
-import sky_back from "../../assets/road_pic/pz.png";
-import sky_down from "../../assets/road_pic/ny.png";
+// import road_back from "../../assets/road_pic/road_background.jpg";
+// import sky_up from "../../assets/road_pic/py.png";
+// import sky_right from "../../assets/road_pic/px.png";
+// import sky_left from "../../assets/road_pic/nx.png";
+// import sky_front from "../../assets/road_pic/nz.png";
+// import sky_back from "../../assets/road_pic/pz.png";
+// import sky_down from "../../assets/road_pic/ny.png";
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 

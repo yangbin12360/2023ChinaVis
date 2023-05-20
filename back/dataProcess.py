@@ -1530,5 +1530,11 @@ def getLightData():
 
 if __name__ == '__main__':
     # dataType()
+<<<<<<< HEAD
     getLightData()
     
+=======
+    #getLightData()
+    dataTypebytime_meas()
+    
+>>>>>>> fcb29ed9bda57391d5d58def954c1926302291f9
