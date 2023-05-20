@@ -13,3 +13,14 @@ export const getJson = () => {
 export const getList= () => {
   return post("/getList");
 };
+
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+export const getTimeJson =(startTime)=>{
+  return post('/getTimeJson',{
+    startTime:startTime
+  })
+}

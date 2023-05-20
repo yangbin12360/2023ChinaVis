@@ -8,12 +8,17 @@ import { DownOutlined } from '@ant-design/icons';
 const ContainerHeight = 400; //容器高度
 function TestList() {
   const [data, setData] = useState([]);
+  //type
+  const [typeNum, setType] = useState(-1);
+  const [typemenu, setTypemenu] = useState("选择想要查看的类型");
+  const [listData, setListData] = useState([]);
   //进行数据的增加
   const appendData = () => {
     getList()
       .then((res) => {
         console.log(res);
         setData(data.concat(res));
+        setListData(listData.concat(res));
         //message.success(`${res.length} more items loaded!`);
       });
   };
@@ -90,7 +95,7 @@ function TestList() {
       }
     }
     
-    //判断描述
+    //判断描述(有些类型未改完)
     const description = (item) => {
       if (item.aid == 0){
         return "切入切出次数:"+item.count;
@@ -136,13 +141,10 @@ function TestList() {
       setType(key);
     };
    
-  //type
-  const [typeNum, setType] = useState(-1);
-  const [typemenu, setTypemenu] = useState("选择想要查看的类型");
-  const [listData, setListData] = useState(data);
   useEffect(() => {
     if (typeNum == -1){
-      setTypemenu("选择想要查看的类型");
+      setTypemenu("选择想要查看的参与者类型");
+      setListData(data);
     }
     else if (typeNum == 0){
       setTypemenu("所有类型");
@@ -227,11 +229,11 @@ function TestList() {
         key: '10',
       },
     ];
- 
+    
 
   return (
     <div className='APP'>
-      {/* 下拉框 */}
+      {/* 下拉框事件参与者 */}
       <div><Dropdown
     menu={{
       items,
@@ -245,7 +247,7 @@ function TestList() {
       </Space>
     </a>
   </Dropdown></div>
-      
+ 
 
         {/* 列表 */}
        <List>
@@ -253,14 +255,14 @@ function TestList() {
         data={listData}
         height={ContainerHeight}
         itemHeight={47}
-        itemKey="id"
+        
         // onScroll={onScroll}
       >
         {(item) => (
           //avatar为列表元素的图表
           //description为列表元素的描述内容
           //title为列表元素的标题
-          <List.Item key={item.id}  onClick={clickHandler} >
+          <List.Item   onClick={clickHandler} >
             <List.Item.Meta
               avatar={<div>{activityName(item)}</div>}
               title={<div>{typeName(item)}</div>}
