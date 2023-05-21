@@ -1,8 +1,13 @@
 import React from 'react';
 import * as d3 from 'd3';
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
+import './chordFlow.css'
 
 function ChordFlow(){
+    const [tipyFlag,setTipyFlag] = useState(false);
+    const [tipyContent,setTipyContent] = useState("");
+    const [tipyX,setTipyX] = useState('0px');
+    const [tipyY,setTipyY] = useState('0px');
     function drawChord(){
         var width = 450;
         var height = 450;
@@ -101,7 +106,8 @@ function ChordFlow(){
             .on("mouseout",fade(1));   // 1.0完全不透明
 
         g_inner.selectAll("path")
-            .on("mouseover",innertipy());
+            .on("mouseover",innertipy(true))
+            .on("mouseout",innertipy(false));
 
         //交互操作，鼠标移到该节点只会显示与节点相接的弦，其他弦会被隐藏
         function fade(opacity){
@@ -115,18 +121,32 @@ function ChordFlow(){
                         .style("opacity",opacity);
             }
         }
-        function innertipy(){
-            return function(g,i){
-                console.log(i);
-                if(i.source.index != i.target.index){
-                    console.log("出："+i.source.value+"进"+i.target.value);
-                    
+        function innertipy(flag){
+            if(flag == true){
+                return function(g,i){
+                    console.log(g);
+                    setTipyFlag(flag);
+                    if(i.source.index != i.target.index){
+                        console.log("出："+i.source.value+"进："+i.target.value);
+                        setTipyContent( "出："+i.source.value+"进："+i.target.value);
+                        setTipyX(g.offsetX+'px');
+                        console.log(tipyX);
+                        setTipyY(g.offsetY+'px');
+                    }
+                    else{
+                        setTipyFlag(flag);
+                        console.log("掉头:"+i.source.value);
+                        setTipyContent("掉头:"+i.source.value);
+                        setTipyX(g.offsetX+'px');
+                        setTipyY(g.offsetY+'px');
+                    }
+    
                 }
-                else{
-                    console.log("掉头:"+i.source.value);
-                }
-
             }
+            else return function(){
+                setTipyFlag(flag);
+            }
+           
         }
 
     }
@@ -136,12 +156,18 @@ function ChordFlow(){
     useEffect(() => {
         drawChord();
     },[])
-   
 
     return (
-        <div id="flow_div">
+        <div>
+        <div id="flow_div" style={{position:'absolute'}}>
+        {/* 提示框 */}
+        {tipyFlag ? <div className ="tip" id="flow_tip" 
+        style={{width:"150px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center'}}>
+            {tipyContent}
+            </div> : null }
 
         </div>
+         </div>
         );
 }
 
