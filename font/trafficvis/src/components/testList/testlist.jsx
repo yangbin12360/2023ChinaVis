@@ -73,19 +73,19 @@ function TestList() {
         return "非机动车异常行为";
       }
       else if (item.aid == 3){
-        return "行人异常行为";
+        return "超速";
       }
       else if (item.aid == 4){
-        return "行人";
+        return "行人异常行为";
       }
       else if (item.aid == 5){
-        return "行人";
+        return "逆行";
       }
       else if (item.aid == 6){
-        return "行人";
+        return "急减速";
       }
       else if (item.aid == 7){
-        return "行人";
+        return "急加速";
       }
       else if (item.aid == 8){
         return "行人";
@@ -107,19 +107,19 @@ function TestList() {
         return "非机动车异常行为时间段："+item.time_arr;
       }
       else if (item.aid == 3){
-        return "行人异常行为时间段："+item.time_arr;
+        return "超速速度："+item.mean_velo;
       }
       else if (item.aid == 4){
-        return "行人";
+        return "行人异常行为时间段："+item.time_arr;
       }
       else if (item.aid == 5){
-        return "行人";
+        return "逆行时间："+item.time;
       }
       else if (item.aid == 6){
-        return "行人";
+        return "急减速:"+item.end_velocity;
       }
       else if (item.aid == 7){
-        return "行人";
+        return "急加速:"+item.end_velocity;
       }
       else if (item.aid == 8){
         return "行人";
