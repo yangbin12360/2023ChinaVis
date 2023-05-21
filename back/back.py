@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 import json
+import numpy as np
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -24,6 +25,18 @@ def getJson():
     #时间戳排序
     res["car"] = sorted(data1, key=lambda x: x['time_meas'])
     res["car2"] = sorted(data2, key=lambda x: x['time_meas'])
+    return res
+
+@app.route('/getList',methods=["POST"])
+def getList():
+   
+    with open('../back/static/data\DataProcess/merged_data.json ')as f:
+        data = json.load(f)
+        res = data[0]+data[1]+data[2]+data[3]
+        # print(data)
+    
+    #时间戳排序
+
     return res
 
 #按照时间戳获取交通参与者数据

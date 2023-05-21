@@ -1,20 +1,20 @@
-import React, { useRef, useEffect } from "react"; // 导入 React 和 useRef 和 useEffect hooks
+import React, { useRef, useEffect,useState } from "react"; // 导入 React 和 useRef 和 useEffect hooks
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
-import car from "../../assets/gltf/testcar.glb";
+import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
-import road_back from "../../assets/road_pic/road_background.jpg";
-import sky_up from "../../assets/road_pic/py.png";
-import sky_right from "../../assets/road_pic/px.png";
-import sky_left from "../../assets/road_pic/nx.png";
-import sky_front from "../../assets/road_pic/nz.png";
-import sky_back from "../../assets/road_pic/pz.png";
-import sky_down from "../../assets/road_pic/ny.png";
+//import sky from '../../assets/fig/sky.jpg';
 import * as TWEEN from "@tweenjs/tween.js";
+//import road_background from './static/road_pic/road_background.png';
+import sky_up from '../../assets/fig/nz.png';
+import sky_right from '../../assets/fig/px.png';
+import sky_left from '../../assets/fig/nx.png';
+import sky_front from '../../assets/fig/ny.png';
+import sky_back from '../../assets/fig/py.png';
+import sky_down from '../../assets/fig/pz.png';
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -210,44 +210,43 @@ const TestThree = ({}) => {
       );
       currentCoordIndex2 = index;
       const tween2 = new TWEEN.Tween(positions2[currentCoordIndex2])
-        .to(positions2[currentCoordIndex2 + 1], 200)
-        .onUpdate((positions2) => {
-          // 更新模型的位置
-          model2.position.copy(positions2);
-        })
-        .onComplete(() => {
-          // 当 tween 对象完成时，递归调用 moveModel 函数
-          moveModel2(currentCoordIndex2 + 1);
-        })
-        .start(); // 开始 tween 动画
-    }; //创建天空盒  （6张图片都需要换）
-    // scene.background = new THREE.CubeTextureLoader().load([
-    //   sky_right,
-    //   sky_left,
-    //   sky_up,
-    //   sky_down,
-    //   sky_back,
-    //   sky_front,
-    // ]); // 创建一个地面
-    // function createPlaneGeometryBasicMaterial() {
-    //   var textureLoader = new THREE.TextureLoader();
-    //   var cubeMaterial = new THREE.MeshStandardMaterial({
-    //     map: textureLoader.load(road_back),
-    //   });
-    //   cubeMaterial.map.wrapS = THREE.RepeatWrapping;
-    //   cubeMaterial.map.wrapT = THREE.RepeatWrapping;
-    //   cubeMaterial.map.repeat.set(8, 8); // 创建地平面并设置大小
-    //   var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
-    //   var plane = new THREE.Mesh(planeGeometry, cubeMaterial); // 设置平面位置并旋转
-
-    //   plane.rotation.x = -0.5 * Math.PI;
-    //   plane.position.x = 0;
-    //   plane.position.y = 10;
-    //   plane.position.z = 0;
-    //   return plane;
-    // } // 将平面添加到场景中
-    // var plane = createPlaneGeometryBasicMaterial();
-    // scene.add(plane);
+      .to(positions2[currentCoordIndex2 + 1], 200)
+      .onUpdate((positions2) => {
+        // 更新模型的位置
+        model2.position.copy(positions2)
+      })
+      .onComplete(() => {
+        // 当 tween 对象完成时，递归调用 moveModel 函数
+        moveModel2(currentCoordIndex2 + 1);
+      })
+      .start(); // 开始 tween 动画
+    }
+    //创建天空盒  （6张图片都需要换）
+     scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    //         scene.background = new THREE.CubeTextureLoader().load([sky,sky,sky,sky,sky,sky]);
+    //         // 创建一个地面
+    //         function createPlaneGeometryBasicMaterial() {
+    //           var textureLoader = new THREE.TextureLoader();
+    //           var cubeMaterial = new THREE.MeshStandardMaterial({
+    //             map: textureLoader.load(sky),
+    //           });
+    //           cubeMaterial.map.wrapS = THREE.RepeatWrapping;
+    //           cubeMaterial.map.wrapT = THREE.RepeatWrapping;
+    //           cubeMaterial.map.repeat.set(8, 8)
+    //           // 创建地平面并设置大小
+    //           var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+    //           var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
+    
+    //           // 设置平面位置并旋转
+    //           plane.rotation.x = -0.5 * Math.PI;
+    //           plane.position.x = 0;
+    //           plane.position.y = 10;
+    //           plane.position.z = 0;
+    //           return plane;
+    //         }
+    //         // 将平面添加到场景中
+    //         var plane = createPlaneGeometryBasicMaterial();
+    //         scene.add(plane);
     // 渲染循环
     const animate = () => {
       requestAnimationFrame(animate);

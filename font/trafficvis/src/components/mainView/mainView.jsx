@@ -4,7 +4,7 @@ import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
-import car from "../../assets/gltf/testcar.glb";
+import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 // import road_back from "../../assets/road_pic/road_background.jpg";
