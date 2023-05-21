@@ -9,6 +9,110 @@ from alive_progress import alive_bar
 import time
 import numpy as np
 
+def check_contraflow(road_file, road_direction): # 检查逆行行为
+    north_THRESHOLD = [1.0, 1.2]
+    south_THRESHOLD = [-1.97, -1.95]
+    east_THRESHOLD = [-0.6,-0.5]
+    west_THRESHOLD = [2.5,2.6]
+    reverse=[]
+    if road_direction == 'north':
+        threshold = south_THRESHOLD
+    elif road_direction == 'south':
+        threshold = north_THRESHOLD
+    elif road_direction == 'east':
+        threshold = west_THRESHOLD
+    elif road_direction == 'west':
+        threshold = east_THRESHOLD
+    else:
+        return
+
+    with open(road_file, 'r') as f:
+        data = json.load(f)
+
+    for timestamp, vehicles in data.items():
+        for vehicle in vehicles:
+            heading = vehicle['heading']
+            if threshold[0] <= heading <= threshold[1]:
+                print("逆行行为：", vehicle['id'], "时间：", timestamp)
+                reverse.append(vehicle)
+    nomotor_cross_path = os.path.join(f'{road_file}.json')
+    with open(nomotor_cross_path, 'w') as f:
+        json.dump(reverse, f)
+
+def reverse_new(): #判断每条车道的朝向，并提取逆行行为
+    west_road=['part1442','part1443','part1444','part1445','part1910_1','part1910_2','part1911','part1912','part1934']
+    east_road=['part1446','part1447','part1448','part1449','part1450','part1898_1','part1898_2','part1900','part1901']
+    north_road=['part1436_3','part1972','part1973','part1974','part3487','part1957_3','part1957_4']
+    south_road=['part1935','part1436_4','part1955','part1956','part1975_1','part1975_2','part1977','part1978']
+    # 遍历文件夹中的JSON文件
+    folder_path = 'back\static\data\DataProcess\\roadData'  # 文件夹路径
+    json_files = [f for f in os.listdir(folder_path) if f.endswith('.json')]
+    for json_file in json_files:
+        road_direction = None
+        if any(json_file.startswith(rd) for rd in west_road):
+            road_direction = 'west'
+        elif any(json_file.startswith(rd) for rd in east_road):
+            road_direction = 'east'
+        elif any(json_file.startswith(rd) for rd in north_road):
+            road_direction = 'north'
+        elif any(json_file.startswith(rd) for rd in south_road):
+            road_direction = 'south'
+        if road_direction:
+            road_file = os.path.join(folder_path, json_file)
+            check_contraflow(road_file, road_direction)
+
+def calculate_average_speed(json_file):#每个车道按时间排序的平均速度
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+
+    speeds = []
+    sorted_data = sorted(data.items(), key=lambda x: datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S"))
+    for timestamp, vehicles in sorted_data:
+        average_speed = sum(vehicle["velocity"] for vehicle in vehicles) / len(vehicles)
+        speeds.append((timestamp, average_speed))
+
+    return speeds
+
+def find_traffic_congestion(speeds, lane_name):#找出当前车道的拥堵数据
+    congested_periods = []
+    start_time = None
+
+    for timestamp, speed in speeds:
+        current_time = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+
+        if speed < 1.39:
+            if start_time is None:
+                start_time = current_time
+        else:
+            if start_time is not None:
+                end_time = current_time
+                duration = end_time - start_time
+
+                if duration >= timedelta(minutes=10):
+                    congested_periods.append((lane_name, start_time, end_time))
+
+                start_time = None
+
+    return congested_periods
+def congestion_process(): #拥堵处理函数
+    folder_path = 'back\static\data\DataProcess\\roadData'  # Replace with the actual folder path
+    output_file = 'congested_periods.json'  # Replace with the desired output file path
+    congested_periods = []
+
+    # Iterate over files in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".json"):
+            file_path = os.path.join(folder_path, filename)
+            lane_name = os.path.splitext(filename)[0]  # Extract lane name from the file name
+            speeds = calculate_average_speed(file_path)
+            congested_periods.extend(find_traffic_congestion(speeds, lane_name))
+
+    # Write congested periods to JSON file
+    with open(output_file, 'w') as f:
+        json.dump(congested_periods, f, default=str, indent=4)
+
+    print("Congested periods saved to:", output_file)
+
 # 对数据按照类型和id进行分组
 
 
