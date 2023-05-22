@@ -28,12 +28,6 @@ const Layout = () => {
               component={<ControlPanel timeStamp={timeStamp} handleChangeTime={handleChangeTime}></ControlPanel>}
             ></Box>
           </div>
-          <div style={{ height: "34%" }}>
-            <Box title={"ControlPanel"}></Box>
-          </div>
-          <div style={{ height: "33%" }}>
-            <Box title={"ControlPanel"}></Box>
-          </div>
           <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div>
           <div style={{ height: "33%" }}><Box title={"ControlPanel"}></Box></div>
         </Col>
@@ -42,7 +36,6 @@ const Layout = () => {
             <Box title={"MainView"} component={<MainView  timeStamp={timeStamp}></MainView>}></Box>
           </div>
           <div style={{ height: "33%" }}>
-            <Box title={"ControlPanel"}></Box>
           </div>
         </Col>
         <Col span={5} id="right">

@@ -86,7 +86,7 @@ export const sixtyList =[
     { value: "57", label: "57" },
     { value: "58", label: "58" },
     { value: "59", label: "59" },
-    { value: "50", label: "60" },
+    { value: "60", label: "60" },
     
 ]
 

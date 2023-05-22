@@ -1,13 +1,23 @@
 import json
 import os
 import operator
-from shapely.geometry import LineString, MultiLineString, Point, Polygon
+# from shapely.geometry import LineString, MultiLineString, Point, Polygon
 import random
-from shapely.ops import linemerge
-from shapely.ops import polygonize
+# from shapely.ops import linemerge
+# from shapely.ops import polygonize
 from alive_progress import alive_bar
 import time
 import numpy as np
+import math
+import csv
+import pandas as pd
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import SimpleImputer
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
     north_THRESHOLD = [1.0, 1.2]
@@ -1630,9 +1640,184 @@ def getLightData():
     f = open("./static/data/DataProcess/allLineRun.json", "w")
     json.dump(allTime, f)
 
+#群体性驾驶行为变化趋势分析
+#统计特征提取
+def featureExtraction(startTime):
+    # startTime = 1681315196
+    pathList = []
+    #每30分钟交通参与者提取
+    for i in range(0,600):
+        fileName = str(i+startTime)+'.0.json'
+        pathList.append(fileName)
+    res = {}
+    for path in pathList:
+        with open('../back/static/data\DataProcess/time_meas/'+path,'r') as f:
+            data = json.load(f)
+            # 遍历数据，根据id进行分组
+            for item in data:
+                if item['type'] == 1 or item['type'] == 2 or item['type'] == 4 or item['type'] == 6 or item['type'] == 10 :  
+                    id = item.get('id')  
+                    if id not in res:
+                        res[id] = []
+                    res[id].append(item)
+    newRes = {}
+    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计30分钟
+    for id in res:
+        positionList = []
+        vList = []
+        oList = []
+        newRes[id]={}
+        for item in res[id]:
+            vList.append(item["velocity"])
+            oList.append(item["orientation"])
+            positionList.append(item["position"])
+        newRes[id]["position"] = positionList
+        newRes[id]["v"] = vList
+        newRes[id]["o"] = oList
+        newRes[id]["type"] = res[id][0]["type"]
+    #提取加速度
+    for id in newRes:
+        aList = []
+        idL = len(newRes[id]["v"])
+        lastIndex = math.ceil(idL/5)
+        for i in range(0,lastIndex):
+            if i != lastIndex-1:
+                aList.append(newRes[id]["v"][(i+1)*5-1]-newRes[id]["v"][i*5])
+        newRes[id]["a"] = aList
+    #统计特征提取
+    for id in newRes:
+        #平均速度
+        newRes[id]["v_mean"] = np.mean(newRes[id]["v"])
+        #最大速度
+        newRes[id]["v_max"] = np.max(newRes[id]["v"])
+        #最小速度
+        newRes[id]["v_min"] = np.min(newRes[id]["v"])
+        #速度标准差
+        newRes[id]["v_std"] = np.std(newRes[id]["v"])
+        #加速度标准差
+        newRes[id]["a_std"] = np.std(newRes[id]["a"])
+        #朝向标准差
+        newRes[id]["o_std"] = np.std(newRes[id]["o"])
+        #位置聚集程度：1.求各个坐标的几何中心 2.求各个坐标到几何中心的距离 3.求距离的平均值
+        xList = []
+        yList = []
+        for position in newRes[id]["position"]:
+            position = json.loads(position)
+            xList.append(position["x"])
+            yList.append(position["y"])
+        x_mean = np.mean(xList)
+        y_mean = np.mean(yList)
+        distanceList = []
+        for i in range(0,len(xList)):
+            distanceList.append(math.sqrt((xList[i]-x_mean)**2+(yList[i]-y_mean)**2))
+        newRes[id]["distance_mean"] = np.mean(distanceList)
+    #将newRes写入csv文件
+    with open("../back\static\data\DataProcess/10m/feature_extraction/"+str(startTime)+".csv","w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["id","type","v_mean","v_max","v_min","v_std","a_std","o_std","distance_mean"])
+        for id in newRes:
+            writer.writerow([id,newRes[id]["type"],newRes[id]["v_mean"],newRes[id]["v_max"],newRes[id]["v_min"],newRes[id]["v_std"],newRes[id]["a_std"],newRes[id]["o_std"],newRes[id]["distance_mean"]])
+#对time_meas文件夹下的所有文件每300个文件进行特征提取
+def featureAll():
+    file_list = os.listdir('../back/static/data\DataProcess/time_meas')
+    file_count = len(file_list)
+    startTime = 1681315196
+    for i in range(0,math.ceil(file_count/600)):
+        featureExtraction(startTime)
+        startTime += 600
 
+#对提取的特征做归一化处理
+def csvNormalization():
+    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
+        id_type_cols = df[['id', 'type']]  # 保留'id'和'type'列
+        df_numeric = df.select_dtypes(include=[float, int])  # 选择数值型列并排除'id'和'type'
+        scaler = MinMaxScaler()
+        df_normalized = pd.DataFrame(scaler.fit_transform(df_numeric), columns=df_numeric.columns)
+        df_normalized[['id', 'type']] = id_type_cols  # 将保留的'id'和'type'列重新添加到归一化后的DataFrame
+        df_normalized.to_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file, index=False)
+
+#对三个速度进行降维
+def dimReduction():
+    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
+        features = df[['v_min', 'v_max', 'v_mean']]
+        pca = PCA(n_components=1)
+        principalComponents = pca.fit_transform(features)
+        # 将降维后的主成分添加到原始数据框中，此处我们将新的主成分列命名为'v_pca'
+        df['v_pca'] = principalComponents
+        df = df.drop(['v_min', 'v_max', 'v_mean'], axis=1)
+        df.to_csv('../back/static/data\DataProcess/10m/feature_extraction_dim/' + file +'.csv', index=False)
+
+#对csv文件中的缺值进行填充
+def fillNan():
+    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
+        # 填充缺失值，此处使用均值进行填充
+        imputer = SimpleImputer(strategy='constant', fill_value=0)
+        df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+        df_imputed.to_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file, index=False)
+        print(111)
+#对归一化后的特征实现k-means聚类
+def kmeans():
+    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction_dim')
+    nameTime = 300
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction_dim/' + file)
+        df.drop(['v_std'],axis=1,inplace=True)
+        df.dropna(inplace=True)
+        features = df[['v_pca', 'a_std', 'o_std', 'distance_mean']]
+        kmeans = KMeans(n_clusters=3)
+        kmeans.fit(features)
+        df['cluster'] = kmeans.labels_
+        df.to_csv('../back/static/data\DataProcess/10m/cluster_results/'+ str(nameTime) +'s.csv', index=False)
+        nameTime += 300
+
+#对归一化后的特征实现DBSCAN聚类
+def forDbscan():
+    file_list = os.listdir('../back/static/data\DataProcess/feature_extraction_dim')
+    nameTime = 0.5
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/feature_extraction_dim/' + file)
+        features = df[['v_pca', 'v_std', 'a_std', 'o_std', 'distance_mean']]
+        # DBSCAN聚类
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        df['cluster'] = dbscan.fit_predict(features)
+        df.to_csv('../back/static/data\DataProcess/cluster_results_dbscan/'+ str(nameTime) +'h.csv', index=False)
+        nameTime += 0.5
+
+#对聚类结果进行降维
+def dimReduction_cluster():
+    file_list = os.listdir('../back/static/data\DataProcess/10m/cluster_results')
+    startR = 300
+    for file in file_list:
+        data = pd.read_csv('../back/static/data/DataProcess/10m/cluster_results/'+ str(startR) +'s.csv')
+        features = data[['v_pca', 'a_std', 'o_std', 'distance_mean']]
+        pca = PCA(n_components=2)
+        reduced_features = pca.fit_transform(features)
+        reduced_data = pd.DataFrame(data=reduced_features, columns=['x', 'y'])
+        reduced_data['cluster'] = data['cluster']
+        reduced_data['type'] = data['type']
+        reduced_data['id'] = data['id']
+    # 保存降维结果到新的CSV文件
+        reduced_data.to_csv('../back/static/data\DataProcess/10m/pca_results/'+ str(startR) +'s.csv', index=False)
+        startR += 300
+    # 绘制降维结果的散点图
+        plt.scatter(reduced_data['x'], reduced_data['y'], c=reduced_data['cluster'])
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('K-means Clustering Result')
+        plt.show()
 
 if __name__ == '__main__':
     # dataType()
-    getLightData()
-    
+    # 驾驶行为
+    # featureAll()
+    # csvNormalization()
+    # dimReduction()
+    # fillNan()
+    # kmeans()
+    dimReduction_cluster()
