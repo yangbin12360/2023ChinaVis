@@ -1,13 +1,20 @@
-import React, { useRef, useEffect } from "react"; // 导入 React 和 useRef 和 useEffect hooks
+import React, { useRef, useEffect,useState } from "react"; // 导入 React 和 useRef 和 useEffect hooks
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
-import car from "../../assets/gltf/testcar.glb";
+import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import sky from '../../assets/fig/sky.jpg';
+//import sky from '../../assets/fig/sky.jpg';
 import * as TWEEN from "@tweenjs/tween.js";
+//import road_background from './static/road_pic/road_background.png';
+// import sky_up from '../../assets/fig/nz.png';
+// import sky_right from '../../assets/fig/px.png';
+// import sky_left from '../../assets/fig/nx.png';
+// import sky_front from '../../assets/fig/ny.png';
+// import sky_back from '../../assets/fig/py.png';
+// import sky_down from '../../assets/fig/pz.png';
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -57,18 +64,18 @@ const TestThree = ({}) => {
     light.position.set(5, 1, 1);
     // scene.add(light);
     const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-scene.add(ambient);
+    scene.add(ambient);
     /**GLTF模型导入 */
     // 导入地图模型
     const loader = new GLTFLoader();
-    loader.load(traffic, (gltf) => {
-      gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
-      gltf.scene.position.set(move.x, move.y, move.z);
-      // 返回的场景对象gltf.scene插入到threejs场景中
-      scene.add(gltf.scene);
-    });
+    // loader.load(traffic, (gltf) => {
+    //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
+    //   gltf.scene.position.set(move.x, move.y, move.z);
+    //   // 返回的场景对象gltf.scene插入到threejs场景中
+    //   scene.add(gltf.scene);
+    // });
     // 导入小车模型
-    let model1,model2;
+    let model1, model2;
     loader.load(car, (gltf) => {
       model1 = gltf.scene.clone();
       model2 = gltf.scene.clone();
@@ -117,10 +124,10 @@ scene.add(ambient);
         }
       });
     };
-    // handleGeoJSON(data[mapName[0]]);
-    // handleGeoJSON(data[mapName[1]]);
-    // handleGeoJSON(data[mapName[2]]);
-    // handleGeoJSON(data[mapName[4]]);
+    handleGeoJSON(data[mapName[0]]);
+    handleGeoJSON(data[mapName[1]]);
+    handleGeoJSON(data[mapName[2]]);
+    handleGeoJSON(data[mapName[4]]);
     /**小车轨迹绘制 */
     let positions = []; //位置坐标
     let indexArr = []; //位置索引
@@ -157,7 +164,7 @@ scene.add(ambient);
         timeStamps2.push(car.time_meas);
       }
     });
-    console.log("positions2",positions2);
+    console.log("positions2", positions2);
     //创建小车轨迹
     const material = new THREE.LineBasicMaterial({
       color: "green",
@@ -181,7 +188,7 @@ scene.add(ambient);
         .to(positions[currentCoordIndex + 1], 200)
         .onUpdate((positions) => {
           // 更新模型的位置
-          model1.position.copy(positions)
+          model1.position.copy(positions);
         })
         .onComplete(() => {
           // 当 tween 对象完成时，递归调用 moveModel 函数
@@ -190,12 +197,17 @@ scene.add(ambient);
         .start(); // 开始 tween 动画
     };
     let currentCoordIndex2 = 0;
-    const moveModel2 = (index)=>{
+    const moveModel2 = (index) => {
       if (index >= positions2.length - 1) {
-        destroyModel(model2,scene);
+        destroyModel(model2, scene);
         return;
       }
-      console.log("car2第",index,"次的时间为：",converTimestamp(timeStamps2[index]));
+      console.log(
+        "car2第",
+        index,
+        "次的时间为：",
+        converTimestamp(timeStamps2[index])
+      );
       currentCoordIndex2 = index;
       const tween2 = new TWEEN.Tween(positions2[currentCoordIndex2])
       .to(positions2[currentCoordIndex2 + 1], 200)
@@ -209,7 +221,8 @@ scene.add(ambient);
       })
       .start(); // 开始 tween 动画
     }
-     //创建天空盒  （6张图片都需要换）
+    //创建天空盒  （6张图片都需要换）
+    //  scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     //         scene.background = new THREE.CubeTextureLoader().load([sky,sky,sky,sky,sky,sky]);
     //         // 创建一个地面
     //         function createPlaneGeometryBasicMaterial() {
@@ -241,7 +254,7 @@ scene.add(ambient);
       TWEEN.update();
       renderer.render(scene, camera);
     };
-    animate()
+    animate();
 
     //创建一个控制器，控制器会自动绑定到相机上
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -256,30 +269,31 @@ scene.add(ambient);
 };
 
 //16位时间戳转换
-const converTimestamp = (timestamp)=>{
-    // 将微秒时间戳转换为毫秒
-    const milliseconds = timestamp / 1000;
+const converTimestamp = (timestamp) => {
+  // 将微秒时间戳转换为毫秒
+  const milliseconds = timestamp / 1000;
 
-    // 使用毫秒时间戳创建一个新的 Date 对象
-    const date = new Date(milliseconds);
-  
-    // 返回日期和时间字符串
-    return date.toLocaleString('en-US', { hour12: false });
-}
+  // 使用毫秒时间戳创建一个新的 Date 对象
+  const date = new Date(milliseconds);
+
+  // 返回日期和时间字符串
+  return date.toLocaleString("en-US", { hour12: false });
+};
+
 // 生成多个模型实例，目前针对单一类型
-const createModels = (modelNum,scene,gltf) =>{
+const createModels = (modelNum, scene, gltf) => {
   //存放多个模型实例
-  let instanceArray = []
-  for(let i=0;i<modelNum;i++){
+  let instanceArray = [];
+  for (let i = 0; i < modelNum; i++) {
     const instance = gltf.scene.clone();
-    instance.name = 'car${i}'
+    instance.name = "car${i}";
     instanceArray.push(instance);
     scene.add(instance);
   }
   return instanceArray;
-}
+};
 //移动坐标存放,还得改
-const movePositions =(data)=>{
+const movePositions = (data) => {
   let positions = []; //位置坐标
   let indexArr = []; //位置索引
   let indexCar = 0; //小车索引
@@ -297,13 +311,13 @@ const movePositions =(data)=>{
       timeStamps.push(car.time_meas);
     }
   });
-  return [positions,indexArr,timeStamps];
-}
+  return [positions, indexArr, timeStamps];
+};
 //销毁模型
-const destroyModel = (model,scene)=>{
-   // 从场景中移除模型
-   scene.remove(model);
-     // 释放模型的几何体、材质和纹理资源
+const destroyModel = (model, scene) => {
+  // 从场景中移除模型
+  scene.remove(model);
+  // 释放模型的几何体、材质和纹理资源
   model.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       child.geometry.dispose();
@@ -311,5 +325,5 @@ const destroyModel = (model,scene)=>{
       if (child.material.map) child.material.map.dispose();
     }
   });
-}
+};
 export default TestThree; // 导出 Polygon 组件

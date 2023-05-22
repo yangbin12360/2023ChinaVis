@@ -1,0 +1,12 @@
+.mainView {
+    width: 100vw;
+    height: 30vh;
+    position: relative;
+}
+
+.mainView .timeMsg {
+    width: 150px;
+    height: 20px;
+    position: absolute;
+    background-color: pink;
+}
