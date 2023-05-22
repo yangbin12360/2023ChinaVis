@@ -201,8 +201,8 @@ def Overspeeding():
     # 提取机动车超速情况，存到./static/data/DataProcess/overSpeeding.json文件中
     # 设置文件夹路径
     speed_THRESHOLD = 16.7 # 设置速度阈值为60km/h 所有车道限速都是60km/h
-    root_folder_path = './static/data/DataProcess'
-    overSpeeding_path = './static/data/DataProcess/overSpeeding.json'
+    root_folder_path = 'back/static/data/DataProcess'
+    overSpeeding_path = 'back/static/data/DataProcess/overSpeeding.json'
     overSpeeding_data = []
     # 遍历根文件夹
     for folder_name in os.listdir(root_folder_path):
@@ -217,7 +217,7 @@ def Overspeeding():
                 data = json.load(f)
             if(len(data) < 5):  # 文件中低于5帧的数据不处理
                 continue
-            # data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
             velo_list=[]
             for item in data:
                 velo_list.append(item['velocity'])
@@ -475,9 +475,9 @@ def reverse():
     # 设置文件夹路径
     # 设置朝向阈值
     threshold = 3.14 #方向相反
-    root_folder_path = './static/data/DataProcess'
-    file_path1 = './static/data/BoundryRoads/polygons_people.json'  #存着所有机动车道的坐标
-    reverse_path ='./static/data/DataResult/reverse.json'
+    root_folder_path = 'back/static/data/DataProcess'
+    file_path1 = 'back/static/data/BoundryRoads/polygons_people.json'  #存着所有机动车道的坐标
+    reverse_path ='back/static/data/DataResult/reverse.json'
     with open(file_path1, "r", encoding="utf-8") as f:
         car_polygons = json.load(f)
     # 遍历根文件夹
@@ -498,7 +498,7 @@ def reverse():
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            # data=sorted(data, key=operator.itemgetter('time_meas'))#所有数据按照序列号排序
+            data=sorted(data, key=operator.itemgetter('time_meas'))#所有数据按照序列号排序
             line_car=[]#存储当前车出现在过哪条车道-辅助判断逆行-不用于存储数据
             for i in range(0,len(data),8):# 遍历每s的数据，找出车出现在过哪些车道，并将车辆数据存储到相应的机动车道中
                 pos = json.loads(data[i]['position'])
@@ -507,7 +507,7 @@ def reverse():
                     polygon = car_polygons[j]
                     if Polygon(polygon).contains(point1) and j not in line_car:  # 判断该车在哪条机动车道内
                         line_car.append(j)
-                        car_lane_dict[j].append([data[i]['type'],data[i]['id'],data[i]['heading'],data[i]['time_meas'],j])                        
+                        car_lane_dict[j].append([data[i]['type'],data[i]['id'],data[i]['heading'],data[i]['time_meas']])                        
     for i in range(8):#对每个车道的车辆数据进行处理
         if len(car_lane_dict[i])>0:
             third_nums = np.array(car_lane_dict[i])[:, 2]  # 提取每个数字的第三个数
@@ -521,8 +521,7 @@ def reverse():
                         'type':reverse[i][0],
                         'id': reverse[i][1],
                         'heading': reverse[i][2],
-                        'time': reverse[i][3],
-                        'road': reverse[i][4]
+                        'time': reverse[i][3]
                     })
     with open(reverse_path, 'w') as f:
         json.dump(reverse_data, f)
