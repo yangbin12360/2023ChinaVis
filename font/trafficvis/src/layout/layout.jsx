@@ -6,6 +6,7 @@ import ControlPanel from "../components/controlPanel/controlPanel";
 import "./layout.css";
 import TestList from "../components/testList/testlist"
 import ChordFlow from "../components/chordFlow/chordFlow";
+import RelationshipScene from "../components/relationshipScene/relationshipScene";
 const style = {
     background: '#0092ff',
     padding: '8px 0',
@@ -29,13 +30,14 @@ const Layout = () => {
             ></Box>
           </div>
           <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div>
-          <div style={{ height: "33%" }}><Box title={"ControlPanel"}></Box></div>
+          <div style={{ height: "33%" }}><Box title={"ControlPanel"} ></Box></div>
         </Col>
         <Col span={14} id="middle">
           <div style={{ height: "67%" }}>
             <Box title={"MainView"} component={<MainView  timeStamp={timeStamp}></MainView>}></Box>
           </div>
           <div style={{ height: "33%" }}>
+            <Box title={"relationshipScene"}  component = {<RelationshipScene></RelationshipScene>}></Box>
           </div>
         </Col>
         <Col span={5} id="right">

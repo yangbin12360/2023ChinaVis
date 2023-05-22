@@ -4,16 +4,15 @@ import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
-import car from "../../assets/gltf/testcar.glb";
+import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-// import road_back from "../../assets/road_pic/road_background.jpg";
-// import sky_up from "../../assets/road_pic/py.png";
-// import sky_right from "../../assets/road_pic/px.png";
-// import sky_left from "../../assets/road_pic/nx.png";
-// import sky_front from "../../assets/road_pic/nz.png";
-// import sky_back from "../../assets/road_pic/pz.png";
-// import sky_down from "../../assets/road_pic/ny.png";
+import sky_up from '../../assets/fig/nz.png';
+import sky_right from '../../assets/fig/px.png';
+import sky_left from '../../assets/fig/nx.png';
+import sky_front from '../../assets/fig/ny.png';
+import sky_back from '../../assets/fig/py.png';
+import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 
@@ -73,7 +72,8 @@ const MainView = (props) => {
     setLoader(loader);
     setCamera(camera);
     setRenderer(renderer);
-    //创建天空盒  （6张图片都需要换）
+    //创建天空盒  
+    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,

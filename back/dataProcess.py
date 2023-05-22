@@ -210,7 +210,7 @@ def dataTypebytime_meas():
 def Overspeeding():
     # 提取机动车超速情况，存到./static/data/DataProcess/overSpeeding.json文件中
     # 设置文件夹路径
-    speed_THRESHOLD = 16.7  # 设置速度阈值为60km/h 所有车道限速都是60km/h
+    speed_THRESHOLD = 16.7 # 设置速度阈值为60km/h 所有车道限速都是60km/h
     root_folder_path = 'back/static/data/DataProcess'
     overSpeeding_path = 'back/static/data/DataProcess/overSpeeding.json'
     overSpeeding_data = []
@@ -227,8 +227,8 @@ def Overspeeding():
                 data = json.load(f)
             if(len(data) < 5):  # 文件中低于5帧的数据不处理
                 continue
-            data = sorted(data, key=lambda x: x['time_meas'])  # 按照时间排列数据
-            velo_list = []
+            data = sorted(data, key=lambda x: x['time_meas'])#按照时间排列数据
+            velo_list=[]
             for item in data:
                 velo_list.append(item['velocity'])
             Overspeeding = []
@@ -484,10 +484,10 @@ def congestion():# 提取拥堵数据
 def reverse():
     # 设置文件夹路径
     # 设置朝向阈值
-    threshold = 3.14  # 方向相反
+    threshold = 3.14 #方向相反
     root_folder_path = 'back/static/data/DataProcess'
-    file_path1 = 'back/static/data/DataProcess/polygons_people.json'  # 存着所有机动车道的坐标
-    reverse_path = 'back/static/data/DataProcess/reverse.json'
+    file_path1 = 'back/static/data/BoundryRoads/polygons_people.json'  #存着所有机动车道的坐标
+    reverse_path ='back/static/data/DataResult/reverse.json'
     with open(file_path1, "r", encoding="utf-8") as f:
         car_polygons = json.load(f)
     # 遍历根文件夹
@@ -508,20 +508,18 @@ def reverse():
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            data = sorted(data, key=operator.itemgetter(
-                'time_meas'))  # 所有数据按照序列号排序
-            line_car = []  # 存储当前车出现在过哪条车道-辅助判断逆行-不用于存储数据
-            for i in range(0, len(data), 8):  # 遍历每s的数据，找出车出现在过哪些车道，并将车辆数据存储到相应的机动车道中
+            data=sorted(data, key=operator.itemgetter('time_meas'))#所有数据按照序列号排序
+            line_car=[]#存储当前车出现在过哪条车道-辅助判断逆行-不用于存储数据
+            for i in range(0,len(data),8):# 遍历每s的数据，找出车出现在过哪些车道，并将车辆数据存储到相应的机动车道中
                 pos = json.loads(data[i]['position'])
                 point1 = Point(pos['x'], pos['y'])
                 for j in range(len(car_polygons)):
                     polygon = car_polygons[j]
                     if Polygon(polygon).contains(point1) and j not in line_car:  # 判断该车在哪条机动车道内
                         line_car.append(j)
-                        car_lane_dict[j].append(
-                            [data[i]['type'], data[i]['id'], data[i]['heading'], data[i]['time_meas']])
-    for i in range(8):  # 对每个车道的车辆数据进行处理
-        if len(car_lane_dict[i]) > 0:
+                        car_lane_dict[j].append([data[i]['type'],data[i]['id'],data[i]['heading'],data[i]['time_meas']])                        
+    for i in range(8):#对每个车道的车辆数据进行处理
+        if len(car_lane_dict[i])>0:
             third_nums = np.array(car_lane_dict[i])[:, 2]  # 提取每个数字的第三个数
             avg_third_num = np.mean(third_nums)  # 计算平均值
             for car in car_lane_dict[i]:
@@ -530,11 +528,11 @@ def reverse():
     if len(reverse) > 0:
         for i in range(len(reverse)):  # 将急加速数据存入SpeedUp_data列表中
             reverse_data.append({
-                'type': reverse[i][0],
-                'id': reverse[i][1],
-                'heading': reverse[i][2],
-                'time': reverse[i][3]
-            })
+                        'type':reverse[i][0],
+                        'id': reverse[i][1],
+                        'heading': reverse[i][2],
+                        'time': reverse[i][3]
+                    })
     with open(reverse_path, 'w') as f:
         json.dump(reverse_data, f)
     print("Done!")
@@ -1039,8 +1037,10 @@ def people_cross():
         if line_obj.intersects(Polygon(center_polygon)):
             # print(file_name+"存在")
             people_cross_data.append({
-                'id': data[0]['id'],
-                'time_arr': [temporary_data[0]['time_stamp'], temporary_data[-1]['time_stamp']]})  # 针对特殊情况，直接存入起点和终点时间
+                'id':data[0]['id'],
+                'time_arr':[temporary_data[0]['time_stamp'],temporary_data[-1]['time_stamp']],
+                'road':8
+                })#针对特殊情况，直接存入起点和终点时间
             continue
 
         # 排除轨迹经过人行道的行为，假设这些行为都是正常的
@@ -1049,21 +1049,23 @@ def people_cross():
             # 定义一个Polygon
             polygon = Polygon(walkroad)
             if line_obj.intersects(polygon):
-                flag = 1
-
-        if flag == 1:
-            continue
-
-        for polygon in people_polygons:
-            # 如果轨迹完全处于多边形之内，则直接存入起点和终点的数据
+                flag=1
+        
+        if flag==1:
+            continue        
+                    
+        for index, polygon in enumerate(people_polygons):
+            #如果轨迹完全处于多边形之内，则直接存入起点和终点的数据
             if line_obj.within(Polygon(polygon)):
                 time_data.append(data[0]['time_meas'])
                 time_data.append(data[len(data)-1]['time_meas'])
                 # print(file_name)
                 # print(track)
                 people_cross_data.append({
-                    'id': data[0]['id'],
-                    'time_arr': time_data})
+                'id':data[0]['id'],
+                'time_arr':time_data,
+                'road':index
+                })
                 break
             elif line_obj.intersects(Polygon(polygon)):
                 # 轨迹与道路边界存在交点
@@ -1091,16 +1093,20 @@ def people_cross():
                         # time_data.append([temporary_data[0]['time_stamp'],time1])
                         # 选择起点的时间
                         people_cross_data.append({
-                            'id': data[0]['id'],
-                            'time_arr': [temporary_data[0]['time_stamp'], time1]})
+                        'id':data[0]['id'],
+                        'time_arr':[temporary_data[0]['time_stamp'],time1],
+                        'road':index
+                        })
                         break
                     elif Polygon(polygon).contains(point2):
                         # num+=1
                         # time_data.append([time1,temporary_data[-1]['time_stamp']])
                         # 选择终点的时间
                         people_cross_data.append({
-                            'id': data[0]['id'],
-                            'time_arr': [time1, temporary_data[-1]['time_stamp']]})
+                        'id':data[0]['id'],
+                        'time_arr':[time1,temporary_data[-1]['time_stamp']],
+                        'road':index
+                        })
                         break
                         # 这里直接break结束循环是因为，经过多次观察发现行人轨迹不存在跨越多条道路的情况
 
@@ -1135,22 +1141,28 @@ def people_cross():
                         if time1 > time2:
                             # time_data.append([time1,time2])
                             people_cross_data.append({
-                                'id': data[0]['id'],
-                                'time_arr': [time1, time2]})
+                            'id':data[0]['id'],
+                            'time_arr':[time1,time2],
+                            'road':index
+                            })
                             break
                         else:
                             # time_data.append([time2,time1])
                             people_cross_data.append({
-                                'id': data[0]['id'],
-                                'time_arr': [time2, time1]})
+                            'id':data[0]['id'],
+                            'time_arr':[time2,time1],
+                            'road':index
+                            })
                             break
                             # 这里直接break结束循环是因为，经过多次观察发现行人轨迹不存在跨越多条道路的情况
                     else:
                         # print(file_name)
                         # print(track)
                         people_cross_data.append({
-                            'id': data[0]['id'],
-                            'time_arr': [temporary_data[0]['time_stamp'], temporary_data[-1]['time_stamp']]})
+                        'id':data[0]['id'],
+                        'time_arr':[temporary_data[0]['time_stamp'],temporary_data[-1]['time_stamp']],
+                        'road':index
+                        })
                         break
                         # 这里直接break结束循环是因为，经过多次观察发现这里的行人轨迹大多直接处于道路之中
 
@@ -1171,7 +1183,7 @@ def people_cross():
         # if count>100:
         #     print(people_cross_data)
         #     break
-
+        
 
 # 判断非机动车是否与边界线存在交点，与行人的判断相似
 def nomotor_cross():
@@ -1225,18 +1237,20 @@ def nomotor_cross():
                 # 定义一个Polygon
                 apolygon = Polygon(walkroad)
                 if line_obj.intersects(apolygon):
-                    flag = 1
-
-            if flag == 1:
-                continue
-
-            for polygon in nomotor_polygons:
+                    flag=1
+            
+            if flag==1:
+                continue        
+                        
+            for index, polygon in enumerate(nomotor_polygons):
                 if line_obj.within(Polygon(polygon)):
                     time_data.append(data[0]['time_meas'])
                     time_data.append(data[len(data)-1]['time_meas'])
                     nomotor_cross_data.append({
-                        'id': data[0]['id'],
-                        'time_arr': time_data})
+                    'id':data[0]['id'],
+                    'time_arr':time_data,
+                    'road':index
+                    })
                     break
                 elif line_obj.intersects(Polygon(polygon)):
                     # print(file_name)
@@ -1264,15 +1278,19 @@ def nomotor_cross():
                             # num+=1
                             # time_data.append([temporary_data[0]['time_stamp'],time1])
                             nomotor_cross_data.append({
-                                'id': data[0]['id'],
-                                'time_arr': [temporary_data[0]['time_stamp'], time1]})
+                            'id':data[0]['id'],
+                            'time_arr':[temporary_data[0]['time_stamp'],time1],
+                            'road':index
+                            })
                             break
                         elif Polygon(polygon).contains(point2):
                             # num+=1
                             # time_data.append([time1,temporary_data[-1]['time_stamp']])
                             nomotor_cross_data.append({
-                                'id': data[0]['id'],
-                                'time_arr': [time1, temporary_data[-1]['time_stamp']]})
+                            'id':data[0]['id'],
+                            'time_arr':[time1,temporary_data[-1]['time_stamp']],
+                            'road':index
+                            })
                             break
 
                     elif intersection_point.geom_type == 'MultiPoint':
@@ -1306,21 +1324,27 @@ def nomotor_cross():
                             if time1 > time2:
                                 # time_data.append([time1,time2])
                                 nomotor_cross_data.append({
-                                    'id': data[0]['id'],
-                                    'time_arr': [time1, time2]})
+                                'id':data[0]['id'],
+                                'time_arr':[time1,time2],
+                                'road':index
+                                })
                                 break
                             else:
                                 # time_data.append([time2,time1])
                                 nomotor_cross_data.append({
-                                    'id': data[0]['id'],
-                                    'time_arr': [time2, time1]})
+                                'id':data[0]['id'],
+                                'time_arr':[time2,time1],
+                                'road':index
+                                })
                                 break
                         else:
                             # print(file_name)
                             # print(track)
                             nomotor_cross_data.append({
-                                'id': data[0]['id'],
-                                'time_arr': [temporary_data[0]['time_stamp'], temporary_data[-1]['time_stamp']]})
+                            'id':data[0]['id'],
+                            'time_arr':[temporary_data[0]['time_stamp'],temporary_data[-1]['time_stamp']],
+                            'road':index
+                            })
                             break
 
             # if num>0:
@@ -1343,6 +1367,7 @@ def nomotor_cross():
  # 判断车辆是否存在长时间停车状态，阈值是5分钟
 
 
+#判断车辆是否存在长时间停车状态，阈值是5分钟
 def is_moving():
     # 获取多边形坐标数据
     file_path1 = './static/data/BoundryRoads/polygons_people.json'
@@ -1366,25 +1391,25 @@ def is_moving():
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            i = 0
-            time_data = []
-            while i < len(data):
-                if data[i]['is_moving'] == 0:
-                    left = i
+            i=0
+            time_data=[]
+            road_num=[]
+            while i<len(data):
+                if data[i]['is_moving']==0:
+                    left=i
                     for j in range(left, len(data)):
-                        i += 1
-                        if data[j]['is_moving'] == 1 or j == len(data)-1:
-                            interval_time = (
-                                data[j-1]['time_meas']-data[left]['time_meas'])/60000000
-                            if interval_time > 5:
-                                for polygon in car_polygons:
+                        i+=1
+                        if data[j]['is_moving']==1 or j==len(data)-1:
+                            interval_time=(data[j-1]['time_meas']-data[left]['time_meas'])/60000000
+                            if interval_time>5:
+                                for index,polygon in enumerate(car_polygons):
                                     pos = json.loads(data[left]['position'])
                                     point1 = Point(pos['x'], pos['y'])
                                     if Polygon(polygon).contains(point1):
                                         # print(file_name+"该车存在长时间停车行为")
                                         # print(data[left]['time_meas'],data[j-1]['time_meas'],interval_time)
-                                        time_data.append(
-                                            [data[left]['time_meas'], data[j-1]['time_meas']])
+                                        time_data.append([data[left]['time_meas'],data[j-1]['time_meas']])
+                                        road_num.append(index)
                                         break
 
                             break
@@ -1393,11 +1418,12 @@ def is_moving():
 
             if len(time_data) > 0:
                 long_time_data.append({
-                    'id': data[0]['id'],
-                    'type': data[0]['type'],
-                    'time_arr': time_data
-                })
-
+                    'id':data[0]['id'],
+                    'type':data[0]['type'],
+                    'time_arr':time_data,
+                    'road':road_num
+                })  
+    
     long_time_path = './static/data/DataResult/long_time.json'
     with open(long_time_path, 'w') as f:
         json.dump(long_time_data, f)
