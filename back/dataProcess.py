@@ -890,7 +890,7 @@ def get_people_Boundry():
         f.write(json_string)
 
 
-# 判断车辆的是否存在切入切出的行为，并记录id和发生时间戳
+#判断车辆是否存在切入切出的行为，并记录id和发生时间戳
 def car_cross():
 
     car_cross_data = []
@@ -898,25 +898,30 @@ def car_cross():
     boundry_path = './static/data/BoundryRoads/boundry1.json'
     with open(boundry_path, "r", encoding="utf-8") as f:
         boundryRoad = json.load(f)
-
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
     root_folder_path = './static/data/DataProcess'
     # 遍历根文件夹
     for folder_name in os.listdir(root_folder_path):
         folder_path = os.path.join(root_folder_path, folder_name)
         # 判断是否为需要处理的文件夹
         # 机动车才被检测
-        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
             continue
         # 获取文件夹中的所有文件
         file_list = os.listdir(folder_path)
         # 遍历文件列表，筛选出JSON文件并读取
         for file_name in file_list:
             file_path = os.path.join(folder_path, file_name)
-            track = []  # 车辆轨迹
-            temporary_data = []  # 临时数据，用于找时间
-            count = 0
-            closest_points = []  # 保存距离交点最近的坐标
-            time_data = []  # 保存发生时间
+            track = [] #车辆轨迹
+            temporary_data=[]  #临时数据，用于找时间
+            count=0
+            closest_points=[] #保存距离交点最近的坐标
+            time_data=[]   #保存发生时间
+            road_num=[] #保存道路信息
             with open(file_path, 'r') as f:
                 data = json.load(f)
             # 获取车辆轨迹
@@ -926,12 +931,15 @@ def car_cross():
                 arr.append(pos['x'])
                 arr.append(pos['y'])
                 track.append(arr)
-                # 保存临时数据
+                #保存临时数据
                 temporary_data.append({
-                    'position': pos,
-                    'time_stamp': item['time_meas']
+                    'position':pos,
+                    'time_stamp':item['time_meas']
                 })
-            # 针对每条边界判断车辆轨迹是否与之存在交点
+            # if file_name=='175143606.json':
+            #     print(track)  
+            #     break  
+            #针对每条边界判断车辆轨迹是否与之存在交点
             for road in boundryRoad:
                 line1_obj = LineString(road)
                 line2_obj = LineString(track)
@@ -940,43 +948,76 @@ def car_cross():
                     intersection_point = line1_obj.intersection(line2_obj)
                     # 判断交点的类型，并统计数量
                     if intersection_point.geom_type == 'Point':
+                        aindex=-1
+                        # 判断该交点位于哪条道路之上，获取空间信息
+                        for index, polygon in enumerate(road_polygons):
+                            if Polygon(polygon).contains(intersection_point) or Polygon(polygon).touches(intersection_point):
+                                aindex=index
+                                break
                         count += 1
+                        if aindex==-1:
+                            min_distance = float('inf')
+                            closest_polygon = None
+                            for index, polygon in enumerate(road_polygons):
+                                polygon = Polygon(polygon)
+                                distance = intersection_point.distance(polygon)
+                                if distance < min_distance:
+                                    min_distance = distance
+                                    closest_polygon = index
+                            road_num.append(closest_polygon) 
+                        else:
+                            road_num.append(aindex)      
                         # 计算每个点与给定点之间的距离
-                        distances = [intersection_point.distance(
-                            Point(coord)) for coord in track]
+                        distances = [intersection_point.distance(Point(coord)) for coord in track]
                         # 找到距离最短的点
                         min_dist_index = distances.index(min(distances))
                         closest_point = track[min_dist_index]
                         closest_points.append(closest_point)
+                                 
                     elif intersection_point.geom_type == 'MultiPoint':
-                        # 计算次数
-                        count += len(intersection_point.geoms)
+                        aindex=-1
+                        for index, polygon in enumerate(road_polygons):
+                            if Polygon(polygon).contains(intersection_point.geoms[0]) or Polygon(polygon).touches(intersection_point.geoms[0]):
+                                aindex=index
+                                break
+                        if aindex==-1:
+                            min_distance = float('inf')
+                            closest_polygon = None
+                            for index, polygon in enumerate(road_polygons):
+                                polygon = Polygon(polygon)
+                                distance = intersection_point.geoms[0].distance(polygon)
+                                if distance < min_distance:
+                                    min_distance = distance
+                                    closest_polygon = index
+                            aindex=closest_polygon        
+                        count += len(intersection_point.geoms)#计算次数
                         # 遍历所有交点坐标
                         for inter_point in intersection_point.geoms:
+                            road_num.append(aindex)
                             # 计算每个点与给定点之间的距离
-                            distances = [inter_point.distance(
-                                Point(coord)) for coord in track]
+                            distances = [inter_point.distance(Point(coord)) for coord in track]
                             # 找到距离最短的点
                             min_dist_index = distances.index(min(distances))
                             closest_point = track[min_dist_index]
                             closest_points.append(closest_point)
-            # 寻找高价值场景发生时间
+            #寻找高价值场景发生时间    
             for p in closest_points:
                 for d in temporary_data:
-                    if p[0] == d['position']['x'] and p[1] == d['position']['y']:
+                    if p[0]==d['position']['x'] and p[1]==d['position']['y']:
                         time_data.append(d['time_stamp'])
-                        break
-            if count > 0:
+                        break   
+            if count>0:        
                 car_cross_data.append({
-                    'id': data[0]['id'],
-                    'type': data[0]['type'],
-                    'count': count,
-                    'time_arr': time_data
+                    'id':data[0]['id'],
+                    'type':data[0]['type'],
+                    'count':count,
+                    'time_arr':time_data,
+                    'road':road_num
                 })
 
     car_cross_path = './static/data/DataResult/car_cross.json'
     with open(car_cross_path, 'w') as f:
-        json.dump(car_cross_data, f)
+        json.dump(car_cross_data, f) 
 
 
 # 判断行人是否与道路多边形是否存在交点，从而判断行人是否存在异常行为，记录行人id和异常时间段
@@ -1021,8 +1062,10 @@ def people_cross():
         line_obj = LineString(track)
 
         # 针对十字路口区域构建一个四边形
-        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
-                          [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        # center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+        #                   [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        center_polygon = [[-59.81, -115.76], [-45.13, -80.98],
+                    [-8.18, -104.56], [-25.72, -139.92], [-59.81, -115.76]]
         # 对处于十字路口的特殊情况
         if line_obj.intersects(Polygon(center_polygon)):
             # print(file_name+"存在")
@@ -1392,16 +1435,20 @@ def is_moving():
                         if data[j]['is_moving']==1 or j==len(data)-1:
                             interval_time=(data[j-1]['time_meas']-data[left]['time_meas'])/60000000
                             if interval_time>5:
+                                pos = json.loads(data[left]['position'])
+                                point1 = Point(pos['x'], pos['y'])
                                 for index,polygon in enumerate(car_polygons):
-                                    pos = json.loads(data[left]['position'])
-                                    point1 = Point(pos['x'], pos['y'])
-                                    if Polygon(polygon).contains(point1):
+                                    if Polygon(polygon).contains(point1) or Polygon(center_polygon).touches(point1):
                                         # print(file_name+"该车存在长时间停车行为")
                                         # print(data[left]['time_meas'],data[j-1]['time_meas'],interval_time)
                                         time_data.append([data[left]['time_meas'],data[j-1]['time_meas']])
                                         road_num.append(index)
                                         break
-
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point1) or Polygon(center_polygon).touches(point1):    
+                                    time_data.append([data[left]['time_meas'],data[j-1]['time_meas']])
+                                    road_num.append(8)
                             break
                 else:
                     i += 1
@@ -1659,6 +1706,6 @@ def getLightData():
 
 
 if __name__ == '__main__':
-    # dataType()
-    getLightData()
+    dataType()
+    # people_cross()
     
