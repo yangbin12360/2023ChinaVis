@@ -30,7 +30,7 @@ def getJson():
 @app.route('/getList',methods=["POST"])
 def getList():
    
-    with open('../back/static/data\DataProcess/merged_data.json ')as f:
+    with open('../back/static/data/DataProcess/merged_data.json ')as f:
         data = json.load(f)
         res = data[0]+data[1]+data[2]+data[3]+data[4]+data[5]+data[6]+data[7]
         # print(data)
