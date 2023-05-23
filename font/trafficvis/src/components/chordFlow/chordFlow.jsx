@@ -9,12 +9,13 @@ function ChordFlow(){
     const [tipyX,setTipyX] = useState('0px');
     const [tipyY,setTipyY] = useState('0px');
     function drawChord(){
-        var width = 450;
-        var height = 450;
+        var width = document.getElementById('flowContainer').clientWidth-20;
+        var height = document.getElementById('flowContainer').clientHeight-20;
+        console.log(height);
         var TrafficFlow = d3.select('#flow_div')
                             .append('svg')
-                            .attr('width',width)
-                            .attr('height',height)
+                            .attr('width',width+20)
+                            .attr('height',height+20)
                             .append("g")
                             .attr('id','traffic_flow')
                             .attr('transform', 'translate(' + width/2 + "," + height/2 + ")");
@@ -158,7 +159,7 @@ function ChordFlow(){
     },[])
 
     return (
-        <div>
+        <div id ='flowContainer' style={{width:'100%',height:'100%'}}>
         <div id="flow_div" style={{position:'absolute'}}>
         {/* 提示框 */}
         {tipyFlag ? <div className ="tip" id="flow_tip" 

@@ -63,69 +63,58 @@ function TestList() {
 
     //判断异常事件类型
     const activityName = (item) => {
-      if (item.aid == 0){
+      if (item.action_name == 'car_cross'){
         return "切入切出";
       }
-      else if (item.aid == 1){
+      else if (item.action_name == 'long_time'){
         return "停止时间过久";
       }
-      else if (item.aid == 2){
+      else if (item.action_name == 'nomotor_cross'){
         return "非机动车异常行为";
       }
-      else if (item.aid == 3){
+      else if (item.action_name == 'overSpeeding'){
         return "超速";
       }
-      else if (item.aid == 4){
+      else if (item.action_name == 'people_cross'){
         return "行人异常行为";
       }
-      else if (item.aid == 5){
+      else if (item.action_name == 'reverse'){
         return "逆行";
       }
-      else if (item.aid == 6){
+      else if (item.action_name == 'speedDown'){
         return "急减速";
       }
-      else if (item.aid == 7){
+      else if (item.action_name == 'speedUp'){
         return "急加速";
       }
-      else if (item.aid == 8){
-        return "行人";
-      }
-      else if (item.aid == 9){
-        return "行人";
-      }
+
     }
     
     //判断描述(有些类型未改完)
     const description = (item) => {
-      if (item.aid == 0){
+      if (item.action_name == 'car_cross'){
         return "切入切出次数:"+item.count;
       }
-      else if (item.aid == 1){
+      else if (item.action_name == 'long_time'){
         return "停止时间段："+item.time_arr;
       }
-      else if (item.aid == 2){
+      else if (item.action_name == 'nomotor_cross'){
         return "非机动车异常行为时间段："+item.time_arr;
       }
-      else if (item.aid == 3){
+      else if (item.action_name == 'overSpeeding'){
         return "超速速度："+item.mean_velo;
       }
-      else if (item.aid == 4){
+      else if (item.action_name == 'people_cross'){
         return "行人异常行为时间段："+item.time_arr;
       }
-      else if (item.aid == 5){
+      else if (item.action_name == 'reverse'){
         return "逆行时间："+item.time;
       }
-      else if (item.aid == 6){
+      else if (item.action_name ==' speedDown'){
         return "急减速:"+item.end_velocity;
       }
-      else if (item.aid == 7){
+      else if (item.action_name == 'speedUp'){
         return "急加速:"+item.end_velocity;
-      }
-      else if (item.aid == 8){
-        return "行人";
-      }
-      else if (item.aid == 9){
-        return "行人";
       }
     }
 

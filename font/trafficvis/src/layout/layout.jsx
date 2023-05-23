@@ -29,7 +29,7 @@ const Layout = () => {
               component={<ControlPanel timeStamp={timeStamp} handleChangeTime={handleChangeTime}></ControlPanel>}
             ></Box>
           </div>
-          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div>
+          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<ChordFlow></ChordFlow>}></Box></div>
           <div style={{ height: "33%" }}><Box title={"ControlPanel"} ></Box></div>
         </Col>
         <Col span={14} id="middle">

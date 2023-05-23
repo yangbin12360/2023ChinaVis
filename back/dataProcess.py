@@ -1,13 +1,23 @@
 import json
 import os
 import operator
-from shapely.geometry import LineString, MultiLineString, Point, Polygon
+# from shapely.geometry import LineString, MultiLineString, Point, Polygon
 import random
-from shapely.ops import linemerge
-from shapely.ops import polygonize
+# from shapely.ops import linemerge
+# from shapely.ops import polygonize
 from alive_progress import alive_bar
 import time
 import numpy as np
+import math
+import csv
+import pandas as pd
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import SimpleImputer
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
     north_THRESHOLD = [1.0, 1.2]
@@ -1706,6 +1716,11 @@ def getLightData():
 
 
 if __name__ == '__main__':
-    dataType()
-    # people_cross()
-    
+    # dataType()
+    # 驾驶行为
+    # featureAll()
+    # csvNormalization()
+    # dimReduction()
+    # fillNan()
+    # kmeans()
+    dimReduction_cluster()
