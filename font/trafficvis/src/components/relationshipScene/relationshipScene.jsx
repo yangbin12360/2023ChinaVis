@@ -13,8 +13,8 @@ function RelationshipScene (){
     const action = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     const colorchoose = ['blue','green','orange','red'];
 
-    let width=1450
-    let height=380
+    let width = document.getElementById('relationContainer').clientWidth-10;
+    let height= document.getElementById('relationContainer').clientHeight-10;
     let padding_left=70
     let padding_top=20
     //创建画布
@@ -127,7 +127,7 @@ function RelationshipScene (){
     },[])
 
     return (
-        <div id='relationContainer'></div>
+        <div id='relationContainer' style={{width:'100%',height:'100%'}}></div>
     ) 
     
 }
