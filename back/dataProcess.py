@@ -1503,6 +1503,171 @@ def merge():
     with open(merge_path, 'w') as f:
         json.dump(merged_data, f)
 
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/overSpeeding.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        overSpeed = json.load(f)
+    for item in overSpeed:
+        root_folder_path = './static/data/DataProcess'
+        # 遍历根文件夹
+        for folder_name in os.listdir(root_folder_path):
+            folder_path = os.path.join(root_folder_path, folder_name)
+            # 判断是否为需要处理的文件夹
+            # 机动车才被检测
+            if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+                continue
+            if folder_name==str(item['type']): 
+                # 获取文件夹中的所有文件
+                file_list = os.listdir(folder_path)
+                # 遍历文件列表，筛选出JSON文件并读取
+                for file_name in file_list: 
+                    # 获取文件名（不包括扩展名）
+                    file_name_without_extension = file_name.rsplit(".", 1)[0]
+                    if file_name_without_extension==str(item['id']):
+                        file_path = os.path.join(folder_path, file_name)
+                        with open(file_path, 'r') as f:
+                            data = json.load(f)
+                        # 获取车辆轨迹数据
+                        for d in data:
+                            if d['time_meas']==item['start_time']:
+                                pos = json.loads(d['position'])
+                                point=Point([pos['x'],pos['y']])
+                                aindex=-1
+                                for index, polygon in enumerate(road_polygons):
+                                    if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                                        aindex=index
+                                        break
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                                    aindex=8
+                                item['road']=aindex
+                                break
+                        break
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(overSpeed)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/overSpeeding.json', 'w') as file:
+        file.write(updated_json)
+
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/reverse.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        reverse = json.load(f)
+    for item in reverse:
+        root_folder_path = './static/data/DataProcess'
+        # 遍历根文件夹
+        for folder_name in os.listdir(root_folder_path):
+            folder_path = os.path.join(root_folder_path, folder_name)
+            # 判断是否为需要处理的文件夹
+            # 机动车才被检测
+            if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+                continue
+            if folder_name==str(item['type']): 
+                # 获取文件夹中的所有文件
+                file_list = os.listdir(folder_path)
+                # 遍历文件列表，筛选出JSON文件并读取
+                for file_name in file_list: 
+                    # 获取文件名（不包括扩展名）
+                    file_name_without_extension = file_name.rsplit(".", 1)[0]
+                    if file_name_without_extension==str(item['id']):
+                        file_path = os.path.join(folder_path, file_name)
+                        with open(file_path, 'r') as f:
+                            data = json.load(f)
+                        # 获取车辆轨迹数据
+                        for d in data:
+                            if d['time_meas']==item['time']:
+                                pos = json.loads(d['position'])
+                                point=Point([pos['x'],pos['y']])
+                                aindex=-1
+                                for index, polygon in enumerate(road_polygons):
+                                    if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                                        aindex=index
+                                        break
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                                    aindex=8
+                                item['road']=aindex
+                                break
+                        break
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(reverse)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/reverse.json', 'w') as file:
+        file.write(updated_json)
+
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/speedDown.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        speeddown = json.load(f)
+    for item in speeddown:
+        pos = json.loads(item['start_position'])
+        point=Point([pos['x'],pos['y']])
+        aindex=-1
+        for index, polygon in enumerate(road_polygons):
+            if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                aindex=index
+                break
+        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+            aindex=8
+        item['road']=aindex
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(speeddown)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/speedDown.json', 'w') as file:
+        file.write(updated_json)
+
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/speedUp.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        speedup = json.load(f)
+    for item in speedup:
+        pos = json.loads(item['start_position'])
+        point=Point([pos['x'],pos['y']])
+        aindex=-1
+        for index, polygon in enumerate(road_polygons):
+            if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                aindex=index
+                break
+        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+            aindex=8
+        item['road']=aindex
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(speedup)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/speedUp.json', 'w') as file:
+        file.write(updated_json)
+
+
 def getLightData():
     f = open("./static/data/ChinaVis Data/road10map/laneroad10.geojson", "r")
     laneData = json.load(f)
