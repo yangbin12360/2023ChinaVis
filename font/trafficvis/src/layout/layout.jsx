@@ -5,7 +5,7 @@ import MainView from "../components/mainView/mainView";
 import ControlPanel from "../components/controlPanel/controlPanel";
 import "./layout.css";
 import TestList from "../components/testList/testlist"
-import ChordFlow from "../components/chordFlow/chordFlow";
+import Flow from "../components/chordFlow/flow";
 import RelationshipScene from "../components/relationshipScene/relationshipScene";
 const style = {
     background: '#0092ff',
@@ -29,10 +29,10 @@ const Layout = () => {
               component={<ControlPanel timeStamp={timeStamp} handleChangeTime={handleChangeTime}></ControlPanel>}
             ></Box>
           </div>
-          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<ChordFlow></ChordFlow>}></Box></div>
+          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<Flow></Flow>}></Box></div>
           <div style={{ height: "33%" }}><Box title={"ControlPanel"} ></Box></div>
         </Col>
-        <Col span={14} id="middle">
+        <Col span={11} id="middle">
           <div style={{ height: "67%" }}>
             <Box title={"MainView"} component={<MainView  timeStamp={timeStamp}></MainView>}></Box>
           </div>
@@ -40,7 +40,7 @@ const Layout = () => {
             <Box title={"relationshipScene"}  component = {<RelationshipScene></RelationshipScene>}></Box>
           </div>
         </Col>
-        <Col span={5} id="right">
+        <Col span={8} id="right">
           <div style={{ height: "33%" }}><Box title={"List"} component={<TestList></TestList>}></Box></div>
           <div style={{ height: "34%" }}><Box title={"ControlPanel"}></Box></div>
           <div style={{ height: "33%" }}><Box title={"ControlPanel"}></Box></div>
