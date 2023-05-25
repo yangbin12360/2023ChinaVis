@@ -2,7 +2,8 @@ import { Select, Button } from "antd";
 import { hourList, sixtyList } from "../utils/constant";
 import { useState } from "react";
 
-const ControlPanel = ({handleChangeTime}) => {
+const ControlPanel = (props) => {
+  const {handleChangeTime,  handleSelectId} = props
   const [yearStr, setYearStr] = useState("2023/4/");
   const [dayStr, setDayStr] = useState("");
   const [hourStr, setHourStr] = useState("8");
@@ -12,6 +13,9 @@ const ControlPanel = ({handleChangeTime}) => {
   const timeSelect = ()=>{
     const timeStr = yearStr+dayStr+' '+hourStr+':'+minuteStr+':'+secondStr;
     handleChangeTime(Date.parse(timeStr)/1000);
+  }
+  const changeId =()=>{
+    handleSelectId(269616349)
   }
   return (
     <div className="control">
@@ -75,7 +79,10 @@ const ControlPanel = ({handleChangeTime}) => {
         />
       </div>
       <div className="controlButton">
-        <Button onClick={timeSelect}>Default Button</Button>
+        <Button onClick={timeSelect}>TimeChange</Button>
+      </div>
+      <div className="controlButton">
+        <Button onClick={changeId}>Default Button</Button>
       </div>
     </div>
   );

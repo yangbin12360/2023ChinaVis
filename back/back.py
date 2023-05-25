@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import json
 import numpy as np
+import os
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -34,15 +35,12 @@ def getList():
         data = json.load(f)
         res = data[0]+data[1]+data[2]+data[3]+data[4]+data[5]+data[6]+data[7]
         # print(data)
-    
     #时间戳排序
-
     return res
 
 #按照时间戳获取交通参与者数据
 @app.route('/getTimeJson',methods=["POST"])
 def getTimeJson():
-    print( request.json.get('startTime'))
     startTime = request.json.get('startTime')
     pathList = []
     # startTime = 1681315196
@@ -64,16 +62,45 @@ def getTimeJson():
     for id in res:
         res[id].sort(key=lambda x: x['time_meas'])  
     newRes = {}
+    # 每个id对应的position、shape、orientation、velocity、heading、type放入
     for id in res:
-        tempList = []
+        pList = []
+        oList = []
+        vList = []
+        hList = [] 
         newRes[id]={}
         for item in res[id]:
-            tempList.append(item["position"])
-        newRes[id]["trace"] = tempList
+            pList.append(item["position"])
+            oList.append(item["orientation"])
+            vList.append(item["velocity"])
+            hList.append(item["heading"])
+            newRes[id]["shape"] = item["shape"]
+            newRes[id]["type"] = item["type"]
+        newRes[id]["trace"] = pList
+        newRes[id]["orientation"] = oList
+        newRes[id]["velocity"] = vList
+        newRes[id]["heading"] = hList
     for id in res:
         newRes[id]["startTime"] = res[id][0]["time_meas"]
         newRes[id]["endTime"] = res[id][-1]["time_meas"]
     return newRes
+
+
+#按照时间戳获取高价值场景数据
+@app.route('/getHighValue',methods=["POST"])
+def getHighValue():
+    startTime = request.json.get('startTime')
+    file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
+    file = '../back/static/data/DataProcess/highSceneCsv'
+    res = {}
+    endTime = startTime+300
+    print(file_name)
+    # for name in file_name:
+    #     with open(file+'/'+name,"r") as f:
+    return res
+
+
+
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启
