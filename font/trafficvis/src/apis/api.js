@@ -24,3 +24,7 @@ export const getTimeJson =(startTime)=>{
     startTime:startTime
   })
 }
+//获取高价值场景数据
+export const getActionAndRoadCount= () => {
+  return post("/getActionAndRoadCount");
+};

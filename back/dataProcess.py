@@ -1,10 +1,10 @@
 import json
 import os
 import operator
-# from shapely.geometry import LineString, MultiLineString, Point, Polygon
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 import random
-# from shapely.ops import linemerge
-# from shapely.ops import polygonize
+from shapely.ops import linemerge
+from shapely.ops import polygonize
 from alive_progress import alive_bar
 import time
 import numpy as np
@@ -933,7 +933,7 @@ def get_people_Boundry():
         f.write(json_string)
 
 
-# 判断车辆的是否存在切入切出的行为，并记录id和发生时间戳
+#判断车辆是否存在切入切出的行为，并记录id和发生时间戳
 def car_cross():
 
     car_cross_data = []
@@ -941,25 +941,30 @@ def car_cross():
     boundry_path = './static/data/BoundryRoads/boundry1.json'
     with open(boundry_path, "r", encoding="utf-8") as f:
         boundryRoad = json.load(f)
-
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
     root_folder_path = './static/data/DataProcess'
     # 遍历根文件夹
     for folder_name in os.listdir(root_folder_path):
         folder_path = os.path.join(root_folder_path, folder_name)
         # 判断是否为需要处理的文件夹
         # 机动车才被检测
-        if not os.path.isdir(folder_path) or folder_name not in ['1', '4', '6']:
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
             continue
         # 获取文件夹中的所有文件
         file_list = os.listdir(folder_path)
         # 遍历文件列表，筛选出JSON文件并读取
         for file_name in file_list:
             file_path = os.path.join(folder_path, file_name)
-            track = []  # 车辆轨迹
-            temporary_data = []  # 临时数据，用于找时间
-            count = 0
-            closest_points = []  # 保存距离交点最近的坐标
-            time_data = []  # 保存发生时间
+            track = [] #车辆轨迹
+            temporary_data=[]  #临时数据，用于找时间
+            count=0
+            closest_points=[] #保存距离交点最近的坐标
+            time_data=[]   #保存发生时间
+            road_num=[] #保存道路信息
             with open(file_path, 'r') as f:
                 data = json.load(f)
             # 获取车辆轨迹
@@ -969,12 +974,15 @@ def car_cross():
                 arr.append(pos['x'])
                 arr.append(pos['y'])
                 track.append(arr)
-                # 保存临时数据
+                #保存临时数据
                 temporary_data.append({
-                    'position': pos,
-                    'time_stamp': item['time_meas']
+                    'position':pos,
+                    'time_stamp':item['time_meas']
                 })
-            # 针对每条边界判断车辆轨迹是否与之存在交点
+            # if file_name=='175143606.json':
+            #     print(track)  
+            #     break  
+            #针对每条边界判断车辆轨迹是否与之存在交点
             for road in boundryRoad:
                 line1_obj = LineString(road)
                 line2_obj = LineString(track)
@@ -983,43 +991,79 @@ def car_cross():
                     intersection_point = line1_obj.intersection(line2_obj)
                     # 判断交点的类型，并统计数量
                     if intersection_point.geom_type == 'Point':
+                        aindex=-1
+                        # 判断该交点位于哪条道路之上，获取空间信息
+                        for index, polygon in enumerate(road_polygons):
+                            if Polygon(polygon).contains(intersection_point) or Polygon(polygon).touches(intersection_point):
+                                aindex=index
+                                break
                         count += 1
+                        if aindex==-1:
+                            min_distance = float('inf')
+                            closest_polygon = None
+                            # 寻找交点距离最近的多边形
+                            for index, polygon in enumerate(road_polygons):
+                                polygon = Polygon(polygon)
+                                distance = intersection_point.distance(polygon)
+                                if distance < min_distance:
+                                    min_distance = distance
+                                    closest_polygon = index
+                            road_num.append(closest_polygon) 
+                        else:
+                            road_num.append(aindex)      
                         # 计算每个点与给定点之间的距离
-                        distances = [intersection_point.distance(
-                            Point(coord)) for coord in track]
+                        distances = [intersection_point.distance(Point(coord)) for coord in track]
                         # 找到距离最短的点
                         min_dist_index = distances.index(min(distances))
                         closest_point = track[min_dist_index]
                         closest_points.append(closest_point)
+                                 
                     elif intersection_point.geom_type == 'MultiPoint':
-                        # 计算次数
-                        count += len(intersection_point.geoms)
+                        aindex=-1
+                        # 判断该交点位于哪条道路之上，获取空间信息
+                        for index, polygon in enumerate(road_polygons):
+                            if Polygon(polygon).contains(intersection_point.geoms[0]) or Polygon(polygon).touches(intersection_point.geoms[0]):
+                                aindex=index
+                                break
+                        if aindex==-1:
+                            min_distance = float('inf')
+                            closest_polygon = None
+                            # 寻找交点距离最近的多边形
+                            for index, polygon in enumerate(road_polygons):
+                                polygon = Polygon(polygon)
+                                distance = intersection_point.geoms[0].distance(polygon)
+                                if distance < min_distance:
+                                    min_distance = distance
+                                    closest_polygon = index
+                            aindex=closest_polygon        
+                        count += len(intersection_point.geoms)#计算次数
                         # 遍历所有交点坐标
                         for inter_point in intersection_point.geoms:
+                            road_num.append(aindex)
                             # 计算每个点与给定点之间的距离
-                            distances = [inter_point.distance(
-                                Point(coord)) for coord in track]
+                            distances = [inter_point.distance(Point(coord)) for coord in track]
                             # 找到距离最短的点
                             min_dist_index = distances.index(min(distances))
                             closest_point = track[min_dist_index]
                             closest_points.append(closest_point)
-            # 寻找高价值场景发生时间
+            #寻找高价值场景发生时间    
             for p in closest_points:
                 for d in temporary_data:
-                    if p[0] == d['position']['x'] and p[1] == d['position']['y']:
+                    if p[0]==d['position']['x'] and p[1]==d['position']['y']:
                         time_data.append(d['time_stamp'])
-                        break
-            if count > 0:
+                        break   
+            if count>0:        
                 car_cross_data.append({
-                    'id': data[0]['id'],
-                    'type': data[0]['type'],
-                    'count': count,
-                    'time_arr': time_data
+                    'id':data[0]['id'],
+                    'type':data[0]['type'],
+                    'count':count,
+                    'time_arr':time_data,
+                    'road':road_num
                 })
 
     car_cross_path = './static/data/DataResult/car_cross.json'
     with open(car_cross_path, 'w') as f:
-        json.dump(car_cross_data, f)
+        json.dump(car_cross_data, f) 
 
 
 # 判断行人是否与道路多边形是否存在交点，从而判断行人是否存在异常行为，记录行人id和异常时间段
@@ -1064,8 +1108,10 @@ def people_cross():
         line_obj = LineString(track)
 
         # 针对十字路口区域构建一个四边形
-        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
-                          [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        # center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+        #                   [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        center_polygon = [[-59.81, -115.76], [-45.13, -80.98],
+                    [-8.18, -104.56], [-25.72, -139.92], [-59.81, -115.76]]
         # 对处于十字路口的特殊情况
         if line_obj.intersects(Polygon(center_polygon)):
             # print(file_name+"存在")
@@ -1435,16 +1481,20 @@ def is_moving():
                         if data[j]['is_moving']==1 or j==len(data)-1:
                             interval_time=(data[j-1]['time_meas']-data[left]['time_meas'])/60000000
                             if interval_time>5:
+                                pos = json.loads(data[left]['position'])
+                                point1 = Point(pos['x'], pos['y'])
                                 for index,polygon in enumerate(car_polygons):
-                                    pos = json.loads(data[left]['position'])
-                                    point1 = Point(pos['x'], pos['y'])
-                                    if Polygon(polygon).contains(point1):
+                                    if Polygon(polygon).contains(point1) or Polygon(polygon).touches(point1):
                                         # print(file_name+"该车存在长时间停车行为")
                                         # print(data[left]['time_meas'],data[j-1]['time_meas'],interval_time)
                                         time_data.append([data[left]['time_meas'],data[j-1]['time_meas']])
                                         road_num.append(index)
                                         break
-
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point1) or Polygon(center_polygon).touches(point1):    
+                                    time_data.append([data[left]['time_meas'],data[j-1]['time_meas']])
+                                    road_num.append(8)
                             break
                 else:
                     i += 1
@@ -1461,6 +1511,272 @@ def is_moving():
     with open(long_time_path, 'w') as f:
         json.dump(long_time_data, f)
 
+# 对数据进行一些修改，以便前端进行列表展示
+def merge():
+    merged_data=[]
+    folder_path = './static/data/DataResult'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        if file_name=='people_cross.json':
+            for item in data:
+                item["type"]=2 
+                # 加上高价值场景类型标识
+                item["action_name"]=file_name_without_extension  
+        elif file_name=='nomotor_cross.json':
+            for item in data:
+                item["type"]=3 
+                item["action_name"]=file_name_without_extension
+        else:
+            for item in data:
+                item["action_name"]=file_name_without_extension
+        merged_data.append(data) 
+    merge_path = './static/data/DataResult/merged_data.json'
+    with open(merge_path, 'w') as f:
+        json.dump(merged_data, f)
+
+# 获取超速行为所发生的道路信息
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+    # 读取超速数据
+    file_path2 = './static/data/DataResult/overSpeeding.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        overSpeed = json.load(f)
+    for item in overSpeed:
+        root_folder_path = './static/data/DataProcess'
+        # 遍历根文件夹
+        for folder_name in os.listdir(root_folder_path):
+            folder_path = os.path.join(root_folder_path, folder_name)
+            # 判断是否为需要处理的文件夹
+            # 机动车才被检测
+            if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+                continue
+            if folder_name==str(item['type']): 
+                # 获取文件夹中的所有文件
+                file_list = os.listdir(folder_path)
+                # 遍历文件列表，筛选出JSON文件并读取
+                for file_name in file_list: 
+                    # 获取文件名（不包括扩展名）
+                    file_name_without_extension = file_name.rsplit(".", 1)[0]
+                    # 通过id寻找该车辆的轨迹文件
+                    if file_name_without_extension==str(item['id']):
+                        file_path = os.path.join(folder_path, file_name)
+                        with open(file_path, 'r') as f:
+                            data = json.load(f)
+                        # 获取车辆轨迹数据
+                        for d in data:
+                            # 寻找对应的时间戳，并获得该时间戳内的位置坐标
+                            if d['time_meas']==item['start_time']:
+                                pos = json.loads(d['position'])
+                                point=Point([pos['x'],pos['y']])
+                                aindex=-1
+                                # 判断位于哪条道路
+                                for index, polygon in enumerate(road_polygons):
+                                    if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                                        aindex=index
+                                        break
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                                    aindex=8
+                                item['road']=aindex
+                                break
+                        break
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(overSpeed)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/overSpeeding.json', 'w') as file:
+        file.write(updated_json)
+
+# 获取逆行行为所发生的道路信息
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/reverse.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        reverse = json.load(f)
+    for item in reverse:
+        root_folder_path = './static/data/DataProcess'
+        # 遍历根文件夹
+        for folder_name in os.listdir(root_folder_path):
+            folder_path = os.path.join(root_folder_path, folder_name)
+            # 判断是否为需要处理的文件夹
+            # 机动车才被检测
+            if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+                continue
+            if folder_name==str(item['type']): 
+                # 获取文件夹中的所有文件
+                file_list = os.listdir(folder_path)
+                # 遍历文件列表，筛选出JSON文件并读取
+                for file_name in file_list: 
+                    # 获取文件名（不包括扩展名）
+                    file_name_without_extension = file_name.rsplit(".", 1)[0]
+                    if file_name_without_extension==str(item['id']):
+                        file_path = os.path.join(folder_path, file_name)
+                        with open(file_path, 'r') as f:
+                            data = json.load(f)
+                        # 获取车辆轨迹数据
+                        for d in data:
+                            if d['time_meas']==item['time']:
+                                pos = json.loads(d['position'])
+                                point=Point([pos['x'],pos['y']])
+                                aindex=-1
+                                for index, polygon in enumerate(road_polygons):
+                                    if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                                        aindex=index
+                                        break
+                                center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                       [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                                if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                                    aindex=8
+                                item['road']=aindex
+                                break
+                        break
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(reverse)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/reverse.json', 'w') as file:
+        file.write(updated_json)
+
+# 获取急减行为所发生的道路信息
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/speedDown.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        speeddown = json.load(f)
+    for item in speeddown:
+        pos = json.loads(item['start_position'])
+        point=Point([pos['x'],pos['y']])
+        aindex=-1
+        for index, polygon in enumerate(road_polygons):
+            if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                aindex=index
+                break
+        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+            aindex=8
+        item['road']=aindex
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(speeddown)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/speedDown.json', 'w') as file:
+        file.write(updated_json)
+
+# 获取急加行为所发生的道路信息
+def get_road_information():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+        
+    file_path2 = './static/data/DataResult/speedUp.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        speedup = json.load(f)
+    for item in speedup:
+        pos = json.loads(item['start_position'])
+        point=Point([pos['x'],pos['y']])
+        aindex=-1
+        for index, polygon in enumerate(road_polygons):
+            if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                aindex=index
+                break
+        center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+        if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+            aindex=8
+        item['road']=aindex
+    # 将更新后的Python对象转换为JSON格式
+    updated_json = json.dumps(speedup)
+
+    # 将更新后的JSON数据写入文件
+    with open('./static/data/DataResult/speedUp.json', 'w') as file:
+        file.write(updated_json)
+
+# 获取出口道路到入口道路的车流量（24小时）
+def road_flow():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+
+    helper_list=[]
+    root_folder_path = './static/data/DataProcess'
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        # 机动车流量
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+            continue
+        # 获取文件夹中的所有文件
+        file_list = os.listdir(folder_path)
+        # 遍历文件列表，筛选出JSON文件并读取
+        for file_name in file_list:
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            start_index=-1  #记录出口道路的标识
+            end_index=-1   #记录入口道路的标识
+            flag=0
+            # 针对每个时间戳的坐标点
+            for item in data:
+                if item['is_moving']==1:
+                    pos = json.loads(item['position'])
+                    arr = []
+                    arr.append(pos['x'])
+                    arr.append(pos['y'])
+                    # 创建Point对象
+                    point = Point(arr)
+                    # 判断该坐标点位于哪条道路
+                    for index,polygon in enumerate(road_polygons):
+                        if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                            # 判断是否为出口道路
+                            if index in [1,3,4,6] and start_index==-1:
+                                start_index=index 
+                                flag=1 #用于固定先后顺序，只有先从出口道路出来，才能进入入口道路
+                                break 
+                            # 记录入口道路 
+                            if index in [0,2,5,7] and flag==1:
+                                end_index=index
+                                break   
+                    if end_index!=-1:
+                        break
+            #记录出入口信息 
+            if start_index!=-1 and end_index!=-1:
+                helper_list.append([file_name,start_index,end_index])
+                
+    flow_path = './static/data/Result/road_flow.json'
+    with open(flow_path, 'w') as f:
+        json.dump(helper_list, f) 
+
+    # 将数据存入8乘8的矩阵
+    road_flow_data = [[0 for _ in range(8)] for _ in range(8)]
+    for item in helper_list:
+        index1=item[1]
+        index2=item[2]
+        road_flow_data[index1][index2]+=1
+        
+    print(road_flow_data)
 
 def getLightData():
     f = open("./static/data/ChinaVis Data/road10map/laneroad10.geojson", "r")
@@ -1699,177 +2015,7 @@ def getLightData():
     f = open("./static/data/DataProcess/allLineRun.json", "w")
     json.dump(allTime, f)
 
-#群体性驾驶行为变化趋势分析
-#统计特征提取
-def featureExtraction(startTime):
-    # startTime = 1681315196
-    pathList = []
-    #每30分钟交通参与者提取
-    for i in range(0,600):
-        fileName = str(i+startTime)+'.0.json'
-        pathList.append(fileName)
-    res = {}
-    for path in pathList:
-        with open('../back/static/data\DataProcess/time_meas/'+path,'r') as f:
-            data = json.load(f)
-            # 遍历数据，根据id进行分组
-            for item in data:
-                if item['type'] == 1 or item['type'] == 2 or item['type'] == 4 or item['type'] == 6 or item['type'] == 10 :  
-                    id = item.get('id')  
-                    if id not in res:
-                        res[id] = []
-                    res[id].append(item)
-    newRes = {}
-    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计30分钟
-    for id in res:
-        positionList = []
-        vList = []
-        oList = []
-        newRes[id]={}
-        for item in res[id]:
-            vList.append(item["velocity"])
-            oList.append(item["orientation"])
-            positionList.append(item["position"])
-        newRes[id]["position"] = positionList
-        newRes[id]["v"] = vList
-        newRes[id]["o"] = oList
-        newRes[id]["type"] = res[id][0]["type"]
-    #提取加速度
-    for id in newRes:
-        aList = []
-        idL = len(newRes[id]["v"])
-        lastIndex = math.ceil(idL/5)
-        for i in range(0,lastIndex):
-            if i != lastIndex-1:
-                aList.append(newRes[id]["v"][(i+1)*5-1]-newRes[id]["v"][i*5])
-        newRes[id]["a"] = aList
-    #统计特征提取
-    for id in newRes:
-        #平均速度
-        newRes[id]["v_mean"] = np.mean(newRes[id]["v"])
-        #最大速度
-        newRes[id]["v_max"] = np.max(newRes[id]["v"])
-        #最小速度
-        newRes[id]["v_min"] = np.min(newRes[id]["v"])
-        #速度标准差
-        newRes[id]["v_std"] = np.std(newRes[id]["v"])
-        #加速度标准差
-        newRes[id]["a_std"] = np.std(newRes[id]["a"])
-        #朝向标准差
-        newRes[id]["o_std"] = np.std(newRes[id]["o"])
-        #位置聚集程度：1.求各个坐标的几何中心 2.求各个坐标到几何中心的距离 3.求距离的平均值
-        xList = []
-        yList = []
-        for position in newRes[id]["position"]:
-            position = json.loads(position)
-            xList.append(position["x"])
-            yList.append(position["y"])
-        x_mean = np.mean(xList)
-        y_mean = np.mean(yList)
-        distanceList = []
-        for i in range(0,len(xList)):
-            distanceList.append(math.sqrt((xList[i]-x_mean)**2+(yList[i]-y_mean)**2))
-        newRes[id]["distance_mean"] = np.mean(distanceList)
-    #将newRes写入csv文件
-    with open("../back\static\data\DataProcess/10m/feature_extraction/"+str(startTime)+".csv","w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["id","type","v_mean","v_max","v_min","v_std","a_std","o_std","distance_mean"])
-        for id in newRes:
-            writer.writerow([id,newRes[id]["type"],newRes[id]["v_mean"],newRes[id]["v_max"],newRes[id]["v_min"],newRes[id]["v_std"],newRes[id]["a_std"],newRes[id]["o_std"],newRes[id]["distance_mean"]])
-#对time_meas文件夹下的所有文件每300个文件进行特征提取
-def featureAll():
-    file_list = os.listdir('../back/static/data\DataProcess/time_meas')
-    file_count = len(file_list)
-    startTime = 1681315196
-    for i in range(0,math.ceil(file_count/600)):
-        featureExtraction(startTime)
-        startTime += 600
 
-#对提取的特征做归一化处理
-def csvNormalization():
-    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
-    for file in file_list:
-        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
-        id_type_cols = df[['id', 'type']]  # 保留'id'和'type'列
-        df_numeric = df.select_dtypes(include=[float, int])  # 选择数值型列并排除'id'和'type'
-        scaler = MinMaxScaler()
-        df_normalized = pd.DataFrame(scaler.fit_transform(df_numeric), columns=df_numeric.columns)
-        df_normalized[['id', 'type']] = id_type_cols  # 将保留的'id'和'type'列重新添加到归一化后的DataFrame
-        df_normalized.to_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file, index=False)
-
-#对三个速度进行降维
-def dimReduction():
-    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
-    for file in file_list:
-        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
-        features = df[['v_min', 'v_max', 'v_mean']]
-        pca = PCA(n_components=1)
-        principalComponents = pca.fit_transform(features)
-        # 将降维后的主成分添加到原始数据框中，此处我们将新的主成分列命名为'v_pca'
-        df['v_pca'] = principalComponents
-        df = df.drop(['v_min', 'v_max', 'v_mean'], axis=1)
-        df.to_csv('../back/static/data\DataProcess/10m/feature_extraction_dim/' + file +'.csv', index=False)
-
-#对csv文件中的缺值进行填充
-def fillNan():
-    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction')
-    for file in file_list:
-        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file)
-        # 填充缺失值，此处使用均值进行填充
-        imputer = SimpleImputer(strategy='constant', fill_value=0)
-        df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
-        df_imputed.to_csv('../back/static/data\DataProcess/10m/feature_extraction/' + file, index=False)
-        print(111)
-#对归一化后的特征实现k-means聚类
-def kmeans():
-    file_list = os.listdir('../back/static/data\DataProcess/10m/feature_extraction_dim')
-    nameTime = 300
-    for file in file_list:
-        df = pd.read_csv('../back/static/data\DataProcess/10m/feature_extraction_dim/' + file)
-        df.drop(['v_std'],axis=1,inplace=True)
-        df.dropna(inplace=True)
-        features = df[['v_pca', 'a_std', 'o_std', 'distance_mean']]
-        kmeans = KMeans(n_clusters=3)
-        kmeans.fit(features)
-        df['cluster'] = kmeans.labels_
-        df.to_csv('../back/static/data\DataProcess/10m/cluster_results/'+ str(nameTime) +'s.csv', index=False)
-        nameTime += 300
-
-#对归一化后的特征实现DBSCAN聚类
-def forDbscan():
-    file_list = os.listdir('../back/static/data\DataProcess/feature_extraction_dim')
-    nameTime = 0.5
-    for file in file_list:
-        df = pd.read_csv('../back/static/data\DataProcess/feature_extraction_dim/' + file)
-        features = df[['v_pca', 'v_std', 'a_std', 'o_std', 'distance_mean']]
-        # DBSCAN聚类
-        dbscan = DBSCAN(eps=0.5, min_samples=5)
-        df['cluster'] = dbscan.fit_predict(features)
-        df.to_csv('../back/static/data\DataProcess/cluster_results_dbscan/'+ str(nameTime) +'h.csv', index=False)
-        nameTime += 0.5
-
-#对聚类结果进行降维
-def dimReduction_cluster():
-    file_list = os.listdir('../back/static/data\DataProcess/10m/cluster_results')
-    startR = 300
-    for file in file_list:
-        data = pd.read_csv('../back/static/data/DataProcess/10m/cluster_results/'+ str(startR) +'s.csv')
-        features = data[['v_pca', 'a_std', 'o_std', 'distance_mean']]
-        pca = PCA(n_components=2)
-        reduced_features = pca.fit_transform(features)
-        reduced_data = pd.DataFrame(data=reduced_features, columns=['x', 'y'])
-        reduced_data['cluster'] = data['cluster']
-        reduced_data['type'] = data['type']
-        reduced_data['id'] = data['id']
-    # 保存降维结果到新的CSV文件
-        reduced_data.to_csv('../back/static/data\DataProcess/10m/pca_results/'+ str(startR) +'s.csv', index=False)
-        startR += 300
-    # 绘制降维结果的散点图
-        plt.scatter(reduced_data['x'], reduced_data['y'], c=reduced_data['cluster'])
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('K-means Clustering Result')
-        plt.show()
 
 #对高价值场景按csv文件进行存放
 def forHighValue():
