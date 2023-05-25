@@ -5,7 +5,7 @@ import MainView from "../components/mainView/mainView";
 import ControlPanel from "../components/controlPanel/controlPanel";
 import "./layout.css";
 import TestList from "../components/testList/testlist"
-import Flow from "../components/chordFlow/flow";
+import ChordFlow from "../components/chordFlow/chordFlow";
 import RelationshipScene from "../components/relationshipScene/relationshipScene";
 const style = {
     background: '#0092ff',
@@ -29,7 +29,7 @@ const Layout = () => {
               component={<ControlPanel timeStamp={timeStamp} handleChangeTime={handleChangeTime}></ControlPanel>}
             ></Box>
           </div>
-          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<Flow></Flow>}></Box></div>
+          <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<ChordFlow></ChordFlow>}></Box></div>
           <div style={{ height: "33%" }}><Box title={"ControlPanel"} ></Box></div>
         </Col>
         <Col span={11} id="middle">

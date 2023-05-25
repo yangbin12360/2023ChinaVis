@@ -75,7 +75,7 @@ def getTimeJson():
         newRes[id]["startTime"] = res[id][0]["time_meas"]
         newRes[id]["endTime"] = res[id][-1]["time_meas"]
     return newRes
-
+@app.route('/getActionAndRoadCount',methods=["POST"])
 def getActionAndRoadCount():
     action_count = [[0] * 8 for _ in range(24)]
     # 创建一个三维数组
