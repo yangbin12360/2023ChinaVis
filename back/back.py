@@ -115,9 +115,9 @@ def getActionAndRoadCount():
                 
                 
     # print(all_count)
-    list_path = './static/data/Result/all_list.json'
-    with open(list_path, 'w') as f:
-        json.dump(all_count, f)                  
+    # list_path = './static/data/Result/all_list.json'
+    # with open(list_path, 'w') as f:
+    #     json.dump(all_count, f)                  
     return all_count
 
 # def getActionAndRoadCount():
