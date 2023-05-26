@@ -5,14 +5,18 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
 import car from "../../assets/gltf/testcar.gltf";
+import onecar from "../../assets/gltf/compressed1.glb";
+import ferrari from "../../assets/gltf/fcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import sky_up from '../../assets/fig/nz.png';
-import sky_right from '../../assets/fig/px.png';
-import sky_left from '../../assets/fig/nx.png';
-import sky_front from '../../assets/fig/ny.png';
-import sky_back from '../../assets/fig/py.png';
-import sky_down from '../../assets/fig/pz.png';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+// import {draco} from "../../assets/draco/gltf/draco_decoder.js"
+// import sky_up from '../../assets/fig/nz.png';
+// import sky_right from '../../assets/fig/px.png';
+// import sky_left from '../../assets/fig/nx.png';
+// import sky_front from '../../assets/fig/ny.png';
+// import sky_back from '../../assets/fig/py.png';
+// import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 
@@ -25,7 +29,7 @@ const move = {
   angle: 90,
 };
 const MainView = (props) => {
-  const { timeStamp } = props; //选中时间点
+  const { timeStamp,selectId} = props; //选中时间点
   const containerRef = useRef(); // 使用 useRef 创建容器引用
   const [startTime, setStartTime] = useState(timeStamp);
   const [timeMsg, setTimeMsg] = useState(timeStamp);
@@ -37,6 +41,9 @@ const MainView = (props) => {
   const [renderer, setRenderer] = useState(null);
   const [loader, setLoader] = useState(null);
   const [models, setModels] = useState(null);
+  const [dracoLoader,setDracoLoader] = useState(null);
+  // const [selectId,setSelectId] = useState(null);
+/**********************场景、相机、光照、渲染器及地图模型和相机控制器 */
   useEffect(() => {
     // 创建场景
     const scene = new THREE.Scene();
@@ -49,7 +56,6 @@ const MainView = (props) => {
       1000
     );
     camera.position.set(-81, -104, -13 + 150);
-
     // 创建渲染器
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -60,20 +66,33 @@ const MainView = (props) => {
     scene.add(ambient);
 
     // 导入地图模型
+    const dracoL = new DRACOLoader();
+    dracoL.setDecoderPath("/draco/");
+    // dracoL.setDecoderConfig({ type: "js" });
     const loader = new GLTFLoader();
+    loader.setDRACOLoader(dracoL);
     loader.load(traffic, (gltf) => {
       gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
       gltf.scene.position.set(move.x, move.y, move.z);
       scene.add(gltf.scene);
     });
-
+    // loader.load(testcar, (gltf) => {
+    //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
+    //   gltf.scene.position.set(move.x, move.y, move.z);
+    //   scene.add(gltf.scene);
+    // });
+    // loader.load(ferrari, (gltf) => {
+    //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
+    //   gltf.scene.position.set(move.x, move.y, move.z+150);
+    //   scene.add(gltf.scene);
+    // })
     // 存储场景、加载器、相机和渲染器以便后续使用
     setScene(scene);
     setLoader(loader);
     setCamera(camera);
     setRenderer(renderer);
     //创建天空盒  
-    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,
@@ -105,9 +124,8 @@ const MainView = (props) => {
     //   requestAnimationFrame(animate);
     //   renderer.render(scene, camera);
     // };
-
     // 创建动画
-    function animate() {
+    const animate=() => {
       requestAnimationFrame(animate);
       TWEEN.update();
       renderer.render(scene, camera);
@@ -123,13 +141,13 @@ const MainView = (props) => {
     controls.enableRotate = true;
     controls.update();
   }, []); // 注意这里依赖项数组为空，表示只在组件首次挂载时运行
-
+/**********************timemeans发生改变，引起各类交通参与者模型进行更新*/
   useEffect(() => {
     setTimeMsg(timeStamp);
     if (scene) {
       // 确保scene已经创建
       if (models != null) {
-        console.log("销毁", models);
+        // console.log("销毁", models);
         for (let modelId in models) {
           if (models[modelId].instance != null) {
             destroyModel(models[modelId].instance, scene);
@@ -139,22 +157,37 @@ const MainView = (props) => {
       }
       getTimeJson(timeStamp).then((res) => {
         const data = res;
+        // console.log(("data",data));
         //对所有交通参与者数据进行遍历，并创建小车模型等操作
         let modelsToLoad = {};
         for (let trafficId in data) {
           //交通参与者100s秒的轨迹
           const carTrace = movePosition(data[trafficId]["trace"]);
+          const directions = data[trafficId]["orientation"]
           modelsToLoad[trafficId] = {
             timestamp: parseFloat(
               data[trafficId]["startTime"] / 1000000 - timeStamp
             ),
             trace: carTrace,
             instance: null,
+            halo:null,
+            id: trafficId,
+            directions:directions
           };
-          loader.load(car, (gltf) => {
+          const shape = JSON.parse(data[trafficId]["shape"]);
+          loader.load(ferrari, (gltf) => {
             let instance = gltf.scene.clone();
+            const geometry = new THREE.TorusGeometry(1, 0.5, 16, 100); // 配置光环几何属性
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // 配置光环材料属性
+            const halo = new THREE.Mesh(geometry, material); // 创建光环
+            halo.position.z = -1; // 将光环置于模型底部
+            halo.visible = false; // 初始设为不可见
+            instance.add(halo); // 将光环添加到模型中
+            instance.userData.id = trafficId;
+            instance.scale.set(shape.x/4, shape.y/4, shape.z/4);  // 设置模型的大小
             instance.visible = false;  // 设置初始可见性为 false
             modelsToLoad[trafficId].instance = instance;
+            modelsToLoad[trafficId].halo = halo; // 存储对光环的引用以便后续使用
             scene.add(instance);
           });
           //对每个交通参与者轨迹进行渲染
@@ -162,6 +195,7 @@ const MainView = (props) => {
         }
         
         setModels(modelsToLoad);
+        // console.log("modelsToLoad", models);
         const clock = new THREE.Clock();
         // 渲染循环
         const animate = () => {
@@ -175,14 +209,8 @@ const MainView = (props) => {
               &&
             modelsToLoad[modelId].instance.visible === false
             ) {
-              // loader.load(car, (gltf) => {
-              //   let instance = gltf.scene.clone();
-              //   modelsToLoad[modelId].instance = instance;
-              //   scene.add(instance);
-              //   moveModel(0, instance, scene, modelsToLoad[modelId].trace);
-              // });
               modelsToLoad[modelId].instance.visible = true;
-            moveModel(0, modelsToLoad[modelId].instance, scene, modelsToLoad[modelId].trace);
+            moveModel(0, modelsToLoad[modelId].instance, scene, modelsToLoad[modelId].trace,modelsToLoad[modelId].directions);
           }
           }
           // // 更新所有活动的 tween 对象
@@ -192,8 +220,18 @@ const MainView = (props) => {
         animate();
       });
     }
-  }, [timeStamp, scene]); // 注意依赖项数组包含timeStamp和scene，表示只要这两者有任何一个变化，就运行这个回调
-
+  }, [timeStamp, scene]); 
+  /**********************光圈选中及销毁 */
+  useEffect(() => {
+    for (let id in models) {
+      const model = models[id];
+      if (id === String(selectId)) {
+        console.log("model",model.halo);
+        model.halo.visible = true; // 只有被选中的模型的光环才可见
+      }
+    }
+  },[selectId,models])
+/**********************静态信息展示*/
   useEffect(() => {
     const interval = setInterval(() => {
       setStandardTimeMsg(converTimestamp(timeMsg));
@@ -232,7 +270,7 @@ const movePosition = (data) => {
   return tracePositions;
 };
 //根据轨迹移动模型
-const moveModel = (startIndex, model, scene, tracePositions) => {
+const moveModel = (startIndex, model, scene, tracePositions, directions) => {
   if (startIndex >= tracePositions.length - 1) {
     destroyModel(model, scene);
     return;
@@ -241,9 +279,12 @@ const moveModel = (startIndex, model, scene, tracePositions) => {
     .to(tracePositions[startIndex + 1], 200)
     .onUpdate((tracePositions) => {
       model.position.copy(tracePositions);
+      let oAngle = directions[startIndex];
+      let direction = new THREE.Vector3(Math.sin(oAngle), 0, Math.cos(oAngle)); // 计算向量
+      model.lookAt(model.position.clone().add(direction));
     })
     .onComplete(() => {
-      moveModel(startIndex + 1, model, scene, tracePositions);
+      moveModel(startIndex + 1, model, scene, tracePositions,directions);
     })
     .start();
 };

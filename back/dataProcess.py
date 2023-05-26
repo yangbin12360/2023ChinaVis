@@ -125,7 +125,6 @@ def congestion_process(): #拥堵处理函数
 
 # 对数据按照类型和id进行分组
 
-
 def dataType():
     allData = {}
     # 获取所有数据文件夹
@@ -144,15 +143,49 @@ def dataType():
             except:
                 print(j)
 
+    allFault = {}
     # 按照数据的类型进行分组保存
     for i in allData:
-        nowType = str(allData[i][0]["type"])
-        if(not os.path.exists("./static/data/DataProcess/" + nowType)):
-            os.makedirs("./static/data/DataProcess/" + nowType)
-        f = open("./static/data/DataProcess/" +
-                 nowType + "/" + str(i) + ".json", "w")
-        f.write(json.dumps(allData[i]))
+        nowType = {}
+        for j in allData[i]:
+            if(j["type"] not in nowType):
+                nowType[j["type"]] = 0
+            nowType[j["type"]] += 1
+        typeNum = 0
+        allNum = len(allData[i])
+        maxType = -1
+        useType = 0
+        for j in nowType:
+            typeNum += 1
+            if(nowType[j] > maxType):
+                maxType = nowType[j]
+                useType = str(j)
+        if(typeNum > 1):
+            allFault[i] = nowType
+            for j in range(allNum):
+                allData[i][j]["type"] = useType
 
+        if(not os.path.exists("./static/data/DataProcess/" + useType)):
+            os.makedirs("./static/data/DataProcess/" + useType)
+        f = open("./static/data/DataProcess/" +
+                 useType + "/" + str(i) + ".json", "w")
+        f.write(json.dumps(allData[i]))
+    f = open("./static/data/DataProcess/allFault.json", "w")
+    f.write(json.dumps(allFault))
+    for i in range(10):
+        # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
+        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
+                    "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
+        data = f.read().split("\n")
+        nowFile = open("./static/data/ChinaVis Data/part" + str(i) + ".json", "a", encoding="utf-8")
+        # 按照id将数据分组
+        for j in data:
+            try:
+                nowData = json.loads(j)
+                nowData["type"] = allData[nowData["id"]][0]["type"]
+                nowFile.write(json.dumps(nowData))
+            except:
+                print(j)
 
 # 按时间戳顺序对每辆车的轨迹数据进行排序
 def dataTypebytime_meas():
@@ -1984,6 +2017,20 @@ def getLightData():
 
 
 
+#对高价值场景按csv文件进行存放
+def forHighValue():
+    file = '../back/static/data/DataProcess/highSceneData/decomposition_data.json'
+    with open(file, 'r') as f:
+        data = json.load(f)
+    file_name = ['carCross','longTime','noMotorCross','overSpeeding','peopleCross','reverse','speedDown','speedUp']
+    # 为每个列表创建一个DataFrame，并将其保存为csv文件
+    for i, list_data in enumerate(data):
+        df = pd.DataFrame(list_data)
+        if "start_time" in df.columns:
+            df = df.sort_values(by="start_time")
+        df.to_csv(f'../back/static/data/DataProcess/highSceneCsv/{file_name[i]}.csv', index=False, encoding='utf-8')
+
+
 if __name__ == '__main__':
     # dataType()
     # 驾驶行为
@@ -1992,4 +2039,5 @@ if __name__ == '__main__':
     # dimReduction()
     # fillNan()
     # kmeans()
-    dimReduction_cluster()
+    # dimReduction_cluster()
+    forHighValue()
