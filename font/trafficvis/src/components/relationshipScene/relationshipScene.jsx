@@ -205,551 +205,49 @@ function RelationshipScene(){
     const toolRef = useRef(null);
     const [isZoomForAll, setIsZoomForAll] = useState("unify");
     const dataZoom = useRef(null);
-    function drawRelationPlot(){
-        // var mychart1 = echarts.init(document.getElementById('relationShipScence1')) 
-        // var mychart2 = echarts.init(document.getElementById('relationShipScence2')) 
-        // var mychart3 = echarts.init(document.getElementById('relationShipScence3')) 
-        // var mychart4 = echarts.init(document.getElementById('relationShipScence4')) 
-        // var mychart5 = echarts.init(document.getElementById('relationShipScence5')) 
-        // var mychart6 = echarts.init(document.getElementById('relationShipScence6')) 
-        // var mychart7 = echarts.init(document.getElementById('relationShipScence7')) 
-        // var mychart8 = echarts.init(document.getElementById('relationShipScence8')) 
+    function drawRelationPlot(dataset){
 
+            //16位时间戳转换
+    const converTimestamp = (timestamp) => {
+        // 将微秒时间戳转换为毫秒
+        const milliseconds = timestamp * 1000;
+        // 使用毫秒时间戳创建一个新的 Date 对象
+        const date = new Date(milliseconds);
+        // 返回日期和时间字符串
+        const timestring = date.toLocaleTimeString("en-US", { hour12: false }).split(":")[0]+":"+date.toLocaleTimeString("en-US", { hour12: false }).split(":")[1];
 
-        // var option1 = {
-        // title: {
-        //     text: 'Stacked Line'
-        // },
-        // tooltip: {
-        //     trigger: 'axis'
-        // },
-        // legend: {
-        //     data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine']
-        // },
-        // grid: {
-        //     left: '3%',
-        //     right: '4%',
-        //     bottom: '3%',
-        //     containLabel: true
-        // },
-        // toolbox: {
-        //     feature: {
-        //     saveAsImage: {}
-        //     }
-        // },
-        // xAxis: {
-        //     type: 'category',
-        //     boundaryGap: false,
-        //     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        // },
-        // yAxis: {
-        //     type: 'value'
-        // },
-        // // dataZoom: [
-        // //     {
-        // //     type: 'slider',
-        // //     start: 0,
-        // //     end: 100
-        // //     },   
-        // // ],
-        // series: [
-        //     {
-        //     name: 'Email',
-        //     type: 'line',
-        //     stack: 'Total',
-        //     data: [120, 132, 101, 134, 90, 230, 210]
-        //     },
-        //     {
-        //     name: 'Union Ads',
-        //     type: 'line',
-        //     stack: 'Total',
-        //     data: [220, 182, 191, 234, 290, 330, 310]
-        //     },
-        //     {
-        //     name: 'Video Ads',
-        //     type: 'line',
-        //     stack: 'Total',
-        //     data: [150, 232, 201, 154, 190, 330, 410]
-        //     },
-        //     {
-        //     name: 'Direct',
-        //     type: 'line',
-        //     stack: 'Total',
-        //     data: [320, 332, 301, 334, 390, 330, 320]
-        //     },
-        //     {
-        //     name: 'Search Engine',
-        //     type: 'line',
-        //     stack: 'Total',
-        //     data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //     }
-        // ]
-        // };
+        return timestring;
+    };
 
-        // var option2 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
+    // const converTimestring = (timestring) => {
+    //      const timestringComplete = timestring+":"+"56";
+    //      const timestamp = timestringComplete
+    // }
 
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
+    var time = [];
+    var timestamp = [];
+    for(var i=1681315496;i<=1681401596;i =i+300){
+        time.push(converTimestamp(i));
+        timestamp.push(i);
+    }
+    console.log(time);
+    // var count = [];
+    // var action =[];
+    var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9',]
+    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
+    // for(var k = 0;k<8;k++){
+    //     action = [];
+    //     for(var j=0;j<=8;j++){
+    //         count = [];
+    //         for(var i=1;i<289;i++){
+    //            count.push(Math.random()*100);
+    //         }
+    //         action.push(count)
+    //     }
+    //     dataset.push(action);
+    // }
 
-        // var option3 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // var option4 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // var option5 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // var option6 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // var option7 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     // dataZoom: [
-        //     //     {
-        //     //     type: 'slider',
-        //     //     start: 0,
-        //     //     end: 100
-        //     //     },   
-        //     // ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // var option8 = {
-        //     tooltip: {
-        //         trigger: 'axis'
-        //     },
-        //     grid: {
-        //         left: '3%',
-        //         right: '4%',
-        //         bottom: '3%',
-        //         containLabel: true
-        //     },
-
-        //     xAxis: {
-        //         type: 'category',
-        //         boundaryGap: false,
-        //         data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        //     },
-        //     yAxis: {
-        //         type: 'value'
-        //     },
-        //     dataZoom: [
-        //         {
-        //         type: 'slider',
-        //         start: 0,
-        //         end: 100
-        //         },   
-        //     ],
-        //     series: [
-        //         {
-        //         name: 'Email',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [120, 132, 101, 134, 90, 230, 210]
-        //         },
-        //         {
-        //         name: 'Union Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [220, 182, 191, 234, 290, 330, 310]
-        //         },
-        //         {
-        //         name: 'Video Ads',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [150, 232, 201, 154, 190, 330, 410]
-        //         },
-        //         {
-        //         name: 'Direct',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [320, 332, 301, 334, 390, 330, 320]
-        //         },
-        //         {
-        //         name: 'Search Engine',
-        //         type: 'line',
-        //         stack: 'Total',
-        //         data: [820, 932, 901, 934, 1290, 1330, 1320]
-        //         }
-        //     ]
-        //     };
-
-        // option1 && mychart1.setOption(option1);
-        // option2 && mychart2.setOption(option2);
-        // option3 && mychart3.setOption(option3);
-        // option4 && mychart4.setOption(option4);
-        // option5 && mychart5.setOption(option5);
-        // option6 && mychart6.setOption(option6);
-        // option7 && mychart7.setOption(option7);
-        // option8 && mychart8.setOption(option8);
-
-        // //联动配置
-        // mychart1.group = 'group';
-        // mychart2.group = 'group';
-        // mychart3.group = 'group';
-        // mychart4.group = 'group';
-        // mychart5.group = 'group';
-        // mychart6.group = 'group';
-        // mychart7.group = 'group';
-        // mychart8.group = 'group';
-        // echarts.connect('group');  //调用ECharts对象的connect方法时，传入group值`
-      
-        var time = [];
-        for(var i=1;i<289;i++){
-            time.push(i);
-        }
-        var count = [];
-        var dataset = [];
-        var action =[];
-        var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9',]
-        var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
-        for(var k = 0;k<8;k++){
-            action = [];
-            for(var j=0;j<=8;j++){
-                count = [];
-                for(var i=1;i<289;i++){
-                   count.push(Math.random()*100);
-                }
-                action.push(count)
-            }
-            dataset.push(action);
-        }
-
-
-
-        console.log(dataset);
+    console.log(dataset);
     const title = [];
     const xAxis = [];
     const yAxis = [];
@@ -760,14 +258,13 @@ function RelationshipScene(){
         (chartHeight + 44) * label.length
       }px`;
       
-      
-
       label.forEach((item, index) => {
         title.push({
           textBaseline: "middle",
           top: 22 + (32 + chartHeight) * index,
           left: "5%",
           subtext: item,
+          subtextStyle: {color:'black'} ,
         });
         grid.push({
           left: "5%",
@@ -783,9 +280,6 @@ function RelationshipScene(){
         yAxis.push({
           gridIndex: index,
         });
-        // dataset[index].forEach((d,i)=>{
-
-        // })
        
         dataset[index].forEach((d, i) => {
             series.push({
@@ -801,32 +295,6 @@ function RelationshipScene(){
                   color: "#ddd",
                   opacity: 0.1,
                 },
-                // data: [
-                //   [
-                //     {
-                //       xAxis: "20170103",
-                //     },
-                //     {
-                //       xAxis: "20171227",
-                //     },
-                //   ],
-                //   [
-                //     {
-                //       xAxis: "20190103",
-                //     },
-                //     {
-                //       xAxis: "20191227",
-                //     },
-                //   ],
-                //   [
-                //     {
-                //       xAxis: "20210105",
-                //     },
-                //     {
-                //       xAxis: "20211224",
-                //     },
-                //   ],
-                // ],
               },
             });
           });
@@ -836,11 +304,11 @@ function RelationshipScene(){
         title: title,
         tooltip: {
           trigger: "axis",
-        //   formatter: function (params) {
+          //formatter: function (params) {
         //     let tip = params.map((item, index) => {
         //       return (
         //         item.marker +
-        //         SENSORLIST_NAME_EN1[item.componentIndex % 10] +
+        //         // SENSORLIST_NAME_EN1[item.componentIndex % 10] +
         //         " " +
         //         item.value
         //       );
@@ -850,7 +318,7 @@ function RelationshipScene(){
         //       result += i + "<br/>";
         //     }
         //     return result;
-        //   },
+          // },
         },
         grid: grid,
         xAxis: xAxis,
@@ -868,6 +336,8 @@ function RelationshipScene(){
             xAxisIndex: [0, 1, 2,3,4,5,6,7],
             start: 0,
             end: 20,
+            x:20,
+            y:20,
           },
           {
             type: "slider",
@@ -887,12 +357,22 @@ function RelationshipScene(){
   
       const myChart = echarts.init(groupLinesRef.current);
       myChart.setOption(option, true);
+      
+      //点击点获取横坐标值
+      myChart.on("click", function (param) {
+        var getX = timestamp[param.dataIndex];//横坐标的值
+        console.log(getX);
+        })
 
     }
 
-    useEffect(() =>{
-        drawRelationPlot();
-    },[]);
+    useEffect(() => {
+        getActionAndRoadCount().then(res => {
+         let dataset = res;
+         //console.log(dataset);
+         drawRelationPlot(dataset);
+        })
+    },[])
 
     return (
         <div style={{height:'400px',width:'100%',overflowY:'auto'}}>
