@@ -77,9 +77,11 @@ def getTimeJson():
     return newRes
 
 def getActionAndRoadCount():
-    action_count = [[0] * 8 for _ in range(24)]
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
     # 创建一个三维数组
-    road_count = [[[0 for _ in range(9)] for _ in range(8)] for _ in range(24)]
+    all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
 
     file_path = './static/data/Result/decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
@@ -92,36 +94,31 @@ def getActionAndRoadCount():
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
-                hour1=dt1.hour
-                hour2=dt2.hour
-                if hour1==hour2:
-                    action_count[hour1][index]+=1
-                    road_count[hour1][index][item['road']]+=1
+                time_diff1 = dt1 - datetime.datetime(dt1.year, dt1.month, dt1.day)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                time_diff2 = dt2 - datetime.datetime(dt2.year, dt2.month, dt2.day)  # 计算时间戳与当天零点之间的时间差
+                segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index1==segment_index2:
+                    all_count[index][item['road']][segment_index1]+=1
                 else:
-                    action_count[hour1][index]+=1
-                    action_count[hour2][index]+=1
-                    road_count[hour1][index][item['road']]+=1
-                    road_count[hour2][index][item['road']]+=1 
+                    all_count[index][item['road']][segment_index1]+=1
+                    all_count[index][item['road']][segment_index2]+=1 
         else:
             for item in d_data:
                 if item['road']==-1:
                     continue
                 # 将时间戳转换为日期时间
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
-                action_count[dt.hour][index]+=1
-                road_count[dt.hour][index][item['road']]+=1
-
-    all_list=[]
-    for index,action_list in enumerate(action_count):
-        name_list=['car_cross','long_time','nomotor_cross','overSpeeding','people_cross','reverse','speedDown','speedUp']
-        for i,action in enumerate(action_list):
-            all_list.append({
-                'action_type':name_list[i],
-                'action_count':action,
-                'action_hour':index,
-                'road_count':road_count[index][i]
-            })
-    return all_list
+                time_diff = dt - datetime.datetime(dt.year, dt.month, dt.day)  # 计算时间戳与当天零点之间的时间差
+                segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                all_count[index][item['road']][segment_index]+=1
+                
+                
+    # print(all_count)
+    list_path = './static/data/Result/all_list.json'
+    with open(list_path, 'w') as f:
+        json.dump(all_count, f)                  
+    return all_count
 
 # def getActionAndRoadCount():
 #     file_path = './static/data/Result/all_list.json'
