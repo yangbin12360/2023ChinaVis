@@ -1949,8 +1949,8 @@ def getLightData():
     allTime = {}
     for i in range(10):
     # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
-        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
-                    "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
+        f = open("./static/data/ChinaVis Data/part" + str(i) +
+                    ".json", "r", encoding="utf-8")
         data = f.read().split("\n")
         # 按照id将数据分组
         with alive_bar(len(data)) as bar:
@@ -1960,8 +1960,8 @@ def getLightData():
                     nowPosition = json.loads(nowData["position"])
                     nowData = json.loads(j)
                     nowTime = float(nowData["time_meas"]) / 1000000
-                    nowTime = time.localtime(nowTime)
-                    nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
+                    # nowTime = time.localtime(nowTime)
+                    # nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
                     allTime[nowTime] = {}
                     for k in polygonList:
                         if(polygonList[k].contains(Point(nowPosition["x"], nowPosition["y"]))):
@@ -2030,9 +2030,39 @@ def forHighValue():
             df = df.sort_values(by="start_time")
         df.to_csv(f'../back/static/data/DataProcess/highSceneCsv/{file_name[i]}.csv', index=False, encoding='utf-8')
 
+#赋予各交通参与者roadId信息
+def addRoadId():
+    # 获取所有JSON文件的列表
+    file_list = os.listdir('../back/static/data/DataProcess/laneData')
+    file = '../back/static/data/DataProcess/laneData/'
+   # 创建一个空的DataFrame
+    with alive_bar(len(file_list), title='Processing') as bar:
+        df = pd.DataFrame()
+        for name in file_list:
+            file_path = os.path.join(file, name)
+            with open(file_path, 'r') as f:
+                json_data = json.load(f)
+                # 遍历JSON数据中的每个时间戳
+                for timestamp, records in json_data.items():
+                    for record in records:
+                        record['roadId'] = name.split('.')[0]
+                    temp_df = pd.DataFrame(records)
+                    df = df.append(temp_df, ignore_index=True)
+
+            bar()  # 更新进度条
+            time.sleep(0.1)  # 模拟每次迭代的时间延迟
+    # 将DataFrame按照id进行分组，并将每个分组写入单独的CSV文件
+    grouped = df.groupby('id')
+    with alive_bar(len(grouped), title='Writing Files') as bar:
+        for group_id, group_data in grouped:
+            group_data.to_csv(f'../back/static/data/DataProcess/addRoadId/{group_id}.csv', index=False)
+
+            bar()  # 更新进度条
+            time.sleep(0.1)  # 模拟每次迭代的时间延迟
+
 
 if __name__ == '__main__':
-    # dataType()
+    dataType()
     # 驾驶行为
     # featureAll()
     # csvNormalization()
@@ -2040,4 +2070,6 @@ if __name__ == '__main__':
     # fillNan()
     # kmeans()
     # dimReduction_cluster()
-    forHighValue()
+    # forHighValue()
+    # getLightData()
+    addRoadId()

@@ -4,6 +4,7 @@ import json
 import numpy as np
 import os
 import datetime
+import pandas as pd
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -148,11 +149,51 @@ def getHighValue():
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
     endTime = startTime+300
-    print(file_name)
-    # for name in file_name:
-    #     with open(file+'/'+name,"r") as f:
-    return res
+    startTime = startTime*1000000
+    endTime = endTime*1000000
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['start_time'] >= startTime) & (df['start_time'] <= endTime)]
+        resName = name.split('.')[0]
+        res[resName] = selected_rows.to_dict('records')
+    newRes = {}
+        # 遍历 res 中的每个关键字和对应的列表
+    for keyword, lst in res.items():
+        newRes[keyword] = []
+        # 遍历列表中的每个字典
+        for dictionary in lst:
+            # 获取每个字典下的 'id'、'type'、'action_name' 和 'start_time' 键对应的值
+            id_value = dictionary['id']
+            type_value = dictionary['type']
+            action_name_value = dictionary['action_name']
+            start_time_value = dictionary['start_time']
 
+            # 将这四个键和对应的值组成一个新的字典，并添加到 newRes 中
+            new_dictionary = {
+                'id': id_value,
+                'type': type_value,
+                'hv_type': action_name_value,
+                'start_time': start_time_value
+            }
+            newRes[keyword].append(new_dictionary)
+    return newRes
+
+
+#按照id获取高价值场景数据
+@app.route('/getIdHighValue',methods=["POST"])
+def getIdHighValue():
+    id = request.json.get('id')
+    file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
+    file = '../back/static/data/DataProcess/highSceneCsv'
+    res = {}
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['id'] == id)]
+        resName = name.split('.')[0]
+        res[resName] = selected_rows.to_dict('records')
+    return res
 
 
 
