@@ -11,12 +11,12 @@ import ferrari from "../../assets/gltf/fcar.gltf";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 // import {draco} from "../../assets/draco/gltf/draco_decoder.js"
-// import sky_up from '../../assets/fig/nz.png';
-// import sky_right from '../../assets/fig/px.png';
-// import sky_left from '../../assets/fig/nx.png';
-// import sky_front from '../../assets/fig/ny.png';
-// import sky_back from '../../assets/fig/py.png';
-// import sky_down from '../../assets/fig/pz.png';
+import sky_up from '../../assets/fig/nz.png';
+import sky_right from '../../assets/fig/px.png';
+import sky_left from '../../assets/fig/nx.png';
+import sky_front from '../../assets/fig/ny.png';
+import sky_back from '../../assets/fig/py.png';
+import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 
@@ -92,7 +92,7 @@ const MainView = (props) => {
     setCamera(camera);
     setRenderer(renderer);
     //创建天空盒  
-    // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,
@@ -104,18 +104,19 @@ const MainView = (props) => {
     // function createPlaneGeometryBasicMaterial() {
     //   var textureLoader = new THREE.TextureLoader();
     //   var cubeMaterial = new THREE.MeshStandardMaterial({
-    //     map: textureLoader.load(road_back),
+    //     map: textureLoader.load(road_background),
     //   });
     //   cubeMaterial.map.wrapS = THREE.RepeatWrapping;
     //   cubeMaterial.map.wrapT = THREE.RepeatWrapping;
     //   cubeMaterial.map.repeat.set(8, 8); // 创建地平面并设置大小
-    //   var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+    //   var planeGeometry = new THREE.PlaneGeometry(10000, 10000);
     //   var plane = new THREE.Mesh(planeGeometry, cubeMaterial); // 设置平面位置并旋转
-
-    //   plane.rotation.x = -0.5 * Math.PI;
-    //   plane.position.x = 0;
-    //   plane.position.y = 10;
-    //   plane.position.z = 0;
+    //   //plane.rotateX(THREE.MathUtils.degToRad(move.angle));
+    //   plane.position.set(move.x, move.y, move.z);
+    //   // plane.rotation.x = -0.5 * Math.PI;
+    //   // plane.position.x = 0;
+    //   // plane.position.y = 10;
+    //   // plane.position.z = 0;
     //   return plane;
     // } // 将平面添加到场景中
     // var plane = createPlaneGeometryBasicMaterial();

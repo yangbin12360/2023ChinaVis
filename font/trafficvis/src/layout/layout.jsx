@@ -9,6 +9,7 @@ import ChordFlow from "../components/chordFlow/chordFlow";
 import RelationshipScene from "../components/relationshipScene/relationshipScene";
 import SceneList from "../components/sceneList/sceneList";
 import SingleTrace from "../components/singleTrace/singleTrace";
+import RoseComponent from "../components/Rose/rose";
 const style = {
   background: "#0092ff",
   padding: "8px 0",
@@ -52,12 +53,7 @@ const Layout = () => {
             <Box title={"ChordFlow"} component={<ChordFlow></ChordFlow>}></Box>
           </div>
           {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
-          <div style={{ height: "34%" }}>
-            <Box title={"ChordFlow"}></Box>
-          </div>
-          <div style={{ height: "33%" }}>
-            <Box title={"ControlPanel"}></Box>
-          </div>
+          <div style={{ height: "33%" }}><Box title={"Rose"} component = {<RoseComponent></RoseComponent>} ></Box></div>
         </Col>
         <Col span={13} id="middle">
           <div style={{ height: "67%" }}>

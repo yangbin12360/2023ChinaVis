@@ -9,13 +9,12 @@ function ChordFlow(){
     const [tipyX,setTipyX] = useState('0px');
     const [tipyY,setTipyY] = useState('0px');
     function drawChord(){
-        var width = document.getElementById('flowContainer').clientWidth-20;
-        var height = document.getElementById('flowContainer').clientHeight-20;
-        console.log(height);
+        var width = document.getElementById('flowContainer').clientWidth;
+        var height = document.getElementById('flowContainer').clientHeight;
         var TrafficFlow = d3.select('#flow_div')
                             .append('svg')
-                            .attr('width',width+20)
-                            .attr('height',height+20)
+                            .attr('width',width)
+                            .attr('height',height)
                             .append("g")
                             .attr('id','traffic_flow')
                             .attr('transform', 'translate(' + width/2 + "," + height/2 + ")");
@@ -56,7 +55,7 @@ function ChordFlow(){
         var color20 = d3.scaleOrdinal(d3.schemeCategory10);
         //绘制节点弧
         // 弧生成器
-        var innerRadius = width/2 * 0.7;
+        var innerRadius = width/2 * 0.85;
         var outerRadius = innerRadius * 1.05;
         var outer_arc = d3.arc()
                         .innerRadius(innerRadius)

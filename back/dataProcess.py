@@ -1784,6 +1784,7 @@ def getLightData():
     useData = {}
     useLaneData = {}
 
+    # 获取所有车道的fid, 判断车道是否为同一个
     for i in laneData["features"]:
         useCoord = i["geometry"]["coordinates"]
 
@@ -1802,6 +1803,7 @@ def getLightData():
             nowCoord = j["geometry"]["coordinates"]
             isOne = False
             for k in nowCoord:
+                # 获取车道的所有点，判断不同车道是否又交点
                 if(abs(k[0] - useCoord[0][0]) < 0.1 and abs(k[1] - useCoord[0][1]) < 0.1):
                     lineStart.append(j["properties"]["fid"])
                     isOne = True
@@ -1810,9 +1812,9 @@ def getLightData():
                     isOne = True
             if(isOne):
                 useData[i["properties"]["fid"]].append(j["properties"]["fid"])
-
+    
+    # 获取同一个车道的所有点信息，并整合到一起
     allLane = set()
-
     def getOneLineAll(nowData):
         result = []
         for i in nowData:
@@ -1823,6 +1825,7 @@ def getLightData():
             result.extend(getOneLineAll(useData[i]))
             useData[i] = []
         return result
+
     for i in useData:
         if(i in allLane):
             continue
@@ -1830,15 +1833,18 @@ def getLightData():
         useData[i] = getOneLineAll(useData[i])
         useData[i].append(i)
 
+    # 将该信息存储进line.json文件
     f = open("./static/data/DataProcess/line.json", "w")
     json.dump(useData, f)
 
+    # 五条车道的fid，分别进行判断
     twoLine = [1898, 1910, 1936, 1957, 1975]
     laneAll = {}
     for i in useData:
         if(len(useData[i]) == 0):
             continue
         oneLineData = []
+        # 判断当前车道是否为两车道，如果是，则将该两条车道分开
         if(int(i) in twoLine):
             oneLineData = {}
             for j in useData[i]:
@@ -1855,7 +1861,7 @@ def getLightData():
             for j in useData[i]:
                 oneLineData.append(useLaneData[j])
             laneAll[i] = oneLineData
-
+    # 按照车道上下左右和方向进行分类
     useLane = {
         "top": {
             "r": {},
@@ -1878,7 +1884,7 @@ def getLightData():
     for i in laneAll:
         data1.extend(laneAll[i])
         nowcoord = laneAll[i][0]["geometry"]["coordinates"]
-        # 判断当前道路的方向
+        # 判断当前道路的方向(位置信息和车道方向统一)
         if((nowcoord[0][1] - nowcoord[-1][1]) / (nowcoord[0][0] - nowcoord[-1][0]) > 0):
             if(nowcoord[0][1] - nowcoord[-1][1] > 0):
                 laneAll[i].sort(key=lambda x: x["geometry"]
@@ -1920,9 +1926,11 @@ def getLightData():
         "features": data1
     }, f)
 
+    # 存储所有车道的所有数据，以及相关节点
     f = open("./static/data/DataProcess/laneAll.json", "w")
     json.dump(useLane, f)
 
+    # 获取每个车道的左右边界
     f = open("./static/data/ChinaVis Data/road10map/boundaryroad10.geojson", "r")
     boundary = json.load(f)
     boundaryData = {}
@@ -1931,6 +1939,7 @@ def getLightData():
 
     polygonList = {}
     allData = {}
+    # 是固体部分shapely将每一个车道做成一个包围盒（左右车道由于方向相同，所有其中一个数据需要翻转）
     for i in useLane:
         for j in useLane[i]:
             for k in useLane[i][j]:
@@ -1947,6 +1956,7 @@ def getLightData():
                 polygonList[k] = Polygon(leftData)
                 allData[k] = {}
     allTime = {}
+    # 读取所有数据，并判断每一个点所在的车道信息
     for i in range(10):
     # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
         f = open("./static/data/ChinaVis Data/part" + str(i) +
@@ -1959,10 +1969,12 @@ def getLightData():
                     nowData = json.loads(j)
                     nowPosition = json.loads(nowData["position"])
                     nowData = json.loads(j)
+                    # 获取当前时间（时分秒）
                     nowTime = float(nowData["time_meas"]) / 1000000
                     # nowTime = time.localtime(nowTime)
                     # nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
                     allTime[nowTime] = {}
+                    # 判断车所在车道
                     for k in polygonList:
                         if(polygonList[k].contains(Point(nowPosition["x"], nowPosition["y"]))):
                             if(nowTime not in allData[k]):
@@ -1972,9 +1984,12 @@ def getLightData():
                 except:
                     print(j)
                 bar()
+    # 按照车道信息进行存储
     for i in allData:
         f = open("./static/data/DataProcess/part" + str(i) + ".json", "w")
         json.dump(allData[i], f)
+
+    # #获取每一个车道所有时刻距离3米以内的车辆的启动信息，以判断红绿灯颜色（数据缺少，无法判断）
     # for i in allData:
     #     f = open("./static/data/DataProcess/part" + str(i) + ".json", "r")
     #     allData[i] = json.load(f)
