@@ -4,6 +4,7 @@ import json
 import numpy as np
 import os
 import datetime
+import pandas as pd
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -105,22 +106,26 @@ def getActionAndRoadCount():
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
-                time_diff1 = dt1 - datetime.datetime(dt1.year, dt1.month, dt1.day)  # 计算时间戳与当天零点之间的时间差
+                time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                time_diff2 = dt2 - datetime.datetime(dt2.year, dt2.month, dt2.day)  # 计算时间戳与当天零点之间的时间差
+                time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
                 if segment_index1==segment_index2:
                     all_count[index][item['road']][segment_index1]+=1
                 else:
                     all_count[index][item['road']][segment_index1]+=1
-                    all_count[index][item['road']][segment_index2]+=1 
+                    if segment_index2>287:
+                        # print(segment_index2,dt2)
+                        all_count[index][item['road']][287]+=1
+                    else:
+                        all_count[index][item['road']][segment_index2]+=1 
         else:
             for item in d_data:
                 if item['road']==-1:
                     continue
                 # 将时间戳转换为日期时间
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
-                time_diff = dt - datetime.datetime(dt.year, dt.month, dt.day)  # 计算时间戳与当天零点之间的时间差
+                time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
                 all_count[index][item['road']][segment_index]+=1
                 
@@ -146,11 +151,51 @@ def getHighValue():
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
     endTime = startTime+300
-    print(file_name)
-    # for name in file_name:
-    #     with open(file+'/'+name,"r") as f:
-    return res
+    startTime = startTime*1000000
+    endTime = endTime*1000000
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['start_time'] >= startTime) & (df['start_time'] <= endTime)]
+        resName = name.split('.')[0]
+        res[resName] = selected_rows.to_dict('records')
+    newRes = {}
+        # 遍历 res 中的每个关键字和对应的列表
+    for keyword, lst in res.items():
+        newRes[keyword] = []
+        # 遍历列表中的每个字典
+        for dictionary in lst:
+            # 获取每个字典下的 'id'、'type'、'action_name' 和 'start_time' 键对应的值
+            id_value = dictionary['id']
+            type_value = dictionary['type']
+            action_name_value = dictionary['action_name']
+            start_time_value = dictionary['start_time']
 
+            # 将这四个键和对应的值组成一个新的字典，并添加到 newRes 中
+            new_dictionary = {
+                'id': id_value,
+                'type': type_value,
+                'hv_type': action_name_value,
+                'start_time': start_time_value
+            }
+            newRes[keyword].append(new_dictionary)
+    return newRes
+
+
+#按照id获取高价值场景数据
+@app.route('/getIdHighValue',methods=["POST"])
+def getIdHighValue():
+    id = request.json.get('id')
+    file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
+    file = '../back/static/data/DataProcess/highSceneCsv'
+    res = {}
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['id'] == id)]
+        resName = name.split('.')[0]
+        res[resName] = selected_rows.to_dict('records')
+    return res
 
 
 
