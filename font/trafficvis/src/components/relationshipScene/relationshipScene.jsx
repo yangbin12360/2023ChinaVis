@@ -219,11 +219,6 @@ function RelationshipScene(){
         return timestring;
     };
 
-    // const converTimestring = (timestring) => {
-    //      const timestringComplete = timestring+":"+"56";
-    //      const timestamp = timestringComplete
-    // }
-
     var time = [];
     var timestamp = [];
     for(var i=1681315496;i<=1681401596;i =i+300){
@@ -390,14 +385,7 @@ function RelationshipScene(){
           </Radio.Group> */}
         </div>
             <div style={{ width: "100%" }} ref={groupLinesRef}></div>
-        {/* <div id='relationShipScence1'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence2'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence3'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence4'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence5'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence6'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence7'style={{height:'40%',width:'100%'}}></div>
-        <div id='relationShipScence8'style={{height:'40%',width:'100%'}}></div> */}
+
         
         </div>
     );
