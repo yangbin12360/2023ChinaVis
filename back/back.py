@@ -87,6 +87,7 @@ def getTimeJson():
         newRes[id]["startTime"] = res[id][0]["time_meas"]
         newRes[id]["endTime"] = res[id][-1]["time_meas"]
     return newRes
+    
 @app.route('/getActionAndRoadCount',methods=["POST"])
 def getActionAndRoadCount():
     # 时间段时长和数量
