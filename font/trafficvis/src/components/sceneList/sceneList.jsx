@@ -5,7 +5,7 @@ import { getHighValue } from "../../apis/api";
 import { HV_NAME_LIST, HV_NAME_EASY_LIST } from "../utils/constant";
 
 const SceneList = (props) => {
-  const { timeStamp } = props;
+  const { timeStamp,isTraceVisible, selectTraceId,handleSelectTraceId } = props;
   // sceneBar长度和宽度
   const sceneBarRef = useRef(null);
   const detailRef = useRef(null);
@@ -150,15 +150,18 @@ const SceneList = (props) => {
     if (detailRef.current == null) {
       setListVisible(!isListVisible); // 清空选中的行
     }
+    handleSelectTraceId(selectedData[0]["id"])
     setSelectedRows([]);
   };
 
   const toggleRowSelection = (id) => {
-    setSelectedRows((prevSelectedRows) =>
-      prevSelectedRows.includes(id)
-        ? prevSelectedRows.filter((rowId) => rowId !== id)
-        : [...prevSelectedRows, id]
-    );
+    if (selectedRows.length === 0) {
+      setSelectedRows([id]); // 如果当前没有选中行，则选中当前行
+    } else {
+      setSelectedRows((prevSelectedRows) =>
+        prevSelectedRows.includes(id) ? [] : [id] // 如果当前行已经选中，则取消选中，否则选中当前行并取消其他行的选中状态
+      );
+    }
   };
   //16位时间戳转换
   const converTimestamp = (timestamp) => {
@@ -177,6 +180,7 @@ const SceneList = (props) => {
     <div className="container">
       <div className="topBox">
         <div className="numChart" ref={sceneBarRef} id="sceneBar"></div>
+        <div className="line"></div>
         <div className="sceneList">
           <div className="tableContainer">
             <table>
@@ -220,51 +224,6 @@ const SceneList = (props) => {
         </div>
       </div>
       <div className="mid"></div>
-      {/* <div className="bottomBox">
-        <div className="sceneDetail">4</div>
-        <div className="sceneList">
-          {isListVisible && (
-            <div className="tableContainer" ref={detailRef}>
-              <table>
-                <thead className="tableH">
-                  <tr className="thr">
-                    <th className="thone"></th>
-                    <th>id</th>
-                    <th>type</th>
-                    <th>高价值场景类型</th>
-                    <th>开始时间</th>
-                  </tr>
-                </thead>
-                <tbody className="tableB">
-                  {hvData.map((row) => (
-                    <tr
-                      key={row.id}
-                      style={
-                        selectedRows.includes(row.id)
-                          ? { background: "yellow" }
-                          : {}
-                      }
-                    >
-                      <td className="thone">
-                        <input
-                          type="checkbox"
-                          checked={selectedRows.includes(row.id)}
-                          onChange={() => toggleRowSelection(row.id)}
-                        />
-                      </td>
-                      <td className="cText">{row.id}</td>
-                      <td>{row.type}</td>
-                      <td>{row.highValueScene}</td>
-                      <td>{row.startTime}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div> */}
-      {/* <div className="mid"></div> */}
     </div>
   );
 };

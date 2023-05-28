@@ -12,6 +12,12 @@
     background-color: #fff;
 }
 
+.line {
+    width: 1px;
+    height: 100%;
+    background-color: #ebebeb;
+}
+
 .numChart {
     flex: 3;
     width: 100%;
@@ -40,6 +46,7 @@
 .sceneList {
     flex: 5;
     height: 190px;
+    /* height: 100%; */
 }
 
 

@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
+import "./singleTrace.css";
 
 const VData = [
   { x: 0, y: 5 },
@@ -9,13 +10,51 @@ const VData = [
   { x: 4, y: 3 },
   { x: 20, y: 8 },
 ];
-const colorData= [0.05,0.1,0.15,0.2,0.3,0.25,0.35,0.45,0.5]
-const SingleTrace = () => {
+const barData = [
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+  {
+    sceneType: "CC",
+    count: 146,
+  },
+];
+const colorData = [0.05, 0.1, 0.15, 0.2, 0.3, 0.25, 0.35, 0.45, 0.5];
+const SingleTrace = (props) => {
+  const {isTraceVisible, selectTraceId}=props
   const singleTraceRef = useRef(null);
+  const barRef = useRef(null);
   useEffect(() => {
+    if(isTraceVisible){
     let data = generateData();
     drawSingleTrace(data, 9, VData);
-  }, []);
+    drawBar(barData);}
+  }, [isTraceVisible, selectTraceId]);
 
   function generateData() {
     let data = [];
@@ -28,10 +67,7 @@ const SingleTrace = () => {
     data.push({ x: 68, y: 1.5 });
     data.push({ x: 70, y: 0.5 });
     data.push({ x: 100, y: 0.5 });
-    for (let i = 150; i <= 300; i++) {
-      // 生成0到90之间的随机整数
-      data.push({ x: i, y: 1.5 });
-    }
+
     return data;
   }
   const drawSingleTrace = (data, yNum, vdata) => {
@@ -124,9 +160,10 @@ const SingleTrace = () => {
       .call(vYAxis)
       .call((g) => g.selectAll(".v-y-axis .tick line").remove()); // 移除vY轴的轴线
 
-
-      
-    const colorScale = d3.scaleQuantize().domain([0, 1]).range(d3.schemeBlues[9]);
+    const colorScale = d3
+      .scaleQuantize()
+      .domain([0, 1])
+      .range(d3.schemeBlues[9]);
     const rectWidth = boundedWidth / 3;
     const rectHeight = boundedHeight / 9;
     const rectGroup = bounds.append("g");
@@ -140,7 +177,7 @@ const SingleTrace = () => {
           .attr("height", rectHeight)
           .attr("fill", colorScale(colorData[j]))
           .attr("stroke", "none")
-          .style("opacity", 0.5)
+          .style("opacity", 0.5);
       }
     }
 
@@ -195,8 +232,107 @@ const SingleTrace = () => {
       .attr("r", 2) // 设置点的大小
       .attr("fill", "red"); // 设置点的颜色
   };
+
+  //绘制柱状图
+  const drawBar = (data) => {
+    // 获取div元素的高度和宽度
+    const divHeight = barRef.current.offsetWidth;
+    const divWidth = barRef.current.offsetHeight;
+    const dimensions = {
+      width: divHeight,
+      height: divWidth,
+      margin: { top: 10, right: 10, bottom: 30, left: 10 },
+    };
+    const boundedWidth =
+      dimensions.width - dimensions.margin.left - dimensions.margin.right;
+    const boundedHeight =
+      dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+
+    d3.selectAll("div#bar svg").remove();
+
+    const svg = d3
+      .select("#bar")
+      .append("svg")
+      .attr("width", dimensions.width)
+      .attr("height", dimensions.height)
+      .attr("videBox", [0, 0, dimensions.width, dimensions.height])
+      .style("max-width", "100%")
+      .style("background", "#fff");
+
+    const bounds = svg
+      .append("g")
+      .style(
+        "transform",
+        `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
+      );
+
+    let xScale = d3
+      .scaleBand()
+      .domain(d3.range(data.length))
+      .range([0, boundedWidth])
+      .padding(0.05);
+    let yScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d) => d.count)])
+      .range([0, boundedHeight - dimensions.margin.bottom]);
+
+    //绘制柱状图背景
+    bounds
+      .append("g")
+      .selectAll("rect")
+      .data(data)
+      .join("rect")
+      .attr("x", (d, i) => {
+        return xScale(i);
+      })
+      .attr("y", 0)
+      .attr("width", xScale.bandwidth())
+      .attr("height", boundedHeight)
+      .attr("fill", "#eeeeee");
+
+    // 绘制柱状图
+    bounds
+      .append("g")
+      .selectAll("rect")
+      .data(data)
+      .join("rect")
+      .attr("x", (d, i) => {
+        return xScale(i);
+      })
+      .attr("y", (d) => boundedHeight - yScale(d.count))
+      .attr("width", xScale.bandwidth() - 1)
+      .attr("height", (d) => yScale(d.count));
+
+    //绘制状图x轴名称
+    bounds
+      .append("g")
+      .selectAll("text")
+      .data(data)
+      .join("text")
+      .text((d) => d.sceneType)
+      .attr("x", (d, i) => {
+        return xScale(i);
+      })
+      .attr("y", boundedHeight + 20)
+      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
+    //添加数量文字
+    bounds
+      .append("g")
+      .selectAll("text")
+      .data(data)
+      .join("text")
+      .text((d) => d.count)
+      .attr("x", (d, i) => {
+        return xScale(i);
+      })
+      .attr("y", (d) => boundedHeight - yScale(d.count) - 10)
+      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
+  };
   return (
-    <div className="container" ref={singleTraceRef} id="singleTrace"></div>
+    <div className="box">
+      <div className="bar" ref={barRef} id="bar"></div>
+      <div className="container" ref={singleTraceRef} id="singleTrace"></div>
+    </div>
   );
 };
 export default SingleTrace;
