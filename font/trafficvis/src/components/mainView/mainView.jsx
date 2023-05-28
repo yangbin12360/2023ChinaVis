@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_modifiedV3.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV4.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
@@ -19,6 +19,7 @@ import sky_back from '../../assets/fig/py.png';
 import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
+import ChordFlow from "../chordFlow/chordFlow";
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
