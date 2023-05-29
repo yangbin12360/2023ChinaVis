@@ -52,7 +52,7 @@ const SingleTrace = (props) => {
   useEffect(() => {
     if(isTraceVisible){
     let data = generateData();
-    drawSingleTrace(data, 9, VData);
+    drawSingleTrace(data, 15, VData);
     drawBar(barData);}
   }, [isTraceVisible, selectTraceId]);
 

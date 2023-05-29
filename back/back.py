@@ -188,6 +188,40 @@ def getHighValue():
 def getIdHighValue():
     id = request.json.get('id')
     type = request.json.get('type')
+    init_time = 1681315196
+    def find_keys(laneDict, values):
+        keys = []
+        for key in laneDict:
+        # 将字典中的元素转换为字符串
+            str_values = [str(value) for value in laneDict[key]]
+            for value in values:
+                if value in str_values and key not in keys:
+                    keys.append(key)
+        return keys
+    tfPath = "../back/static/data/DataProcess/trafficFlow/little_road_flow.json"
+    with open(tfPath,"r") as f:
+        tfData = json.load(f)
+    # tfData[车道号number][时间]
+    laneDict = {
+  "left_l":["1912", "1911", "1910_2", "1910_1"],
+  "left_r":["1898_1", "1898_2", "1900", "1901"],
+  "bottom_l":["1957_4", "1957_3", "1956", "1955"],
+  "bottom_r":["1934", "1935", "1936_3", "1936_4"],
+  "right_l":["1450", "1449", "1448", "1447", "1446"],
+  "right_r":["1442", "1443", "1444", "1445"],
+  "top_l":["1974", "1973", "1972"],
+  "top_r":["1975_1", "1975_2", "1977", "1978"],
+}
+    lanNumber= {
+    "left_l":[0,1,2,3],
+    "left_r":[4,5,6,7],
+    "bottom_l":[8,9,10,11],
+    "bottom_r":[12,13,14,15],
+    "right_l":[16,17,18,19,20],
+    "right_r":[21,22,23,24],
+    "top_l":[25,26,27],
+    "top_r":[28,29,30,31]
+    }
     file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
@@ -205,57 +239,96 @@ def getIdHighValue():
         resName = name.split('.')[0]
         tempDict[resName] = selected_rows['start_time'].tolist()
         res[resName] = selected_rows.to_dict('records')
-    print(hvCount)
+
     # timeStampList = sorted(timeStampList)
     # print(tempDict)
+    # 获取高价值场景的时间戳列表及详细属性
+    def transform_data(original_data):
+        new_data = []
+        for key, values in original_data.items():
+            for value in values:
+                new_value = value.copy()  
+                new_value['action_name'] = key
+                new_data.append(new_value)
+        return new_data
+
     newRes = {}
-    newRes["highValue"] = res #高价值场景数据
+    newRes["highValue"] = transform_data(res)
+    # newRes["highValue"] = res #高价值场景数据
+    newRes["hvCount"] = hvCount #高价值场景数量
     file_name_id = "../back/static/data/DataProcess/idRoadCsv/"+str(type)+"/"+str(id)+".csv"
     with open(file_name_id,"r") as f:
         data = pd.read_csv(f)
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
-    laneRoadList = data.iloc[0:]["lineFid"].to_list() #所在车道列表，对应轨迹
-    print(laneRoadList)
+    # print(data.iloc[0:]["lineFid"].to_list())
+    laneRoadList = list(set(data.iloc[0:]["lineFid"].to_list())) #所在车道列表，对应轨迹
+    # 获取中车道的键名
+    keys = find_keys(laneDict, laneRoadList)
+    #获取到了flow文件中的车道号值了
+    values = [value for key in keys for value in lanNumber[key]]
     for index, row in data.iterrows():
         velocityList.append(row['velocity'])
+    def average_every_n(lst, n=5):
+    # 这里我们使用列表推导式来生成新的列表
+        averages = [sum(lst[i:i+n])/len(lst[i:i+n]) for i in range(0, len(lst), n)]
+        return averages
+    velocityList = average_every_n(velocityList)
+    newRes["velocityList"] = velocityList #速度折线图
+    print(res)
     laneRoadId = data.iloc[0]["lineFid"]
     startTime = int(data.iloc[0]["time_meas"]/1000000) #起始时间
     endTime = int(data.iloc[-1]["time_meas"]/1000000)  #结束时间 
-    print(laneRoadId,startTime,endTime)
+    timeSpan = math.floor((startTime - init_time)/300) #时间跨度
+    flowList = []
+    # 获取流量
+    for laneID in values:
+        flow = tfData[laneID][timeSpan]
+        flowList.append(flow)
+    newRes["flowList"] = flowList #车道流量
+    newRes["flowSe"] = values
     return newRes
+
 
 #按照时间戳获取每5分钟的机动车的聚类结果
 @app.route('/getCluster',methods=["POST"])
 def getCluster():
-    time = request.json.get('time')
+    time = request.json.get('startTime')
     start_time = 1681315196
-    clusterTime = math.floor(((time-start_time)/300))
+    clusterTime = math.ceil(((time-start_time)/300))
+    print(clusterTime)
     file_path = "../back/static/data/DataProcess/5m/merge/" 
     res ={}
+    cluster_avg_values = {}
     #获取聚类结果
     dfCluster = pd.read_csv(file_path+str(clusterTime*300)+"s.csv")
-    #获取聚类结果相关的属性
+    dfCluster['id'] = dfCluster['id'].astype(str)
+    res["scatter"] = []
     for cluster in dfCluster['cluster'].unique():
-        df_temp = dfCluster[dfCluster['cluster'] == cluster]  
-
-        cluster_avg_a_std = df_temp['a_std'].mean()
-        cluster_avg_o_std = df_temp['o_std'].mean()
-        cluster_avg_distance_mean = df_temp['distance_mean'].mean()
-        cluster_avg_v_pca = df_temp['v_pca'].mean()
-
-        res["cluster" + str(cluster)] = {}
-        res["cluster" + str(cluster)]['a_std'] = cluster_avg_a_std
-        res["cluster" + str(cluster)]['o_std'] = cluster_avg_o_std
-        res["cluster" + str(cluster)]['distance_mean'] = cluster_avg_distance_mean
-        res["cluster" + str(cluster)]['v_pca'] = cluster_avg_v_pca
+        df_temp = dfCluster[dfCluster['cluster'] == cluster] 
+        cluster_avg_values[str(cluster)] = [
+             round(df_temp['a_std'].mean(), 2),
+             round(df_temp['o_std'].mean(), 2),
+            round(df_temp['distance_mean'].mean(), 2),
+           round(df_temp['v_pca'].mean(), 2),
+        ]
         for _, row in df_temp.iterrows():
-            if 'ids' not in res["cluster" + str(cluster)]:
-                res["cluster" + str(cluster)]['ids'] = {}
-            res["cluster" + str(cluster)]['ids'][row['id']] = {}
-            res["cluster" + str(cluster)]['ids'][row['id']]['position'] = [row['x'], row['y']]
-            res["cluster" + str(cluster)]['ids'][row['id']]['type'] = row['type']
-
-    return res
+            tempDict = {}
+            tempDict["id"] = row['id']
+            tempDict['position'] = {"x":1,"y":1}
+            tempDict['position']["x"] = row['x']
+            tempDict['position']["y"] = row['y']
+            # res["scatter"][id_str]['position'] = [row['x'], row['y']]
+            tempDict['type'] = row['type']
+            tempDict['cluster'] = row['cluster']
+            res["scatter"].append(tempDict)
+    
+    tempDict = {}
+    res["radar"]=[]
+    tempDict["0"] =  cluster_avg_values["0"]
+    tempDict["1"] = cluster_avg_values["1"]
+    tempDict["2"] = cluster_avg_values["2"]
+    res["radar"].append(tempDict)
+    return res  
 
 
 if __name__ == '__main__':

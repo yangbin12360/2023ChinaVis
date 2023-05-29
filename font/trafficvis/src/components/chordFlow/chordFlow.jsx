@@ -102,7 +102,7 @@ function ChordFlow(){
                         .radius(innerRadius);
     
         //console.log(inner_chord);
-    console.log(chord_layout)
+    // console.log(chord_layout)
     let scale = d3.scaleLinear()
                  .domain([0,8761])
                  .range([0.2,0.7]);
@@ -245,7 +245,7 @@ function ChordFlow(){
                         .radius(innerRadius);
     
         //console.log(inner_chord);
-    console.log(chord_layout)
+    // console.log(chord_layout)
     let scale = d3.scaleLinear()
                  .domain([0,8761])
                  .range([0.2,0.7]);

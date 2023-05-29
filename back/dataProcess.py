@@ -2096,7 +2096,7 @@ def featureExtraction(startTime):
                         res[id] = []
                     res[id].append(item)
     newRes = {}
-    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计30分钟
+    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计5分钟
     for id in res:
         positionList = []
         vList = []
@@ -2346,6 +2346,9 @@ def mergeCluster():
 
     # 合并数据
         df = pd.merge(df1, df2, how='outer', on=['id', 'type'])
+        if 'cluster' in df.columns:
+            df = df.dropna(subset=['cluster'])
+            df['cluster'] = df['cluster'].astype(int)
 
     # 保存合并后的数据到新的csv文件
         output_filename = os.path.join('../back/static/data\DataProcess/5m/merge', filename)
