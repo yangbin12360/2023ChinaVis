@@ -1,65 +1,56 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import "./sceneList.css";
+import { getHighValue } from "../../apis/api";
+import { HV_NAME_LIST, HV_NAME_EASY_LIST } from "../utils/constant";
 
-const SceneList = () => {
+const SceneList = (props) => {
+  const { timeStamp,isTraceVisible, selectTraceId,handleSelectTraceId } = props;
   // sceneBar长度和宽度
   const sceneBarRef = useRef(null);
   const detailRef = useRef(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isListVisible, setListVisible] = useState(false); // 新的状态来控制列表的显示/隐藏
+  const [hvData, setHvData] = useState([]); //高价值场景数据
+  const [barData, setBarData] = useState([]); //柱状图数据
+  const [detailScene, setDetailScene] = useState([]); //详情数据
 
-  //临时假数据
-  const data = Array.from({ length: 20 }, (_, i) => ({
-    id: String(i + 1),
-    type: `type${i + 1}`,
-    highValueScene: `scene${i + 1}`,
-    startTime: "2023-05-24",
-  }));
-  const tempData = [
-    {
-      sceneType: "a",
-      count: 10,
-    },
-    {
-      sceneType: "b",
-      count: 18,
-    },
-    {
-      sceneType: "c",
-      count: 40,
-    },
-    {
-      sceneType: "d",
-      count: 110,
-    },
-    {
-      sceneType: "e",
-      count: 54,
-    },
-    {
-      sceneType: "f",
-      count: 21,
-    },
-    {
-      sceneType: "g",
-      count: 12,
-    },
-    {
-      sceneType: "h",
-      count: 154,
-    },
-    {
-      sceneType: "i",
-      count: 143,
-    },
-  ];
+  //对高价值场景列表利用hvData进行渲染
+  useEffect(() => {
+    getHighValue(timeStamp).then((res) => {
+      const data = res;
+      let tempArray = [];
+      let barArray = [];
+      let index = 0;
+      HV_NAME_LIST.forEach((item, itemIndex) => {
+        let typeCount = 0;
+        let tempDict = {};
+        data[item].forEach((d, i) => {
+          d["start_time"] = converTimestamp(d["start_time"]);
+          d["index"] = index;
+          index++;
+          tempArray.push(d);
+          typeCount++;
+        });
+        tempDict["sceneType"] = HV_NAME_EASY_LIST[itemIndex];
+        tempDict["count"] = typeCount;
+        barArray.push(tempDict);
+      });
+      if (barArray.length > 0) {
+        setBarData(barArray);
+        drawSceneBar(barArray);
+      }
+      if (tempArray.length > 0) {
+        setHvData(tempArray);
+      }
+    });
+  }, [timeStamp]);
+
   //绘制柱状图
-  const drawSceneBar = () => {
+  const drawSceneBar = (data) => {
     // 获取div元素的高度和宽度
     const divHeight = sceneBarRef.current.offsetWidth;
     const divWidth = sceneBarRef.current.offsetHeight;
-    console.log(divHeight, divWidth);
     const dimensions = {
       width: divHeight,
       height: divWidth,
@@ -90,19 +81,19 @@ const SceneList = () => {
 
     let xScale = d3
       .scaleBand()
-      .domain(d3.range(tempData.length))
+      .domain(d3.range(data.length))
       .range([0, boundedWidth])
       .padding(0.05);
     let yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(tempData, (d) => d.count)])
+      .domain([0, d3.max(data, (d) => d.count)])
       .range([0, boundedHeight - dimensions.margin.bottom]);
 
     //绘制柱状图背景
     bounds
       .append("g")
       .selectAll("rect")
-      .data(tempData)
+      .data(data)
       .join("rect")
       .attr("x", (d, i) => {
         return xScale(i);
@@ -116,7 +107,7 @@ const SceneList = () => {
     bounds
       .append("g")
       .selectAll("rect")
-      .data(tempData)
+      .data(data)
       .join("rect")
       .attr("x", (d, i) => {
         return xScale(i);
@@ -129,42 +120,67 @@ const SceneList = () => {
     bounds
       .append("g")
       .selectAll("text")
-      .data(tempData)
+      .data(data)
       .join("text")
       .text((d) => d.sceneType)
       .attr("x", (d, i) => {
         return xScale(i);
       })
-      .attr("y", dimensions.margin.top + d3.max(tempData, (d) => d.count) + 10)
-      .attr("transform", `translate(${xScale.bandwidth() / 2},0)`);
+      .attr("y", boundedHeight+20)
+      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
+    //添加数量文字
+    bounds
+    .append("g")
+    .selectAll("text")
+    .data(data)
+    .join("text")
+    .text((d) => d.count)
+    .attr("x", (d, i) => {
+      return xScale(i);
+    })
+    .attr("y", (d) =>boundedHeight-yScale(d.count)-10 )
+    .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
   };
 
-// 新的函数来切换列表的显示/隐藏状态，并且重置选中的行
+  // 新的函数来切换列表的显示/隐藏状态，并且重置选中的行
   const toggleListVisibility = () => {
-    const selectedData = data.filter(row => selectedRows.includes(row.id));
-    console.log("selectedData",selectedData);
-    console.log("detailRef",detailRef.current);
-    if(detailRef.current ==null){
-    setListVisible(!isListVisible); // 清空选中的行
+    const selectedData = hvData.filter((row) => selectedRows.includes(row.id));
+    console.log("selectedData", selectedData);
+    console.log("detailRef", detailRef.current);
+    if (detailRef.current == null) {
+      setListVisible(!isListVisible); // 清空选中的行
     }
+    handleSelectTraceId(selectedData[0]["id"])
     setSelectedRows([]);
   };
 
-  useEffect(() => {
-    drawSceneBar();
-  }, []);
   const toggleRowSelection = (id) => {
-    setSelectedRows((prevSelectedRows) =>
-      prevSelectedRows.includes(id)
-        ? prevSelectedRows.filter((rowId) => rowId !== id)
-        : [...prevSelectedRows, id]
-    );
+    if (selectedRows.length === 0) {
+      setSelectedRows([id]); // 如果当前没有选中行，则选中当前行
+    } else {
+      setSelectedRows((prevSelectedRows) =>
+        prevSelectedRows.includes(id) ? [] : [id] // 如果当前行已经选中，则取消选中，否则选中当前行并取消其他行的选中状态
+      );
+    }
   };
-
+  //16位时间戳转换
+  const converTimestamp = (timestamp) => {
+    // 将微秒时间戳转换为毫秒
+    const milliseconds = timestamp / 1000;
+    // 使用毫秒时间戳创建一个新的 Date 对象
+    const date = new Date(milliseconds);
+    // 获取小时、分钟和秒
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    // 返回格式化的时间字符串
+    return `${hours}:${minutes}:${seconds}`;
+  };
   return (
     <div className="container">
       <div className="topBox">
         <div className="numChart" ref={sceneBarRef} id="sceneBar"></div>
+        <div className="line"></div>
         <div className="sceneList">
           <div className="tableContainer">
             <table>
@@ -173,16 +189,16 @@ const SceneList = () => {
                   <th className="thone">
                     <div onClick={toggleListVisibility}>生成</div>
                   </th>
-                  <th>id</th>
-                  <th>type</th>
-                  <th>高价值场景类型</th>
-                  <th>开始时间</th>
+                  <th>Id</th>
+                  <th>Type</th>
+                  <th>HV Type</th>
+                  <th>Start Time</th>
                 </tr>
               </thead>
               <tbody className="tableB">
-                {data.map((row) => (
+                {hvData.map((row) => (
                   <tr
-                    key={row.id}
+                    key={row.index}
                     style={
                       selectedRows.includes(row.id)
                         ? { background: "yellow" }
@@ -198,56 +214,13 @@ const SceneList = () => {
                     </td>
                     <td className="cText">{row.id}</td>
                     <td>{row.type}</td>
-                    <td>{row.highValueScene}</td>
-                    <td>{row.startTime}</td>
+                    <td>{row.hv_type}</td>
+                    <td>{row.start_time}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-      <div className="mid"></div>
-      <div className="bottomBox">
-        <div className="sceneDetail">4</div>
-        <div className="sceneList">
-         {isListVisible&&( <div className="tableContainer" ref={detailRef}>
-            <table>
-              <thead className="tableH">
-                <tr className="thr">
-                  <th className="thone"></th>
-                  <th>id</th>
-                  <th>type</th>
-                  <th>高价值场景类型</th>
-                  <th>开始时间</th>
-                </tr>
-              </thead>
-              <tbody className="tableB">
-                {data.map((row) => (
-                  <tr
-                    key={row.id}
-                    style={
-                      selectedRows.includes(row.id)
-                        ? { background: "yellow" }
-                        : {}
-                    }
-                  >
-                    <td className="thone">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(row.id)}
-                        onChange={() => toggleRowSelection(row.id)}
-                      />
-                    </td>
-                    <td className="cText">{row.id}</td>
-                    <td>{row.type}</td>
-                    <td>{row.highValueScene}</td>
-                    <td>{row.startTime}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>)}
         </div>
       </div>
       <div className="mid"></div>

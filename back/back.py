@@ -4,6 +4,8 @@ import json
 import numpy as np
 import os
 import datetime
+import pandas as pd
+import math
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -85,6 +87,7 @@ def getTimeJson():
         newRes[id]["startTime"] = res[id][0]["time_meas"]
         newRes[id]["endTime"] = res[id][-1]["time_meas"]
     return newRes
+    
 @app.route('/getActionAndRoadCount',methods=["POST"])
 def getActionAndRoadCount():
     # 时间段时长和数量
@@ -163,12 +166,110 @@ def getHighValue():
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
     endTime = startTime+300
-    print(file_name)
-    # for name in file_name:
-    #     with open(file+'/'+name,"r") as f:
+    startTime = startTime*1000000
+    endTime = endTime*1000000
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['start_time'] >= startTime) & (df['start_time'] <= endTime)]
+        resName = name.split('.')[0]
+        res[resName] = selected_rows.to_dict('records')
+    newRes = {}
+        # 遍历 res 中的每个关键字和对应的列表
+    for keyword, lst in res.items():
+        newRes[keyword] = []
+        # 遍历列表中的每个字典
+        for dictionary in lst:
+            # 获取每个字典下的 'id'、'type'、'action_name' 和 'start_time' 键对应的值
+            id_value = dictionary['id']
+            type_value = dictionary['type']
+            action_name_value = dictionary['action_name']
+            start_time_value = dictionary['start_time']
+
+            # 将这四个键和对应的值组成一个新的字典，并添加到 newRes 中
+            new_dictionary = {
+                'id': id_value,
+                'type': type_value,
+                'hv_type': action_name_value,
+                'start_time': start_time_value
+            }
+            newRes[keyword].append(new_dictionary)
+    return newRes
+
+
+#按照id获取高价值场景数据
+@app.route('/getIdHighValue',methods=["POST"])
+def getIdHighValue():
+    id = request.json.get('id')
+    type = request.json.get('type')
+    file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
+    file = '../back/static/data/DataProcess/highSceneCsv'
+    res = {}
+    tempDict = {}
+    hvCount = [] #高价值场景数量，对应bar图
+    # 定义一个自定义函数，用于除以1000000
+    def divide_by_1000000(value):
+        return int(value / 1000000)
+    for name in file_name:
+        file_path = os.path.join(file,name)
+        df = pd.read_csv(file_path)
+        selected_rows = df[(df['id'] == id)]
+        hvCount.append(len(df[(df['id'] == id)]))
+        selected_rows['start_time'] = selected_rows['start_time'].apply(divide_by_1000000)
+        resName = name.split('.')[0]
+        tempDict[resName] = selected_rows['start_time'].tolist()
+        res[resName] = selected_rows.to_dict('records')
+    print(hvCount)
+    # timeStampList = sorted(timeStampList)
+    # print(tempDict)
+    newRes = {}
+    newRes["highValue"] = res #高价值场景数据
+    file_name_id = "../back/static/data/DataProcess/idRoadCsv/"+str(type)+"/"+str(id)+".csv"
+    with open(file_name_id,"r") as f:
+        data = pd.read_csv(f)
+    velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
+    laneRoadList = data.iloc[0:]["lineFid"].to_list() #所在车道列表，对应轨迹
+    print(laneRoadList)
+    for index, row in data.iterrows():
+        velocityList.append(row['velocity'])
+    laneRoadId = data.iloc[0]["lineFid"]
+    startTime = int(data.iloc[0]["time_meas"]/1000000) #起始时间
+    endTime = int(data.iloc[-1]["time_meas"]/1000000)  #结束时间 
+    print(laneRoadId,startTime,endTime)
+    return newRes
+
+#按照时间戳获取每5分钟的机动车的聚类结果
+@app.route('/getCluster',methods=["POST"])
+def getCluster():
+    time = request.json.get('time')
+    start_time = 1681315196
+    clusterTime = math.floor(((time-start_time)/300))
+    file_path = "../back/static/data/DataProcess/5m/merge/" 
+    res ={}
+    #获取聚类结果
+    dfCluster = pd.read_csv(file_path+str(clusterTime*300)+"s.csv")
+    #获取聚类结果相关的属性
+    for cluster in dfCluster['cluster'].unique():
+        df_temp = dfCluster[dfCluster['cluster'] == cluster]  
+
+        cluster_avg_a_std = df_temp['a_std'].mean()
+        cluster_avg_o_std = df_temp['o_std'].mean()
+        cluster_avg_distance_mean = df_temp['distance_mean'].mean()
+        cluster_avg_v_pca = df_temp['v_pca'].mean()
+
+        res["cluster" + str(cluster)] = {}
+        res["cluster" + str(cluster)]['a_std'] = cluster_avg_a_std
+        res["cluster" + str(cluster)]['o_std'] = cluster_avg_o_std
+        res["cluster" + str(cluster)]['distance_mean'] = cluster_avg_distance_mean
+        res["cluster" + str(cluster)]['v_pca'] = cluster_avg_v_pca
+        for _, row in df_temp.iterrows():
+            if 'ids' not in res["cluster" + str(cluster)]:
+                res["cluster" + str(cluster)]['ids'] = {}
+            res["cluster" + str(cluster)]['ids'][row['id']] = {}
+            res["cluster" + str(cluster)]['ids'][row['id']]['position'] = [row['x'], row['y']]
+            res["cluster" + str(cluster)]['ids'][row['id']]['type'] = row['type']
+
     return res
-
-
 
 
 if __name__ == '__main__':

@@ -1959,8 +1959,8 @@ def getLightData():
     # 读取所有数据，并判断每一个点所在的车道信息
     for i in range(10):
     # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
-        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
-                    "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
+        f = open("./static/data/ChinaVis Data/part" + str(i) +
+                    ".json", "r", encoding="utf-8")
         data = f.read().split("\n")
         # 按照id将数据分组
         with alive_bar(len(data)) as bar:
@@ -1971,8 +1971,8 @@ def getLightData():
                     nowData = json.loads(j)
                     # 获取当前时间（时分秒）
                     nowTime = float(nowData["time_meas"]) / 1000000
-                    nowTime = time.localtime(nowTime)
-                    nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
+                    # nowTime = time.localtime(nowTime)
+                    # nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
                     allTime[nowTime] = {}
                     # 判断车所在车道
                     for k in polygonList:
@@ -2045,15 +2045,323 @@ def forHighValue():
             df = df.sort_values(by="start_time")
         df.to_csv(f'../back/static/data/DataProcess/highSceneCsv/{file_name[i]}.csv', index=False, encoding='utf-8')
 
+#赋予各交通参与者roadId信息
+def addRoadId():
+    # 获取所有JSON文件的列表
+    file_list = os.listdir('../back/static/data/DataProcess/laneData')
+    file = '../back/static/data/DataProcess/laneData/'
+   # 创建一个空的DataFrame
+    with alive_bar(len(file_list), title='Processing') as bar:
+        df = pd.DataFrame()
+        for name in file_list:
+            file_path = os.path.join(file, name)
+            with open(file_path, 'r') as f:
+                json_data = json.load(f)
+                # 遍历JSON数据中的每个时间戳
+                for timestamp, records in json_data.items():
+                    for record in records:
+                        record['roadId'] = name.split('.')[0]
+                    temp_df = pd.DataFrame(records)
+                    df = df.append(temp_df, ignore_index=True)
+
+            bar()  # 更新进度条
+            time.sleep(0.1)  # 模拟每次迭代的时间延迟
+    # 将DataFrame按照id进行分组，并将每个分组写入单独的CSV文件
+    grouped = df.groupby('id')
+    with alive_bar(len(grouped), title='Writing Files') as bar:
+        for group_id, group_data in grouped:
+            group_data.to_csv(f'../back/static/data/DataProcess/addRoadId/{group_id}.csv', index=False)
+
+            bar()  # 更新进度条
+            time.sleep(0.1)  # 模拟每次迭代的时间延迟
+
+#群体性驾驶行为变化趋势分析
+#统计特征提取
+def featureExtraction(startTime):
+    # startTime = 1681315196
+    pathList = []
+    #每5分钟交通参与者提取
+    for i in range(0,300):
+        fileName = str(i+startTime)+'.0.json'
+        pathList.append(fileName)
+    res = {}
+    for path in pathList:
+        with open('../back/static/data\DataProcess/time_meas/'+path,'r') as f:
+            data = json.load(f)
+            # 遍历数据，根据id进行分组
+            for item in data:
+                if item['type'] == 1 or item['type'] == 4 or item['type'] == 6 :  
+                    id = item.get('id')  
+                    if id not in res:
+                        res[id] = []
+                    res[id].append(item)
+    newRes = {}
+    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计30分钟
+    for id in res:
+        positionList = []
+        vList = []
+        oList = []
+        newRes[id]={}
+        for item in res[id]:
+            vList.append(item["velocity"])
+            oList.append(item["orientation"])
+            positionList.append(item["position"])
+        newRes[id]["position"] = positionList
+        newRes[id]["v"] = vList
+        newRes[id]["o"] = oList
+        newRes[id]["type"] = res[id][0]["type"]
+    #提取加速度
+    for id in newRes:
+        aList = []
+        idL = len(newRes[id]["v"])
+        lastIndex = math.ceil(idL/5)
+        for i in range(0,lastIndex):
+            if i != lastIndex-1:
+                aList.append(newRes[id]["v"][(i+1)*5-1]-newRes[id]["v"][i*5])
+        newRes[id]["a"] = aList
+    #统计特征提取
+    for id in newRes:
+        #平均速度
+        newRes[id]["v_mean"] = np.mean(newRes[id]["v"])
+        #最大速度
+        newRes[id]["v_max"] = np.max(newRes[id]["v"])
+        #最小速度
+        newRes[id]["v_min"] = np.min(newRes[id]["v"])
+        #速度标准差
+        newRes[id]["v_std"] = np.std(newRes[id]["v"])
+        #加速度标准差
+        newRes[id]["a_std"] = np.std(newRes[id]["a"])
+        #朝向标准差
+        newRes[id]["o_std"] = np.std(newRes[id]["o"])
+        #位置聚集程度：1.求各个坐标的几何中心 2.求各个坐标到几何中心的距离 3.求距离的平均值
+        xList = []
+        yList = []
+        for position in newRes[id]["position"]:
+            position = json.loads(position)
+            xList.append(position["x"])
+            yList.append(position["y"])
+        x_mean = np.mean(xList)
+        y_mean = np.mean(yList)
+        distanceList = []
+        for i in range(0,len(xList)):
+            distanceList.append(math.sqrt((xList[i]-x_mean)**2+(yList[i]-y_mean)**2))
+        newRes[id]["distance_mean"] = np.mean(distanceList)
+    #将newRes写入csv文件
+    with open("../back\static\data\DataProcess/5m/feature_extraction/"+str(startTime)+".csv","w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["id","type","v_mean","v_max","v_min","v_std","a_std","o_std","distance_mean"])
+        for id in newRes:
+            writer.writerow([id,newRes[id]["type"],newRes[id]["v_mean"],newRes[id]["v_max"],newRes[id]["v_min"],newRes[id]["v_std"],newRes[id]["a_std"],newRes[id]["o_std"],newRes[id]["distance_mean"]])
+#对time_meas文件夹下的所有文件每300个文件进行特征提取
+def featureAll():
+    file_list = os.listdir('../back/static/data\DataProcess/time_meas')
+    file_count = len(file_list)
+    startTime = 1681315196
+    with alive_bar(len(file_list),title="Processing") as bar:
+        for i in range(0,math.ceil(file_count/300)):
+            featureExtraction(startTime)
+            startTime += 300
+        bar()
+        time.sleep(0.1)
+
+#对提取的特征做归一化处理
+def csvNormalization():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/5m/feature_extraction/' + file)
+        id_type_cols = df[['id', 'type']]  # 保留'id'和'type'列
+        df_numeric = df.select_dtypes(include=[float, int])  # 选择数值型列并排除'id'和'type'
+        scaler = MinMaxScaler()
+        df_normalized = pd.DataFrame(scaler.fit_transform(df_numeric), columns=df_numeric.columns)
+        df_normalized[['id', 'type']] = id_type_cols  # 将保留的'id'和'type'列重新添加到归一化后的DataFrame
+        df_normalized.to_csv('../back/static/data\DataProcess/5m/feature_extraction_nor/' + file, index=False)
+
+#对三个速度进行降维
+def dimReduction():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction_nor')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/5m/feature_extraction_nor/' + file)
+        features = df[['v_min', 'v_max', 'v_mean']]
+        pca = PCA(n_components=1)
+        principalComponents = pca.fit_transform(features)
+        # 将降维后的主成分添加到原始数据框中，此处我们将新的主成分列命名为'v_pca'
+        df['v_pca'] = principalComponents
+        df = df.drop(['v_min', 'v_max', 'v_mean'], axis=1)
+        df.to_csv('../back/static/data\DataProcess/5m/feature_extraction_dim/' + file +'.csv', index=False)
+
+#对三个速度进行降维
+def dimReduction_no():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction')
+    start = 300
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/5m/feature_extraction/' + file)
+        features = df[['v_min', 'v_max', 'v_mean']]
+        pca = PCA(n_components=1)
+        principalComponents = pca.fit_transform(features)
+        # 将降维后的主成分添加到原始数据框中，此处我们将新的主成分列命名为'v_pca'
+        df['v_pca'] = principalComponents
+        df = df.drop(['v_min', 'v_max', 'v_mean'], axis=1)
+        df.to_csv('../back/static/data\DataProcess/5m/feature_dim/' + str(start)+'s.csv' , index=False)
+        start+=300
+
+#对csv文件中的缺值进行填充
+def fillNan():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction_dim')
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/5m/feature_extraction_dim/' + file)
+        # 填充缺失值，此处使用均值进行填充
+        imputer = SimpleImputer(strategy='constant', fill_value=0)
+        df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+        df_imputed.to_csv('../back/static/data\DataProcess/10m/feature_extraction_dim/' + file, index=False)
+        print(111)
+#对归一化后的特征实现k-means聚类
+def kmeans():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction_dim')
+    nameTime = 300
+    with alive_bar(len(file_list),title="Processing") as bar:
+        for file in file_list:
+            df = pd.read_csv('../back/static/data\DataProcess/5m/feature_extraction_dim/' + file)
+            row_count = len(df)
+            print(row_count)
+            # 小于两行，跳出当前循环
+            if row_count < 3:
+                df.to_csv('../back/static/data\DataProcess/5m/cluster_results/'+ str(nameTime) +'s.csv', index=False)
+                nameTime += 300
+                print('跳出循环')
+                continue;
+            df.drop(['v_std'],axis=1,inplace=True)
+            df.dropna(inplace=True)
+            features = df[['v_pca', 'a_std', 'o_std', 'distance_mean']]
+            kmeans = KMeans(n_clusters=3)
+            kmeans.fit(features)
+            df['cluster'] = kmeans.labels_
+            df.to_csv('../back/static/data\DataProcess/5m/cluster_results/'+ str(nameTime) +'s.csv', index=False)
+            nameTime += 300
+        bar()
+        time.sleep(0.1)
+
+#对归一化后的特征实现DBSCAN聚类
+def forDbscan():
+    file_list = os.listdir('../back/static/data\DataProcess/feature_extraction_dim')
+    nameTime = 0.5
+    for file in file_list:
+        df = pd.read_csv('../back/static/data\DataProcess/feature_extraction_dim/' + file)
+        features = df[['v_pca', 'v_std', 'a_std', 'o_std', 'distance_mean']]
+        # DBSCAN聚类
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        df['cluster'] = dbscan.fit_predict(features)
+        df.to_csv('../back/static/data\DataProcess/cluster_results_dbscan/'+ str(nameTime) +'h.csv', index=False)
+        nameTime += 0.5
+
+#对聚类结果进行降维
+def dimReduction_cluster():
+    file_list = os.listdir('../back/static/data\DataProcess/5m/cluster_results')
+    startR = 300
+    for file in file_list:
+        data = pd.read_csv('../back/static/data/DataProcess/5m/cluster_results/'+ str(startR) +'s.csv')
+        row_count = len(data)
+        print(row_count)
+            # 小于两行，跳出当前循环
+        if row_count < 3:
+            data .to_csv('../back/static/data\DataProcess/5m/pca_results/'+ str(startR) +'s.csv', index=False)
+            startR += 300
+            print('跳出循环')
+            continue;
+        features = data[['v_pca', 'a_std', 'o_std', 'distance_mean']]
+        pca = PCA(n_components=2)
+        reduced_features = pca.fit_transform(features)
+        reduced_data = pd.DataFrame(data=reduced_features, columns=['x', 'y'])
+        reduced_data['cluster'] = data['cluster']
+        reduced_data['type'] = data['type']
+        reduced_data['id'] = data['id']
+    # 保存降维结果到新的CSV文件
+        reduced_data.to_csv('../back/static/data\DataProcess/5m/pca_results/'+ str(startR) +'s.csv', index=False)
+        startR += 300
+    # 绘制降维结果的散点图
+        # plt.scatter(reduced_data['x'], reduced_data['y'], c=reduced_data['cluster'])
+        # plt.xlabel('x')
+        # plt.ylabel('y')
+        # plt.title('K-means Clustering Result')
+        # plt.show()
+
+
+def read_json(file_name):
+    with open(file_name, 'r') as f:
+        data = json.load(f)
+    return data
+
+def write_to_csv(data, folder, file_name):
+    df = pd.DataFrame(data)
+    df.sort_values(by='time_meas', inplace=True)
+    folder_path = f'../back/static/data\DataProcess/idRoadCsv/{folder}'
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    df.to_csv(f'{folder_path}/{file_name}.csv', index=False)
+
+# 对添加了道路id数据按照交通参与者id进行分类
+def newDataType():
+    file_prefix = '../back/static/data\DataProcess/idRoad/part'
+    num_files = 10
+    all_data = {}
+    # Processing the JSON files
+    with alive_bar(num_files) as bar:
+        for i in range(num_files):
+            file_name = f'{file_prefix}{i}.json'
+            data = read_json(file_name)
+            for k, v in data.items():
+                if v['type'] in all_data:
+                    if v['id'] in all_data[v['type']]:
+                        all_data[v['type']][v['id']].append(v)
+                    else:
+                        all_data[v['type']][v['id']] = [v]
+                else:
+                    all_data[v['type']] = {v['id']: [v]}
+            bar()
+
+    # Writing the data to CSV files
+    with alive_bar(len(all_data)) as bar:
+        for k, v in all_data.items():
+            for id, data in v.items():
+                write_to_csv(data, k, id)
+            bar()
+
+#合并聚类结果
+def mergeCluster():
+    # 指定两个目录
+    dir1 = '../back/static/data\DataProcess/5m/pca_results/'
+    dir2 = '../back/static/data\DataProcess/5m/feature_dim/'
+
+# 获取目录下的所有文件名
+    filenames = os.listdir(dir1) # 假设两个目录中的文件数量和名称都是一样的
+
+# 对每个文件进行处理
+    for filename in filenames:
+    # 拼接完整的文件路径
+        file1 = os.path.join(dir1, filename)
+        file2 = os.path.join(dir2, filename)
+
+    # 读取csv文件
+        df1 = pd.read_csv(file1)
+        df2 = pd.read_csv(file2)
+
+    # 合并数据
+        df = pd.merge(df1, df2, how='outer', on=['id', 'type'])
+
+    # 保存合并后的数据到新的csv文件
+        output_filename = os.path.join('../back/static/data\DataProcess/5m/merge', filename)
+        df.to_csv(output_filename, index=False)
 
 if __name__ == '__main__':
-    # dataType()
     # 驾驶行为
     # featureAll()
     # csvNormalization()
     # dimReduction()
-    # fillNan()
+    # fillNan() 
     # kmeans()
     # dimReduction_cluster()
     # forHighValue()
-    getLightData()
+    # getLightData()
+    # addRoadId()
+    # newDataType()
+    # dimReduction_no()
+    mergeCluster()

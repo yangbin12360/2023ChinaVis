@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV4.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
@@ -11,14 +11,15 @@ import ferrari from "../../assets/gltf/fcar.gltf";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 // import {draco} from "../../assets/draco/gltf/draco_decoder.js"
-import sky_up from '../../assets/fig/nz.png';
-import sky_right from '../../assets/fig/px.png';
-import sky_left from '../../assets/fig/nx.png';
-import sky_front from '../../assets/fig/ny.png';
-import sky_back from '../../assets/fig/py.png';
-import sky_down from '../../assets/fig/pz.png';
+// import sky_up from '../../assets/fig/nz.png';
+// import sky_right from '../../assets/fig/px.png';
+// import sky_left from '../../assets/fig/nx.png';
+// import sky_front from '../../assets/fig/ny.png';
+// import sky_back from '../../assets/fig/py.png';
+// import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
+import ChordFlow from "../chordFlow/chordFlow";
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -92,7 +93,7 @@ const MainView = (props) => {
     setCamera(camera);
     setRenderer(renderer);
     //创建天空盒  
-    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,

@@ -4,12 +4,18 @@
 }
 
 .topBox {
-    height: 50%;
+    height: 100%;
     width: 100%;
     display: flex;
     padding-bottom: 0px;
     box-sizing: border-box;
     background-color: #fff;
+}
+
+.line {
+    width: 1px;
+    height: 100%;
+    background-color: #ebebeb;
 }
 
 .numChart {
@@ -39,6 +45,8 @@
 
 .sceneList {
     flex: 5;
+    height: 190px;
+    /* height: 100%; */
 }
 
 
