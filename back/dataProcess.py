@@ -2055,4 +2055,5 @@ if __name__ == '__main__':
     # fillNan()
     # kmeans()
     # dimReduction_cluster()
-    forHighValue()
+    # forHighValue()
+    getLightData()
