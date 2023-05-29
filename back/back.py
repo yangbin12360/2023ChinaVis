@@ -143,6 +143,7 @@ def getActionAndRoadCount():
 #         data = json.load(f)
 #     return data
 
+@app.route('/getLittleRoadFlow',methods=["POST"])
 def getLittleRoadFlow():
     startTime = request.json.get('startTime')
     segment_duration = datetime.timedelta(minutes=5)
@@ -150,7 +151,7 @@ def getLittleRoadFlow():
     with open(file_path, "r", encoding="utf-8") as f:
         little_flow = json.load(f)
     # 将时间段的起始时间和结束时间转换为 datetime 对象
-    startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
+    startTime = datetime.datetime.fromtimestamp(startTime)
     time_diff = startTime - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
     segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
     if segment_index>287:
