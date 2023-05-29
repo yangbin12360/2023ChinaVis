@@ -29,6 +29,17 @@ export const getActionAndRoadCount= () => {
   return post("/getActionAndRoadCount");
 };
 
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+//获取弦图数据
+export const getLittleRoadFlow= (startTime) => {
+  return post("/getLittleRoadFlow",{
+    startTime:startTime
+  });
+};
 
 /**
  * 获取高价值场景列表数据

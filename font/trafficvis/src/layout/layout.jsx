@@ -80,9 +80,7 @@ const Layout = () => {
               component={
                 <MainView timeStamp={timeStamp} selectId={selectId}></MainView>
               }
-            >
-              {" "}
-              {/* 弦图放在主图 */}
+            >     
             </Box>
           </div>
           <div style={{ height: "33%" }}>
@@ -141,19 +139,7 @@ const Layout = () => {
           </div>
         </Col>
       </Row>
-      <div
-        style={{
-          left: "17%",
-          top: "4%",
-          width: 300,
-          height: 300,
-          position: "absolute",
-          background: "white",
-          opacity: 0.5,
-        }}
-      >
-        <ChordFlow></ChordFlow>
-      </div>
+      <div style={{left:'17%',top:'4%',width:200,height:200,position:"absolute",opacity:0.5,background:'white',borderRadius:'50%'}}><ChordFlow timeStamp={timeStamp}></ChordFlow></div>
     </div>
   );
 };
