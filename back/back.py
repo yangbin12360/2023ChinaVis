@@ -146,7 +146,7 @@ def getActionAndRoadCount():
 def getLittleRoadFlow():
     startTime = request.json.get('startTime')
     segment_duration = datetime.timedelta(minutes=5)
-    file_path = './static/data/Result/little_road_flow.json'
+    file_path = './static/data/Result/little_road_flow_new.json'
     with open(file_path, "r", encoding="utf-8") as f:
         little_flow = json.load(f)
     # 将时间段的起始时间和结束时间转换为 datetime 对象
