@@ -51,3 +51,28 @@ export const getHighValue =(startTime)=>{
     startTime:startTime
   })
 }
+
+/**
+ * 获取聚类散点图数据
+ * @param {时间戳} startTime
+ * @returns 
+ */
+export const getCluster =(startTime)=>{
+  return post('/getCluster',{
+    startTime:startTime
+  })
+}
+
+
+/**
+ * 获取独立交通参与者轨迹
+ * @param {交通参与者} id 
+ * @param {交通参与者类型} type
+ * @returns 
+ */
+export const getIdHighValue=(id,type)=>{
+  return post('/getIdHighValue',{
+    id:id,
+    type:type
+  })
+}
