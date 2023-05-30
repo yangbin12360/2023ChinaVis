@@ -271,6 +271,9 @@ function ChordFlow(props){
         g_inner.selectAll("path")
             .on("mouseover",innertipy(true))
             .on("mouseout",innertipy(false));
+        
+        g_inner.selectAll("path")
+               .on("mousedown",getLittleNum());
 
         //交互操作，鼠标移到该节点只会显示与节点相接的弦，其他弦会被隐藏
         function fade(opacity){
@@ -284,14 +287,15 @@ function ChordFlow(props){
                         .style("opacity",opacity);
             }
         }
+        //交互操作，鼠标移动到该节点，可以提示该车道id号和出量
         function innertipy(flag){
             if(flag == true){
                 return function(g,i){
-                    //console.log(g);
+                    console.log(i);
                     setTipyFlag(flag);
                     if(i.source.index != i.target.index){
                         //console.log("出："+i.source.value+"进："+i.target.value);
-                        setTipyContent( "出："+i.source.value);
+                        setTipyContent( "车道id:"+i.source.index+" 出："+i.source.value);
                         setTipyX(g.offsetX+'px');;
                         setTipyY(g.offsetY+'px');
                     }
@@ -309,7 +313,12 @@ function ChordFlow(props){
             }
            
         }
-
+        //交互操作，点击获取小车道号
+        function getLittleNum(){
+            return function(g,i){
+                console.log(i.source.index);
+            }
+        }
     }
     
     //用于控制弦图更新
