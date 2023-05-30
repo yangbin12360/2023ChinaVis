@@ -281,6 +281,7 @@ function RelationshipScene(){
               name: name[i],
               type: "line",
               data: d,
+              id:index+'-'+i,
               xAxisIndex: index,
               yAxisIndex: index,
               smooth: true, //是否平滑
@@ -294,7 +295,7 @@ function RelationshipScene(){
             });
           });
       });
-      console.log(series);
+      //console.log(series);
       const option = {
         title: title,
         tooltip: {
@@ -353,10 +354,13 @@ function RelationshipScene(){
       const myChart = echarts.init(groupLinesRef.current);
       myChart.setOption(option, true);
       
-      //点击点获取横坐标值
+      //点击点获取时间戳、中车道车号[0-6]对应[车道1-车道7]、高价值场景序号[0-7]分别对应['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速']
       myChart.on("click", function (param) {
+        console.log(param);
         var getX = timestamp[param.dataIndex];//横坐标的值
-        console.log(getX);
+        var getName =parseInt(param.seriesId.split('-')[1]);
+        var getScence = parseInt(param.seriesId.split('-')[0]);
+        console.log(getX,getName,getScence);
         })
 
     }
@@ -364,7 +368,6 @@ function RelationshipScene(){
     useEffect(() => {
         getActionAndRoadCount().then(res => {
          let dataset = res;
-         //console.log(dataset);
          drawRelationPlot(dataset);
         })
     },[])
