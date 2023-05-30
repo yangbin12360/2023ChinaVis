@@ -20,9 +20,6 @@ const ClusterScatter = (props) => {
 
   useEffect(() => {
     getCluster(timeStamp).then((res) => {
-      console.log(res);
-      console.log(res["scatter"]);
-      console.log(res["radar"]);
       let clusterData = res["scatter"];
       let radarData = res["radar"];
       drawCluster(clusterData);
