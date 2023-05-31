@@ -484,6 +484,7 @@ def getFlowPredict():
 
 
 #按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
+@app.route('/detail_item',methods=["POST"])
 def detail_item():
     startTime=request.json.get('startTime')
     roadNumber=request.json.get('roadNumber')

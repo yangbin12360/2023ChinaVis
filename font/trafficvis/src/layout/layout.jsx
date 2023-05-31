@@ -13,6 +13,7 @@ import RoseComponent from "../components/Rose/rose";
 import ClusterScatter from "../components/clusterScatter/clusterScatter";
 import ForecastHeat from "../components/forecastHeat/forecastHeat";
 import RoadHealth from "../components/roadHealth/roadHealth";
+import Light from "../components/light/light";
 const style = {
   background: "#0092ff",
   padding: "8px 0",
@@ -66,7 +67,7 @@ const Layout = () => {
             ></Box>
           </div>
           <div style={{ height: "34%" }}>
-            <Box title={"ChordFlow"}></Box>
+            <Box title={"Light"} component={<Light></Light>} ></Box>
           </div>
           {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
           <div style={{ height: "33%" }}>
