@@ -124,8 +124,8 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index1>287:
-                    segment_index1=287
+                if segment_index>287:
+                    segment_index=287
                 all_count[index][item['road']][segment_index]+=1    
                            
     return all_count
