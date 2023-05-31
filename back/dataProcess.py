@@ -2032,7 +2032,7 @@ def featureExtraction(startTime):
                         res[id] = []
                     res[id].append(item)
     newRes = {}
-    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计30分钟
+    # 提取速度、坐标位置、车头朝向，每0.2s一次，总计5分钟
     for id in res:
         positionList = []
         vList = []
@@ -2282,10 +2282,32 @@ def mergeCluster():
 
     # 合并数据
         df = pd.merge(df1, df2, how='outer', on=['id', 'type'])
+        if 'cluster' in df.columns:
+            df = df.dropna(subset=['cluster'])
+            df['cluster'] = df['cluster'].astype(int)
 
     # 保存合并后的数据到新的csv文件
         output_filename = os.path.join('../back/static/data\DataProcess/5m/merge', filename)
         df.to_csv(output_filename, index=False)
+
+#处理flid
+def processFid():
+    folder_path = '../back/static/data\DataProcess/idRoadCsv/2/'
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.csv'):
+            file_path = os.path.join(folder_path, filename)
+            df = pd.read_csv(file_path)
+        
+        # 检查是否存在'lineFid'列
+            if 'lineFid' in df.columns:
+            # 将'lineFid'列中的数值转换为字符串
+                df['lineFid'] = df['lineFid'].astype(str)
+
+            # 去掉字符串中的".0"
+                df['lineFid'] = df['lineFid'].apply(lambda x: x.rstrip('.0') if '.0' in x else x)
+            
+            # 将修改后的数据写回文件
+                df.to_csv(file_path, index=False)
 
 if __name__ == '__main__':
     # 驾驶行为
@@ -2300,4 +2322,5 @@ if __name__ == '__main__':
     # addRoadId()
     # newDataType()
     # dimReduction_no()
-    mergeCluster()
+    # mergeCluster()
+    processFid()

@@ -143,6 +143,7 @@ def getActionAndRoadCount():
 #         data = json.load(f)
 #     return data
 
+@app.route('/getLittleRoadFlow',methods=["POST"])
 def getLittleRoadFlow():
     startTime = request.json.get('startTime')
     segment_duration = datetime.timedelta(minutes=5)
@@ -202,6 +203,59 @@ def getHighValue():
 def getIdHighValue():
     id = request.json.get('id')
     type = request.json.get('type')
+    init_time = 1681315196  # 初始时间
+
+    # 获取车道号
+# 获取车道号
+    def find_keys(laneDict, values):
+        keys = []
+        for key in laneDict:
+        # 将字典中的元素转换为字符串
+            str_values = []
+            for value in laneDict[key]:
+                tempStr =str(value)
+                if tempStr.find('.')!=-1:
+                    tempStr=tempStr.split('.')[0]
+                str_values.append(tempStr)
+            for value in values:
+                if value in str_values and key not in keys:
+                    keys.append(key)
+        return keys
+    tfPath = "../back/static/data/DataProcess/trafficFlow/little_road_flow.json"
+    with open(tfPath,"r") as f:
+        tfData = json.load(f)
+    # tfData[车道号number][时间]
+    hvName = ['CC','LT','NC','OS','PC','REV','SD','SU']
+    laneDict = {
+  "left_l":["1912", "1911", "1910_2", "1910_1"],
+  "left_r":["1898_1", "1898_2", "1900", "1901"],
+  "bottom_l":["1957_4", "1957_3", "1956", "1955"],
+  "bottom_r":["1934", "1935", "1936_3", "1936_4"],
+  "right_l":["1450", "1449", "1448", "1447", "1446"],
+  "right_r":["1442", "1443", "1444", "1445"],
+  "top_l":["1974", "1973", "1972"],
+  "top_r":["1975_1", "1975_2", "1977", "1978"],
+}
+    laneYList = [
+  "1912", "1911", "1910_2", '1910_1',
+  "1898_1", "1898_2", "1900", "1901",
+  "1957_4", "1957_3", "1956", "1955",
+  "1934", "1935", "1936_3", "1936_4",
+  "1450", "1449", "1448", "1447", "1446",
+  "1442", "1443", "1444", "1445",
+  "1974", "1973", "1972",
+  "1975_1", "1975_2", "1977", "1978"
+];
+    lanNumber= {
+    "left_l":[0,1,2,3],
+    "left_r":[4,5,6,7],
+    "bottom_l":[8,9,10,11],
+    "bottom_r":[12,13,14,15],
+    "right_l":[16,17,18,19,20],
+    "right_r":[21,22,23,24],
+    "top_l":[25,26,27],
+    "top_r":[28,29,30,31]
+    }
     file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
@@ -210,66 +264,230 @@ def getIdHighValue():
     # 定义一个自定义函数，用于除以1000000
     def divide_by_1000000(value):
         return int(value / 1000000)
+    hvForNum = 0
     for name in file_name:
         file_path = os.path.join(file,name)
         df = pd.read_csv(file_path)
         selected_rows = df[(df['id'] == id)]
-        hvCount.append(len(df[(df['id'] == id)]))
+        newTempDict = {}
+        newTempDict["sceneType"] =hvName[hvForNum]
+        hvForNum+=1
+        newTempDict["count"]= len(df[(df['id'] == id)])
+        hvCount.append(newTempDict)
         selected_rows['start_time'] = selected_rows['start_time'].apply(divide_by_1000000)
         resName = name.split('.')[0]
         tempDict[resName] = selected_rows['start_time'].tolist()
         res[resName] = selected_rows.to_dict('records')
-    print(hvCount)
     # timeStampList = sorted(timeStampList)
     # print(tempDict)
+    # 获取高价值场景的时间戳列表及详细属性
+    def transform_data(original_data):
+        new_data = []
+        for key, values in original_data.items():
+            for value in values:
+                new_value = value.copy()  
+                new_value['action_name'] = key
+                new_data.append(new_value)
+        return new_data
+
     newRes = {}
-    newRes["highValue"] = res #高价值场景数据
+    newRes["highValue"] = transform_data(res)
+    # newRes["highValue"] = res #高价值场景数据
+    newRes["hvCount"] = hvCount #高价值场景数量
     file_name_id = "../back/static/data/DataProcess/idRoadCsv/"+str(type)+"/"+str(id)+".csv"
     with open(file_name_id,"r") as f:
         data = pd.read_csv(f)
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
-    laneRoadList = data.iloc[0:]["lineFid"].to_list() #所在车道列表，对应轨迹
-    print(laneRoadList)
+    # print(data.iloc[0:]["lineFid"].to_list())
+    laneRoadList = list(set(data.iloc[0:]["lineFid"].to_list())) #所在车道列表，对应轨迹
+    print("laneRoadList",laneRoadList)
+    # 获取中车道的键名
+    keys = find_keys(laneDict, laneRoadList)
+    print("keys",keys)
+    #获取到了flow文件中的车道号值了
+    values = [value for key in keys for value in lanNumber[key]]
+    print("values",values)
+    testList = []
     for index, row in data.iterrows():
         velocityList.append(row['velocity'])
-    laneRoadId = data.iloc[0]["lineFid"]
+        testList.append(int(row['time_meas']/1000000))
+    differences = [testList[i+1] - testList[i] for i in range(len(testList) - 1)]
+    #找到数据缺失的位置，存入indices列表中
+    indices = [index for index, value in enumerate(differences) if value != 0 and value != 1]
+    # print("indices ",indices ,differences[747])
+    # print("testList",testList)
+    def average_every_n(lst, n=5):
+    # 这里我们使用列表推导式来生成新的列表
+        averages = [sum(lst[i:i+n])/len(lst[i:i+n]) for i in range(0, len(lst), n)]
+        return averages
+    # 通过indices获得数据缺失的位置
+    newVelocityList = []
+    if len(indices)==0:
+        newVelocityList = average_every_n(velocityList)
+    else:
+        for i in range(0,len(indices)):
+            newVelocityList = newVelocityList+average_every_n(velocityList[0:indices[i]])
+            for j in range(1,differences[indices[i]]):
+                newVelocityList.append(0)
+            newVelocityList = newVelocityList+average_every_n(velocityList[indices[i]:-1])
+    # print("velocityList",velocityList)
+    vPositionList = []
     startTime = int(data.iloc[0]["time_meas"]/1000000) #起始时间
     endTime = int(data.iloc[-1]["time_meas"]/1000000)  #结束时间 
-    print(laneRoadId,startTime,endTime)
+    print("endtime",endTime)
+    vListTime = startTime
+    for vNum in newVelocityList:
+        tempDict = {}
+        tempDict["x"]=vListTime
+        tempDict["y"]=vNum
+        vListTime+=1
+        vPositionList.append(tempDict)
+    newRes["vPositionList"] = vPositionList #速度折线图位置
+    # newRes["velocityList"] = velocityList #速度折线图
+    laneRoadId = data.iloc[0]["lineFid"]
+    # 多个流量数据判断
+    allSpan = math.ceil((endTime - startTime)/300)
+    timeSpan = math.floor((startTime - init_time)/300) #时间跨度,以获取流量数据
+    hvPositionList = []
+    # 获取高价值场景坐标点绘制,并且把高价值场景属性放进去
+    for i in range(0,len(newRes["highValue"])+2):
+        tempDict = {}
+        if i==0:
+            tempDict["x"] = startTime
+            tempDict["y"] = 0
+        if i==len(newRes["highValue"])+1:
+            tempDict["x"] = endTime
+            tempDict["y"] = hvPositionList[-1]["y"]
+        if i>0 and i<len(newRes["highValue"])+1:
+            tempDict["x"] = newRes["highValue"][i-1]["start_time"]
+            selectRow  = data[data['time_meas'] // 1000000 == tempDict["x"]] # data是该id的所有数据
+            if selectRow["lineFid"].isna().any():
+                tempDict["y"] =0
+            elif (selectRow["lineFid"].astype(int) > 1).all():
+                tempDict["y"] = selectRow["lineFid"].iloc[0]
+            else:
+                tempDict["y"] = selectRow["lineFid"]
+            tempDict["type"] = newRes["highValue"][i-1]["action_name"]
+            tempDict["nowTime"] = newRes["highValue"][i-1]["start_time"]
+        hvPositionList.append(tempDict)
+    newRes["hvPositionList"] = hvPositionList #高价值场景坐标点
+    flowList = []
+    # 获取时间间隔内的流量
+    for i in range(0,allSpan):
+    # 获取车道流量
+        for laneID in values:
+            flow = tfData[laneID][timeSpan+i]
+            flowList.append(flow)
+    newRes["flowList"] = flowList #车道流量
+    newRes["flowSe"] = values
+    print("newRes",newRes["flowSe"])
+    # 设置坐高价值场景坐标点的变化
+    for i in newRes["hvPositionList"]:
+        if i["y"] == 0:
+            continue;
+        tempStr =str(i["y"])
+        if tempStr.find('.')!=-1:
+            tempStr=tempStr.split('.')[0]
+        newY = laneYList.index(tempStr)
+        finalY = newRes["flowSe"].index(newY)
+        i["y"] = finalY
+    # 为变道添加坐标点
+    newList = []
+    iNum = 0
+    for i in newRes["hvPositionList"]:
+        if iNum!=0 and iNum!=len(newRes["hvPositionList"])-1:
+            if i["type"] == "carCross":
+                tempDict = {}
+                tempDict["x"] = i["x"]
+                tempDict["y"] = newRes["hvPositionList"][iNum-1]["y"]
+                tempDict["type"] = "carCross"
+                tempDict["nowTime"] = i["nowTime"]
+                newList.append(tempDict)  
+        newList.append(i)  
+        iNum+=1
+    newRes["hvPositionList"] = newList  
     return newRes
+
 
 #按照时间戳获取每5分钟的机动车的聚类结果
 @app.route('/getCluster',methods=["POST"])
 def getCluster():
-    time = request.json.get('time')
+    time = request.json.get('startTime')
     start_time = 1681315196
-    clusterTime = math.floor(((time-start_time)/300))
+    clusterTime = math.ceil(((time-start_time)/300))
+    print(clusterTime)
     file_path = "../back/static/data/DataProcess/5m/merge/" 
     res ={}
+    cluster_avg_values = {}
     #获取聚类结果
     dfCluster = pd.read_csv(file_path+str(clusterTime*300)+"s.csv")
-    #获取聚类结果相关的属性
+    dfCluster['id'] = dfCluster['id'].astype(str)
+    res["scatter"] = []
     for cluster in dfCluster['cluster'].unique():
-        df_temp = dfCluster[dfCluster['cluster'] == cluster]  
-
-        cluster_avg_a_std = df_temp['a_std'].mean()
-        cluster_avg_o_std = df_temp['o_std'].mean()
-        cluster_avg_distance_mean = df_temp['distance_mean'].mean()
-        cluster_avg_v_pca = df_temp['v_pca'].mean()
-
-        res["cluster" + str(cluster)] = {}
-        res["cluster" + str(cluster)]['a_std'] = cluster_avg_a_std
-        res["cluster" + str(cluster)]['o_std'] = cluster_avg_o_std
-        res["cluster" + str(cluster)]['distance_mean'] = cluster_avg_distance_mean
-        res["cluster" + str(cluster)]['v_pca'] = cluster_avg_v_pca
+        df_temp = dfCluster[dfCluster['cluster'] == cluster] 
+        cluster_avg_values[str(cluster)] = [
+             round(df_temp['a_std'].mean(), 2),
+             round(df_temp['o_std'].mean(), 2),
+            round(df_temp['distance_mean'].mean(), 2),
+           round(df_temp['v_pca'].mean(), 2),
+        ]
         for _, row in df_temp.iterrows():
-            if 'ids' not in res["cluster" + str(cluster)]:
-                res["cluster" + str(cluster)]['ids'] = {}
-            res["cluster" + str(cluster)]['ids'][row['id']] = {}
-            res["cluster" + str(cluster)]['ids'][row['id']]['position'] = [row['x'], row['y']]
-            res["cluster" + str(cluster)]['ids'][row['id']]['type'] = row['type']
+            tempDict = {}
+            tempDict["id"] = row['id']
+            tempDict['position'] = {"x":1,"y":1}
+            tempDict['position']["x"] = row['x']
+            tempDict['position']["y"] = row['y']
+            # res["scatter"][id_str]['position'] = [row['x'], row['y']]
+            tempDict['type'] = row['type']
+            tempDict['cluster'] = row['cluster']
+            res["scatter"].append(tempDict)
+    
+    tempDict = {}
+    res["radar"]=[]
+    tempDict["0"] =  cluster_avg_values["0"]
+    tempDict["1"] = cluster_avg_values["1"]
+    tempDict["2"] = cluster_avg_values["2"]
+    res["radar"].append(tempDict)
+    return res  
 
-    return res
+
+# 按照时间戳和车道获取流量预测数据
+@app.route('/getFlowPredict',methods=["POST"])
+def getFlowPredict():
+    timeStamp = request.json.get('timeStamp')
+    lane = request.json.get('lane')
+    laneDict = {
+  "left_l":["1912", "1911", "1910_2", "1910_1"],
+  "left_r":["1898_1", "1898_2", "1900", "1901"],
+  "bottom_l":["1957_4", "1957_3", "1956", "1955"],
+  "bottom_r":["1934", "1935", "1936_3", "1936_4"],
+  "right_l":["1450", "1449", "1448", "1447", "1446"],
+  "right_r":["1442", "1443", "1444", "1445"],
+  "top_l":["1974", "1973", "1972"],
+  "top_r":["1975_1", "1975_2", "1977", "1978"],
+}
+    laneYList = [
+  "1912", "1911", "1910_2", '1910_1',
+  "1898_1", "1898_2", "1900", "1901",
+  "1957_4", "1957_3", "1956", "1955",
+  "1934", "1935", "1936_3", "1936_4",
+  "1450", "1449", "1448", "1447", "1446",
+  "1442", "1443", "1444", "1445",
+  "1974", "1973", "1972",
+  "1975_1", "1975_2", "1977", "1978"
+];
+    lanNumber= {
+    "left_l":[0,1,2,3],
+    "left_r":[4,5,6,7],
+    "bottom_l":[8,9,10,11],
+    "bottom_r":[12,13,14,15],
+    "right_l":[16,17,18,19,20],
+    "right_r":[21,22,23,24],
+    "top_l":[25,26,27],
+    "top_r":[28,29,30,31]
+    }
+    file_path ="../back/static/data/DataProcess/flowForecast/vehicle_count.csv"
+
 
 #按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
 def detail_item():

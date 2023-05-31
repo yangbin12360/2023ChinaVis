@@ -29,6 +29,17 @@ export const getActionAndRoadCount= () => {
   return post("/getActionAndRoadCount");
 };
 
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+//获取弦图数据
+export const getLittleRoadFlow= (startTime) => {
+  return post("/getLittleRoadFlow",{
+    startTime:startTime
+  });
+};
 
 /**
  * 获取高价值场景列表数据
@@ -38,5 +49,30 @@ export const getActionAndRoadCount= () => {
 export const getHighValue =(startTime)=>{
   return post('/getHighValue',{
     startTime:startTime
+  })
+}
+
+/**
+ * 获取聚类散点图数据
+ * @param {时间戳} startTime
+ * @returns 
+ */
+export const getCluster =(startTime)=>{
+  return post('/getCluster',{
+    startTime:startTime
+  })
+}
+
+
+/**
+ * 获取独立交通参与者轨迹
+ * @param {交通参与者} id 
+ * @param {交通参与者类型} type
+ * @returns 
+ */
+export const getIdHighValue=(id,type)=>{
+  return post('/getIdHighValue',{
+    id:id,
+    type:type
   })
 }

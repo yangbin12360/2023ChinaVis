@@ -1,5 +1,7 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
+import { getIdHighValue } from "../../apis/api";
+import { LANE_ID_LIST } from "../utils/constant";
 import "./singleTrace.css";
 
 const VData = [
@@ -10,67 +12,30 @@ const VData = [
   { x: 4, y: 3 },
   { x: 20, y: 8 },
 ];
-const barData = [
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-  {
-    sceneType: "CC",
-    count: 146,
-  },
-];
+
 const colorData = [0.05, 0.1, 0.15, 0.2, 0.3, 0.25, 0.35, 0.45, 0.5];
 const SingleTrace = (props) => {
-  const {isTraceVisible, selectTraceId}=props
+  const { isTraceVisible, selectTraceId, singleType } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
+
   useEffect(() => {
-    if(isTraceVisible){
-    let data = generateData();
-    drawSingleTrace(data, 9, VData);
-    drawBar(barData);}
-  }, [isTraceVisible, selectTraceId]);
-
-  function generateData() {
-    let data = [];
-    for (let i = 1; i <= 2; i++) {
-      // 生成0到90之间的随机整数
-      data.push({ x: i, y: 0.5 });
+    if (isTraceVisible) {
+      getIdHighValue(selectTraceId, singleType).then((res) => {
+        const lanNumber = res["flowSe"].length;
+        drawBar(res["hvCount"]);
+        drawSingleTrace(
+          res["hvPositionList"],
+          lanNumber,
+          res["vPositionList"],
+          res["flowSe"],
+          res["flowList"]
+        );
+      });
     }
-    data.push({ x: 55, y: 0.5 });
-    data.push({ x: 65, y: 1.5 });
-    data.push({ x: 68, y: 1.5 });
-    data.push({ x: 70, y: 0.5 });
-    data.push({ x: 100, y: 0.5 });
+  }, [isTraceVisible, selectTraceId, singleType]);
 
-    return data;
-  }
-  const drawSingleTrace = (data, yNum, vdata) => {
+  const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const divHeight = singleTraceRef.current.offsetWidth;
     const divWidth = singleTraceRef.current.offsetHeight;
     const dimensions = {
@@ -99,22 +64,36 @@ const SingleTrace = (props) => {
         "transform",
         `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
       );
-
+    data.forEach((d) => {
+      d.y += 0.5;
+    });
     bounds
       .append("rect")
+      .attr("id","containerRect")
       .attr("width", boundedWidth)
       .attr("height", boundedHeight)
       .style("fill", "#fff")
       .style("stroke", "black") // 设置描边颜色为黑色
       .style("stroke-width", "1px"); // 设置描边宽度为2像素
     /*******************************************坐标轴设置 */
+
     // 添加 x 轴以及设置x轴
     const xScale = d3
       .scaleLinear()
-      .domain([0, 180]) // 输入范围
+      .domain([d3.min(data, (d) => d.x), d3.max(data, (d) => d.x)]) // 输入范围
       .range([0, boundedWidth]); // 输出范围
-    const customTicks = [0, 60, 120, 180];
-    const xAxis = d3.axisBottom(xScale).tickValues(customTicks); // 设置刻度的数量
+
+    const xAxis = d3
+      .axisBottom(xScale)
+      .ticks(5) // 根据你的需要设置刻度的数量
+      .tickFormat((d) => {
+        // 将时间戳转化为Date对象
+        const date = new Date(d * 1000); // JavaScript的时间戳是以毫秒为单位的，因此需要乘以1000
+        // 按“小时:分钟:秒”的方式格式化日期
+        const format = d3.timeFormat("%H:%M:%S");
+        return format(date);
+      });
+
     bounds
       .append("g")
       .attr("class", "x-axis")
@@ -139,14 +118,14 @@ const SingleTrace = (props) => {
       .append("g")
       .attr("calss", "text-labels")
       .selectAll("text")
-      .data(Array.from({ length: yNum }, (v, i) => i))
+      .data(roadData)
       .enter()
       .append("text")
       .attr("x", dimensions.margin.left - 60)
-      .attr("y", (d) => yScale(d) + (yScale(1) - yScale(0)) / 5)
+      .attr("y", (d, i) => yScale(i) + (yScale(1) - yScale(0)) / 5)
       .attr("text-anchor", "end") // 设置文本对齐方式为右对齐
       .style("font-size", "12px") // 设置文本字体大小
-      .text((d) => `road${d + 1}`);
+      .text((d) => `road:${d}`);
     //添加vy轴以及设置vy轴
     const yVelocityScale = d3
       .scaleLinear()
@@ -160,25 +139,25 @@ const SingleTrace = (props) => {
       .call(vYAxis)
       .call((g) => g.selectAll(".v-y-axis .tick line").remove()); // 移除vY轴的轴线
 
+    // 流量比例尺
     const colorScale = d3
       .scaleQuantize()
-      .domain([0, 1])
+      .domain([0, d3.max(flowData, (d) => d)])
       .range(d3.schemeBlues[9]);
-    const rectWidth = boundedWidth / 3;
-    const rectHeight = boundedHeight / 9;
+    // 一个车道持续5分钟的流量
+    const rectHeight = boundedHeight / flowData.length;
     const rectGroup = bounds.append("g");
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 9; j++) {
-        rectGroup
-          .append("rect")
-          .attr("x", i * rectWidth)
-          .attr("y", j * rectHeight)
-          .attr("width", rectWidth)
-          .attr("height", rectHeight)
-          .attr("fill", colorScale(colorData[j]))
-          .attr("stroke", "none")
-          .style("opacity", 0.5);
-      }
+
+    for (let j = 0; j < flowData.length; j++) {
+      rectGroup
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", j * rectHeight)
+        .attr("width", boundedWidth)
+        .attr("height", rectHeight)
+        .attr("fill", colorScale(flowData[flowData.length - 1 - j]))
+        .attr("stroke", "none")
+        .style("opacity", 0.5);
     }
 
     /*******************************************绘制线、点 */
@@ -201,12 +180,23 @@ const SingleTrace = (props) => {
       .attr("d", vLine);
     // 创建连接点的数组
     const segments = data.reduce((result, current, i) => {
-      console.log(result, current, i);
-      if (i > 0 && current.y === data[i - 1].y) {
-        result[result.length - 1].push(current);
+      if (i > 0) {
+        const prev = data[i - 1];
+        const timeDiff = Math.abs(current.nowTime - prev.nowTime);
+        const isSameLocation = current.y === prev.y || current.x === prev.x;
+        const isCarCrossType = current.type === "carCross";
+        const shouldConnect =
+          isSameLocation && !(isCarCrossType && timeDiff > 20);
+
+        if (shouldConnect) {
+          result[result.length - 1].push(current);
+        } else {
+          result.push([current]);
+        }
       } else {
         result.push([current]);
       }
+
       return result;
     }, []);
     const lineGroup = bounds.append("g");
@@ -231,6 +221,32 @@ const SingleTrace = (props) => {
       .attr("cy", (d) => yScale(d.y))
       .attr("r", 2) // 设置点的大小
       .attr("fill", "red"); // 设置点的颜色
+    const zoom = d3
+      .zoom()
+      .scaleExtent([1, Infinity]) // 设置缩放的最小和最大比例
+      .translateExtent([
+        [0, 0],
+        [boundedWidth, boundedHeight],
+      ]) // 设置平移的范围
+      .extent([
+        [0, 0],
+        [boundedWidth, boundedHeight],
+      ]) // 设置缩放的范围
+      .on("zoom", zoomed); // 设置缩放事件的监听器
+
+    svg.call(zoom); // 将zoom行为应用到svg元素上
+
+    function zoomed(event) {
+      const new_xScale = event.transform.rescaleX(xScale); // 根据缩放行为更新x轴的比例尺
+      bounds.select(".x-axis").call(xAxis.scale(new_xScale)); // 使用新的比例尺更新x轴
+
+      // 使用新的比例尺更新线和点
+      lineGroup.selectAll("path").attr(
+        "d",
+        line.x((d) => new_xScale(d.x))
+      );
+      bounds.selectAll("circle").attr("cx", (d) => new_xScale(d.x));
+    }
   };
 
   //绘制柱状图

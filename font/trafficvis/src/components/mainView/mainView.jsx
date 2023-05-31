@@ -2,7 +2,7 @@ import { Button } from "antd";
 import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 useRef 和 useEffect hooks
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { getJson, getTimeJson } from "../../apis/api";
+import { getJson, getTimeJson} from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV4.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
@@ -10,7 +10,7 @@ import ferrari from "../../assets/gltf/fcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-// import {draco} from "../../assets/draco/gltf/draco_decoder.js"
+//import {draco} from "../../assets/draco/gltf/draco_decoder.js"
 // import sky_up from '../../assets/fig/nz.png';
 // import sky_right from '../../assets/fig/px.png';
 // import sky_left from '../../assets/fig/nx.png';

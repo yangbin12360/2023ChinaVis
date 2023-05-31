@@ -24,6 +24,7 @@ const Layout = () => {
   const [selectId, setSelectId] = useState(null); //高选框中
   const [selectTraceId, setSelectTraceId] = useState(null); //单轨迹绘制
   const [isTraceVisible, setIsTraceVisible] = useState(false); //单轨迹视图生成控制
+  const [singleType,setSingleType]  = useState(null)
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
@@ -33,11 +34,13 @@ const Layout = () => {
   const handleSelectId = (id) => {
     setSelectId(id);
   };
-  //高价值场景列表生成单交通参与者轨迹
-  const handleSelectTraceId = (id) => {
+  //高价值场景列表传递id、type
+  const handleSelectTraceId = (id,type) => {
     setIsTraceVisible(true);
     setSelectTraceId(id);
+    setSingleType(type)
   };
+
   return (
     <div
       style={{
@@ -45,7 +48,7 @@ const Layout = () => {
         height: "100vh",
         overflow: "hidden",
         background: "#cacaca",
-        position:"relative"
+        position: "relative",
       }}
     >
       <Row style={{ width: "100%", height: "100%" }}>
@@ -63,7 +66,7 @@ const Layout = () => {
             ></Box>
           </div>
           <div style={{ height: "34%" }}>
-            <Box title={"ChordFlow"} ></Box>
+            <Box title={"ChordFlow"}></Box>
           </div>
           {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
           <div style={{ height: "33%" }}>
@@ -74,13 +77,13 @@ const Layout = () => {
           </div>
         </Col>
         <Col span={13} id="middle">
-          <div style={{ height: "67%"}}>
+          <div style={{ height: "67%" }}>
             <Box
               title={"MainView"}
               component={
                 <MainView timeStamp={timeStamp} selectId={selectId}></MainView>
               }
-            >             {/* 弦图放在主图 */}
+            >     
             </Box>
           </div>
           <div style={{ height: "33%" }}>
@@ -99,6 +102,7 @@ const Layout = () => {
                   timeStamp={timeStamp}
                   isTraceVisible={isTraceVisible}
                   selectTraceId={selectTraceId}
+                  singleType={singleType}
                   handleSelectTraceId={handleSelectTraceId}
                 ></SceneList>
               }
@@ -111,6 +115,7 @@ const Layout = () => {
                 <SingleTrace
                   isTraceVisible={isTraceVisible}
                   selectTraceId={selectTraceId}
+                  singleType={singleType}
                 ></SingleTrace>
               }
             ></Box>
@@ -118,7 +123,9 @@ const Layout = () => {
           <div style={{ height: "25%" }}>
             <Box
               title={"DrivingBehaviorAnalysis"}
-              component={<ClusterScatter></ClusterScatter>}
+              component={
+                <ClusterScatter timeStamp={timeStamp}></ClusterScatter>
+              }
             ></Box>
           </div>
           <div style={{ height: "38%" }}>
@@ -137,7 +144,7 @@ const Layout = () => {
           </div>
         </Col>
       </Row>
-      <div style={{left:'17%',top:'4%',width:300,height:300,position:"absolute",background:"white",opacity:0.5}}><ChordFlow></ChordFlow></div>
+      <div style={{left:'17%',top:'4%',width:200,height:200,position:"absolute",opacity:0.5,background:'white',borderRadius:'50%'}}><ChordFlow timeStamp={timeStamp}></ChordFlow></div>
     </div>
   );
 };
