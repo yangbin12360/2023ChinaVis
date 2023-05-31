@@ -31,7 +31,7 @@ function ChordFlow(props){
             city_name.push(i);
         }
 
-        console.log(city_name)
+        // console.log(city_name)
 
         // 弦布局
         var chord_layout = d3.chord() 
@@ -39,7 +39,7 @@ function ChordFlow(props){
         .sortSubgroups(d3.descending) 
         .sortChords(d3.descending) 
         (flow); 
-        console.log(flow);
+        // console.log(flow);
 
         // 布局转化数据
         var groups = chord_layout.groups;
@@ -169,7 +169,7 @@ function ChordFlow(props){
         for(var i = 0;i<32;i++){
             city_name.push(i);
         }
-        console.log(city_name)
+        // console.log(city_name)
 
         setTemp(temp+10);
 
@@ -184,7 +184,7 @@ function ChordFlow(props){
     //         [1212, 0, 5, 0,  709, 0, 158,0],
 
     //       ];
-          console.log(flow)
+        //   console.log(flow)
         // 弦布局
         var chord_layout = d3.chord() 
         .padAngle(0.05)  
@@ -246,7 +246,7 @@ function ChordFlow(props){
                         .radius(innerRadius);
     
         //console.log(inner_chord);
-    console.log(chord_layout)
+    // console.log(chord_layout)
     // let scale = d3.scaleLinear()
     //              .domain([0,8761])
     //              .range([0.2,0.7]);
@@ -324,7 +324,7 @@ function ChordFlow(props){
     //用于控制弦图更新
     const [update,setUpdate] = useState(0);
     useEffect(() => {
-        console.log(1)
+        // console.log(1)
         getLittleRoadFlow(timeStamp).then(res => {
             let flow = res;
             drawChord(flow);
@@ -339,14 +339,14 @@ function ChordFlow(props){
     useEffect(() => {
         //定时器每5分钟执行一次
         let timer = setInterval(() => {
-            console.log(update);
+            // console.log(update);
             getLittleRoadFlow(update).then(res => {
                 let flow = res;
                 updateChord(flow);
                })
 
             setUpdate(update+5);
-            console.log(update);
+            // console.log(update);
         },5000)
         return () => {
             //清理定时器

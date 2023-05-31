@@ -150,7 +150,7 @@ const SceneList = (props) => {
     if (detailRef.current == null) {
       setListVisible(!isListVisible); // 清空选中的行
     }
-    handleSelectTraceId(selectedData[0]["id"])
+    handleSelectTraceId(selectedData[0]["id"],selectedData[0]["type"])
     setSelectedRows([]);
   };
 
