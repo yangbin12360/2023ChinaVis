@@ -271,6 +271,41 @@ def getCluster():
 
     return res
 
+#按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
+def detail_item():
+    startTime=request.json.get('startTime')
+    roadNumber=request.json.get('roadNumber')
+    actionName=request.json.get('actionName')
+    startTime = datetime.datetime.fromtimestamp(startTime)
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    pair_dict={'car_cross':0,'long_time':1,'nomotor_cross':2,'overSpeeding':3,'people_cross':4,'reverse':5,'speedDown':6,'speedUp':7}
+    item_data = []  #保存结果数据
+    time_diff = startTime - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+    segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+    if segment_index>287:
+        segment_index=287
+    # 获取所有高价值数据
+    file_path = './static/data/Result/decomposition_data.json'
+    with open(file_path, "r", encoding="utf-8") as f:
+        decomposition = json.load(f)
+    #遍历对应的高价值数组 
+    for item in decomposition[pair_dict[actionName]]:
+        # 寻找对应的中道路
+        if item['road']==roadNumber:
+            # 将时间戳转换为日期时间
+            dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+            time_diff1 = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+            segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  #计算时间段索引
+            if segment_index1>287:
+                segment_index1=287
+            # 判断是否在该五分钟内
+            if segment_index==segment_index1:
+                item_data.append(item)
+    
+    # print(item_data)                     
+    return item_data
+
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启
