@@ -76,3 +76,18 @@ export const getIdHighValue=(id,type)=>{
     type:type
   })
 }
+
+/**
+ * 获取独立交通参与者轨迹
+ * @param {时间戳} startTime 
+ * @param {车道号} roadNumber
+ *  @param {高价值场景索引} actionName
+ * @returns 
+ */
+ export const detail_item=(startTime,roadNumber,actionName)=>{
+  return post('/detail_item',{
+    startTime:startTime,
+    roadNumber:roadNumber,
+    actionName:actionName
+  })
+}

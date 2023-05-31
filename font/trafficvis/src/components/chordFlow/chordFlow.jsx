@@ -291,7 +291,7 @@ function ChordFlow(props){
         function innertipy(flag){
             if(flag == true){
                 return function(g,i){
-                    console.log(i);
+                    //console.log(i);
                     setTipyFlag(flag);
                     if(i.source.index != i.target.index){
                         //console.log("出："+i.source.value+"进："+i.target.value);

@@ -490,6 +490,7 @@ def getFlowPredict():
 
 
 #按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
+@app.route('/detail_item',methods=["POST"])
 def detail_item():
     startTime=request.json.get('startTime')
     roadNumber=request.json.get('roadNumber')
@@ -508,7 +509,7 @@ def detail_item():
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition = json.load(f)
     #遍历对应的高价值数组 
-    for item in decomposition[pair_dict[actionName]]:
+    for item in decomposition[actionName]:
         # 寻找对应的中道路
         if item['road']==roadNumber:
             # 将时间戳转换为日期时间

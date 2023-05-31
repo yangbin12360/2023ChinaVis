@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import { useEffect,useState,useRef } from 'react';
 import { svg } from 'd3';
-import {getActionAndRoadCount} from '../../apis/api'
+import {getActionAndRoadCount,detail_item} from '../../apis/api'
 import echarts from 'echarts'
 //import echarts from 'echarts/lib/echarts'
 import ReactEcharts from 'echarts-for-react';
@@ -206,16 +206,18 @@ function RelationshipScene(){
     const toolRef = useRef(null);
     const [isZoomForAll, setIsZoomForAll] = useState("unify");
     const dataZoom = useRef(null);
-    const [time,setTime] = useState(0);
+    const [time,setTime] = useState(1681315196);
     const [carNum,setcarNum] = useState(0);
     const [scence,setScence] = useState(0);
     const [dataset,setDataTese] = useState([]);
 
     var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
+    var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
 
     //时间戳的完整转换
     const converTimestampall = (timestamp) => {
+
       // 将微秒时间戳转换为毫秒
       const milliseconds = timestamp * 1000;
       // 使用毫秒时间戳创建一个新的 Date 对象
@@ -364,13 +366,13 @@ function RelationshipScene(){
       //点击点获取时间戳、中车道车号[0-6]对应[车道1-车道7]、高价值场景序号[0-7]分别对应['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速']
       myChart.on("click", function (param) {
         console.log(param);
-        var getX = timestamp[param.dataIndex];//横坐标的值
+        var getX = timestamp[param.dataIndex]-300;//横坐标的值
         var getName =parseInt(param.seriesId.split('-')[1]);
         var getScence = parseInt(param.seriesId.split('-')[0]);
         setTime(getX);
         setcarNum(getName);
         setScence(getScence);
-        console.log(getX,getName,getScence);
+        //console.log(getX,getName,getScence);
         })
 
     }
@@ -382,21 +384,18 @@ function RelationshipScene(){
         })
     },[])
 
-
+//所有事件的细节模板
     function DrawDetailScence(){
-     //var textScence =  d3.select('#detailInformation');
-     //textScence.selectAll('*').remove();
      if( scence == 0){
       return(    
         <>
         <ul>
         {
          dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
-         id:{item.id}<br/><br/>
-         参与者类型:{item.type}<br/><br/>
-         平均速度:{item.vol}<br/><br/>
-         开始时间:{item.startTime}<br/><br/>
-         结束时间:{item.endTime}<br/><br/>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         切入切出次数: {item.count}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
          </li>)
         }
       </ul>
@@ -404,62 +403,142 @@ function RelationshipScene(){
       );
      }
      else if( scence == 1){
-
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
      }
      else if( scence == 2){
-   
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
     else if( scence == 3){
-
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         平均速度： {item.mean_velo} m/s<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
     else if( scence == 4){ 
- 
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
     else if( scence == 5){
-
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         逆行朝向： {item.heading}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
     else if( scence == 6){
-
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         急减速持续时间： {item.speedDown_time} s<br/><br/>
+         急减速起始速度： {item.start_velocity} m/s<br/><br/>
+         急减速结束速度： {item.end_velocity} m/s<br/><br/>
+         急减速开始位置： {item.start_position}<br/><br/>
+         急减速结束位置： {item.end_position}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
     else if( scence == 7){
-
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         急加速持续时间： {item.speedUp_time} s<br/><br/>
+         急加速起始速度： {item.start_velocity} m/s<br/><br/>
+         急加速结束速度： {item.end_velocity} m/s<br/><br/>
+         急加速开始位置： {item.start_position}<br/><br/>
+         急加速结束位置： {item.end_position}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
     }
-
-    //  datatest.forEach((d,i)=>{
-    //   textScence.append('div')
-    //             .attr('id','id'+i)
-    //             .attr('height',100)
-    //             .attr('transform','tanslate(0,'+100*i+')');
-
-    //   d3.select('#id'+i)
-    //     .append('div')
-    //     .text('id:'+d.id);
-    //   d3.select('#id'+i)
-    //     .append('div')
-    //     .text('参与者类型：'+d.type);
-    //   d3.select('#id'+i)
-    //     .append('div')
-    //     .text('平均速度:'+d.vol);
-    //   d3.select('#id'+i)
-    //     .append('div')
-    //     .text('开始时间：'+d.startTime);
-    //   d3.select('#id'+i)
-    //     .append('div')
-    //     .attr('font-size','20px')
-    //     .text('结束时间：'+d.endTime);
-     
-     //})
     }
 
     useEffect(() => {
-      var datatest = [
-        {id:carNum,type:'小型车辆',vol:'20',startTime:time,endTime:'354131312'},
-        {id:'1244353',type:'小型车辆',vol:'20',startTime:'1564324356',endTime:'3541315532'},
-        {id:'1575353',type:'卡车',vol:'25',startTime:'1564334256',endTime:'35412512'},
-        {id:'1247853',type:'小型车辆',vol:'20',startTime:'15643342356',endTime:'354131312'}
-      ];
-      setDataTese(datatest);
-      //drawDetailScence(datatest);
+      // var datatest = [
+      //   {id:carNum,type:'小型车辆',vol:'20',startTime:time,endTime:'354131312'},
+      //   {id:'1244353',type:'小型车辆',vol:'20',startTime:'1564324356',endTime:'3541315532'},
+      //   {id:'1575353',type:'卡车',vol:'25',startTime:'1564334256',endTime:'35412512'},
+      //   {id:'1247853',type:'小型车辆',vol:'20',startTime:'15643342356',endTime:'354131312'}
+      // ];
+      console.log(scence);
+      detail_item(time,carNum,scence).then(res => {
+        var dataDetail = res;
+        console.log(dataDetail);
+        setDataTese(dataDetail);
+      })
 
     },[carNum,time,scence])
     
