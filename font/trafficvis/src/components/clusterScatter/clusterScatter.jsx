@@ -104,43 +104,67 @@ const ClusterScatter = (props) => {
 
     const yAxis = d3.axisLeft(yScale).ticks(5);
     bounds.append("g").attr("class", "yAxis").call(yAxis);
+// 创建一个tooltip div在body中
+const tooltip = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
-    const tooltipDiv = d3
-    .select("#cluster")
-    .append("div")
-    .attr("id", "scatter-tooltip")
-    .style("opacity", 0)
-    .style("pointer-events", "none");
-    const circleGroup = bounds
-      .selectAll("circle")
-      .data(clusterData)
-      .enter()
-      .append("circle")
-      .attr("id", (d) => d.id)
-      .attr("cx", (d) => xScale(d.position.x))
-      .attr("cy", (d) => yScale(d.position.y))
-      .attr("r", 6) // 设置圆点半径
-      .style("fill", (d) => colorScale(d.cluster))
-      .attr("stroke", (d) => typeScale(d.type)) // 设置圆点边框颜色
-      .attr("stroke-width", 1)
-      .on("mouseover", function (event, d, i) {
-        d3.select(this)
-          .transition()
-          .duration(50)
-          .attr("r", 6 * 1.5);
-          console.log(event.offsetX, event.offsetY);
-        tooltipDiv.transition().duration(50).style("opacity", 1);
-        d3.select("#scatter-tooltip")
-          .html( "\n Cluster ")
-          .style("left", `${event.offsetX + 10}px`)
-          .style("top", `${event.offsetY + 45}px`)
-          .style("z-index", 10)
-          ;
-      })
-      .on("mouseout", function () {
-        d3.select(this).transition().duration(50).attr("r", 6);
-        tooltipDiv.transition().duration(50).style("opacity", 0);
-      });
+// 更新circle的定义
+const circleGroup = bounds
+  .selectAll("circle")
+  .data(clusterData)
+  .enter()
+  .append("circle")
+  .attr("id", (d) => d.id)
+  .attr("cx", (d) => xScale(d.position.x))
+  .attr("cy", (d) => yScale(d.position.y))
+  .attr("r", 6) // 设置圆点半径
+  .style("fill", (d) => colorScale(d.cluster))
+  .attr("stroke", (d) => typeScale(d.type)) // 设置圆点边框颜色
+  .attr("stroke-width", 1)
+  .on("mouseover", function (event, d) {
+    tooltip.transition()
+      .duration(200)
+      .style("opacity", .9);
+    tooltip.html("ID: " + d.id +"\nType:"+d.type);
+    
+    var svgContainer = d3.select("#cluster").node();
+    var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+    var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+  
+    tooltip.style("left", xOffset + "px")
+      .style("top", yOffset + "px");
+  })
+  .on("mouseout", function (d) { // 添加鼠标移出事件
+    tooltip.transition()
+      .duration(500)
+      .style("opacity", 0);
+  });
+  // 创建zoom行为
+// 创建zoom行为
+const zoom = d3.zoom()
+    .scaleExtent([0.5, 5]) // 缩放的最小和最大比例
+    .on("zoom", function (event) {
+        // 获取缩放和平移变换
+        const transform = event.transform;
+
+        // 创建新的缩放后的比例尺
+        var updatedXScale = transform.rescaleX(xScale);
+        var updatedYScale = transform.rescaleY(yScale);
+
+        // 更新坐标轴
+        bounds.select(".xAxis").call(xAxis.scale(updatedXScale));
+        bounds.select(".yAxis").call(yAxis.scale(updatedYScale));
+
+        // 更新数据点的位置
+        circleGroup
+            .attr("cx", (d) => updatedXScale(d.position.x))
+            .attr("cy", (d) => updatedYScale(d.position.y));
+    });
+
+// 将zoom行为应用到svg上
+svg.call(zoom);
+
     // 设置圆点边框大小
     // 设置填充颜色
     /**套索工具实现 */
@@ -173,7 +197,7 @@ const ClusterScatter = (props) => {
       let selectedData = my_lasso.selectedItems()._groups[0].map((item) => {
         return [parseInt(item.getAttribute("id")), item.__data__];
       });
-      // console.log("selected: ", selectedData);
+      console.log("selected: ", selectedData);
       // .attr("r", 7);
     };
 
@@ -250,7 +274,7 @@ const ClusterScatter = (props) => {
       <div className="cluster" ref={clusterRef} id="cluster">
       </div>
       <div className="radar" ref={radarRef}>
-        2
+        
       </div>
     </div>
   );

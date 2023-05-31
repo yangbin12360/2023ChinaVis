@@ -1,6 +1,8 @@
-import { Select, Button } from "antd";
+import { Select, Button} from "antd";
+import {Table} from 'rsuite'
 import { hourList, sixtyList } from "../utils/constant";
 import { useState } from "react";
+import "./controlPanel.css";
 
 const ControlPanel = (props) => {
   const {handleChangeTime,  handleSelectId} = props
@@ -17,8 +19,22 @@ const ControlPanel = (props) => {
   const changeId =()=>{
     handleSelectId(269548444)
   }
+  const { Column, HeaderCell, Cell } = Table;
+  const data = [{ id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
+  { id: 1, name: 'foobar', email: 'foobar@xxx.com' }];
   return (
-    <div className="control">
+    <div className="container">
+      <div className="control">
       <div className="controlDay">
         日：
         <Select
@@ -83,6 +99,7 @@ const ControlPanel = (props) => {
       </div>
       <div className="controlButton">
         <Button onClick={changeId}>Default Button</Button>
+      </div>
       </div>
     </div>
   );

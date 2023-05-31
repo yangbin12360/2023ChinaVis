@@ -17,6 +17,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import datetime as dt
 
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
@@ -2356,7 +2357,7 @@ def mergeCluster():
 
 #处理flid
 def processFid():
-    folder_path = '../back/static/data\DataProcess/idRoadCsv/2/'
+    folder_path = '../back/static/data\DataProcess/idRoadCsv/3/'
     for filename in os.listdir(folder_path):
         if filename.endswith('.csv'):
             file_path = os.path.join(folder_path, filename)
@@ -2369,9 +2370,17 @@ def processFid():
 
             # 去掉字符串中的".0"
                 df['lineFid'] = df['lineFid'].apply(lambda x: x.rstrip('.0') if '.0' in x else x)
-            
+
             # 将修改后的数据写回文件
                 df.to_csv(file_path, index=False)
+
+#将预测数据处理成整点数据
+def forecastToInt():
+    df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre.csv")
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = df['timestamp'].apply(lambda t: t + dt.timedelta(hours=1) if t.minute >= 30 else t)
+    df['timestamp'] = df['timestamp'].dt.floor('H')
+    df.to_csv('../back/static/data/DataProcess/flowForecast/modified_data.csv', date_format='%Y-%m-%d %H:%M:%S', index=False)
 
 if __name__ == '__main__':
     # 驾驶行为
@@ -2387,4 +2396,5 @@ if __name__ == '__main__':
     # newDataType()
     # dimReduction_no()
     # mergeCluster()
-    processFid()
+    # processFid() #  1 2 已经修改
+    forecastToInt()

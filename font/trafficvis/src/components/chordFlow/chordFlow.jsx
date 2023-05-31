@@ -12,7 +12,7 @@ function ChordFlow(props){
     const [tipyY,setTipyY] = useState('0px');
     //const [timeFlag,SetTimeFlag] = useState(1681315196);
     const [temp,setTemp] = useState(20);
-    console.log(timeStamp);
+    // console.log(timeStamp);
 
     function drawChord(flow){
         var width = document.getElementById('flowContainer').clientWidth;
