@@ -1712,71 +1712,7 @@ def get_road_information4():
     with open('./static/data/DataResult/speedUp.json', 'w') as file:
         file.write(updated_json)
 
-# 获取出口道路到入口道路的车流量（24小时）
-def road_flow():
-    # 获取多边形坐标数据
-    file_path1 = './static/data/BoundryRoads/polygons_people.json'
-    with open(file_path1, "r", encoding="utf-8") as f:
-        road_polygons = json.load(f)
 
-    helper_list=[]
-    root_folder_path = './static/data/DataProcess'
-    # 遍历根文件夹
-    for folder_name in os.listdir(root_folder_path):
-        folder_path = os.path.join(root_folder_path, folder_name)
-        # 判断是否为需要处理的文件夹
-        # 机动车流量
-        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
-            continue
-        # 获取文件夹中的所有文件
-        file_list = os.listdir(folder_path)
-        # 遍历文件列表，筛选出JSON文件并读取
-        for file_name in file_list:
-            file_path = os.path.join(folder_path, file_name)
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-            start_index=-1  #记录出口道路的标识
-            end_index=-1   #记录入口道路的标识
-            flag=0
-            # 针对每个时间戳的坐标点
-            for item in data:
-                if item['is_moving']==1:
-                    pos = json.loads(item['position'])
-                    arr = []
-                    arr.append(pos['x'])
-                    arr.append(pos['y'])
-                    # 创建Point对象
-                    point = Point(arr)
-                    # 判断该坐标点位于哪条道路
-                    for index,polygon in enumerate(road_polygons):
-                        if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
-                            # 判断是否为出口道路
-                            if index in [1,3,4,6] and start_index==-1:
-                                start_index=index 
-                                flag=1 #用于固定先后顺序，只有先从出口道路出来，才能进入入口道路
-                                break 
-                            # 记录入口道路 
-                            if index in [0,2,5,7] and flag==1:
-                                end_index=index
-                                break   
-                    if end_index!=-1:
-                        break
-            #记录出入口信息 
-            if start_index!=-1 and end_index!=-1:
-                helper_list.append([file_name,start_index,end_index])
-                
-    flow_path = './static/data/Result/road_flow.json'
-    with open(flow_path, 'w') as f:
-        json.dump(helper_list, f) 
-
-    # 将数据存入8乘8的矩阵
-    road_flow_data = [[0 for _ in range(8)] for _ in range(8)]
-    for item in helper_list:
-        index1=item[1]
-        index2=item[2]
-        road_flow_data[index1][index2]+=1
-        
-    print(road_flow_data)
 
 def getLightData():
     f = open("./static/data/ChinaVis Data/road10map/laneroad10.geojson", "r")
