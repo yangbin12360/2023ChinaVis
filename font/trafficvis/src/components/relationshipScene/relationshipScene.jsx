@@ -2,11 +2,12 @@ import React from 'react';
 import * as d3 from 'd3';
 import { useEffect,useState,useRef } from 'react';
 import { svg } from 'd3';
-import {getActionAndRoadCount} from '../../apis/api'
+import {getActionAndRoadCount,detail_item} from '../../apis/api'
 import echarts from 'echarts'
 //import echarts from 'echarts/lib/echarts'
 import ReactEcharts from 'echarts-for-react';
 import { Radio } from "antd";
+import "./relationShip.less";
 
 //导入echarts折线图
 
@@ -205,6 +206,28 @@ function RelationshipScene(){
     const toolRef = useRef(null);
     const [isZoomForAll, setIsZoomForAll] = useState("unify");
     const dataZoom = useRef(null);
+    const [time,setTime] = useState(1681315196);
+    const [carNum,setcarNum] = useState(0);
+    const [scence,setScence] = useState(0);
+    const [dataset,setDataTese] = useState([]);
+
+    var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9'];
+    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
+    var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
+
+    //时间戳的完整转换
+    const converTimestampall = (timestamp) => {
+
+      // 将微秒时间戳转换为毫秒
+      const milliseconds = timestamp * 1000;
+      // 使用毫秒时间戳创建一个新的 Date 对象
+      const date = new Date(milliseconds);
+      // 返回日期和时间字符串
+      const timestring = date.toLocaleString("en-US", { hour12: false });
+
+      return timestring;
+  };
+
     function drawRelationPlot(dataset){
 
             //16位时间戳转换
@@ -218,6 +241,7 @@ function RelationshipScene(){
 
         return timestring;
     };
+   
 
     var time = [];
     var timestamp = [];
@@ -226,21 +250,6 @@ function RelationshipScene(){
         timestamp.push(i);
     }
     console.log(time);
-    // var count = [];
-    // var action =[];
-    var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9',]
-    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
-    // for(var k = 0;k<8;k++){
-    //     action = [];
-    //     for(var j=0;j<=8;j++){
-    //         count = [];
-    //         for(var i=1;i<289;i++){
-    //            count.push(Math.random()*100);
-    //         }
-    //         action.push(count)
-    //     }
-    //     dataset.push(action);
-    // }
 
     console.log(dataset);
     const title = [];
@@ -324,7 +333,7 @@ function RelationshipScene(){
         legend: {
           show: true,
           top: 0,
-          left: "20%",
+          left: "10%",
         },
         dataZoom: [
           {
@@ -357,10 +366,13 @@ function RelationshipScene(){
       //点击点获取时间戳、中车道车号[0-6]对应[车道1-车道7]、高价值场景序号[0-7]分别对应['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速']
       myChart.on("click", function (param) {
         console.log(param);
-        var getX = timestamp[param.dataIndex];//横坐标的值
+        var getX = timestamp[param.dataIndex]-300;//横坐标的值
         var getName =parseInt(param.seriesId.split('-')[1]);
         var getScence = parseInt(param.seriesId.split('-')[0]);
-        console.log(getX,getName,getScence);
+        setTime(getX);
+        setcarNum(getName);
+        setScence(getScence);
+        //console.log(getX,getName,getScence);
         })
 
     }
@@ -372,8 +384,169 @@ function RelationshipScene(){
         })
     },[])
 
+//所有事件的细节模板
+    function DrawDetailScence(){
+     if( scence == 0){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         切入切出次数: {item.count}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+     }
+     else if( scence == 1){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+     }
+     else if( scence == 2){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    else if( scence == 3){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         平均速度： {item.mean_velo} m/s<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    else if( scence == 4){ 
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    else if( scence == 5){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         逆行朝向： {item.heading}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         结束时间: {converTimestampall(item.end_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    else if( scence == 6){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         急减速持续时间： {item.speedDown_time} s<br/><br/>
+         急减速起始速度： {item.start_velocity} m/s<br/><br/>
+         急减速结束速度： {item.end_velocity} m/s<br/><br/>
+         急减速开始位置： {item.start_position}<br/><br/>
+         急减速结束位置： {item.end_position}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    else if( scence == 7){
+      return(    
+        <>
+        <ul>
+        {
+         dataset.map((item,index) => <li key = {index} style={{height:200,fontFamily:'微软雅黑'}}>
+         id: {item.id}<br/><br/>
+         参与者类型: {type[item.type]}<br/><br/>
+         急加速持续时间： {item.speedUp_time} s<br/><br/>
+         急加速起始速度： {item.start_velocity} m/s<br/><br/>
+         急加速结束速度： {item.end_velocity} m/s<br/><br/>
+         急加速开始位置： {item.start_position}<br/><br/>
+         急加速结束位置： {item.end_position}<br/><br/>
+         开始时间: {converTimestampall(item.start_time/1000000)}<br/><br/>
+         </li>)
+        }
+      </ul>
+      </>
+      );
+    }
+    }
+
+    useEffect(() => {
+      // var datatest = [
+      //   {id:carNum,type:'小型车辆',vol:'20',startTime:time,endTime:'354131312'},
+      //   {id:'1244353',type:'小型车辆',vol:'20',startTime:'1564324356',endTime:'3541315532'},
+      //   {id:'1575353',type:'卡车',vol:'25',startTime:'1564334256',endTime:'35412512'},
+      //   {id:'1247853',type:'小型车辆',vol:'20',startTime:'15643342356',endTime:'354131312'}
+      // ];
+      console.log(scence);
+      detail_item(time,carNum,scence).then(res => {
+        var dataDetail = res;
+        console.log(dataDetail);
+        setDataTese(dataDetail);
+      })
+
+    },[carNum,time,scence])
+    
+
+
     return (
-        <div style={{height:'400px',width:'100%',overflowY:'auto'}}>
+      <div style={{position:'relative'}}>
+        <div style={{height:'400px',width:'70%',overflowY:'auto'}}>
              <div className="group-lines-bar">
           {/* <Radio.Group
             value={isZoomForAll}
@@ -389,9 +562,14 @@ function RelationshipScene(){
         </div>
             <div style={{ width: "100%" }} ref={groupLinesRef}></div>
 
-        
+        </div>
+        <div className = 'detail' style={{height:'400px',width:'30%',overflowY:'auto',left:'70%', top:'0%',position:'absolute'}}> 
+        <p id = 'information' style={{lineHeight:'180%'}}>在{converTimestampall(time)}所在5分钟内,车道{carNum+1}的{label[scence]}场景详细信息如下：</p>
+        <div id = 'detailInformation'>
+          <DrawDetailScence></DrawDetailScence>
+        </div>
+        </div>
         </div>
     );
 }
-
 export default RelationshipScene;

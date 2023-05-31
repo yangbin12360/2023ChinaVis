@@ -102,7 +102,6 @@ def getActionAndRoadCount():
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
     all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
-
     file_path = './static/data/Result/decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
@@ -116,17 +115,14 @@ def getActionAndRoadCount():
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
                 time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
                 time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index1==segment_index2:
-                    all_count[index][item['road']][segment_index1]+=1
-                else:
-                    all_count[index][item['road']][segment_index1]+=1
-                    if segment_index2>287:
-                        # print(segment_index2,dt2)
-                        all_count[index][item['road']][287]+=1
-                    else:
-                        all_count[index][item['road']][segment_index2]+=1 
+                if segment_index2>287:
+                    segment_index2=287
+                for i in range(segment_index1,segment_index2+1):
+                    all_count[index][item['road']][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -135,14 +131,12 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                all_count[index][item['road']][segment_index]+=1
-                
-                
-    # print(all_count)
-    # list_path = './static/data/Result/all_list.json'
-    # with open(list_path, 'w') as f:
-    #     json.dump(all_count, f)                  
+                if segment_index>287:
+                    segment_index=287
+                all_count[index][item['road']][segment_index]+=1    
+                           
     return all_count
+
 
 # def getActionAndRoadCount():
 #     file_path = './static/data/Result/all_list.json'
@@ -495,6 +489,58 @@ def getFlowPredict():
     }
     file_path ="../back/static/data/DataProcess/flowForecast/vehicle_count.csv"
 
+
+#按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
+@app.route('/detail_item',methods=["POST"])
+def detail_item():
+    startTime=request.json.get('startTime')
+    roadNumber=request.json.get('roadNumber')
+    actionName=request.json.get('actionName')
+    startTime = datetime.datetime.fromtimestamp(startTime)
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    item_data = []  #保存结果数据
+    time_diff = startTime - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+    segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+    if segment_index>287:
+        segment_index=287
+    # 获取所有高价值数据
+    file_path = './static/data/Result/decomposition_data.json'
+    with open(file_path, "r", encoding="utf-8") as f:
+        decomposition = json.load(f)
+    #遍历对应的高价值数组 
+    for item in decomposition[actionName]:
+        # 寻找对应的中道路
+        if item['road']==roadNumber:
+            if actionName in [1,2,3,4]:
+                # 将时间戳转换为日期时间
+                dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
+                time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
+                time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index2>287:
+                    segment_index2=287
+                for i in range(segment_index1,segment_index2+1):
+                    if i==segment_index:
+                        item_data.append(item)
+                        break
+            else:
+                # 将时间戳转换为日期时间
+                dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                time_diff1 = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  #计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
+                # 判断是否在该五分钟内
+                if segment_index==segment_index1:
+                    item_data.append(item)
+    
+    # print(item_data)                     
+    return item_data
 
 
 

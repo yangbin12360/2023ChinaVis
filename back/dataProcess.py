@@ -1,6 +1,7 @@
 import json
 import os
 import operator
+import datetime
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 import random
 from shapely.ops import linemerge
@@ -1713,14 +1714,103 @@ def get_road_information4():
     with open('./static/data/DataResult/speedUp.json', 'w') as file:
         file.write(updated_json)
 
-# 获取出口道路到入口道路的车流量（24小时）
-def road_flow():
+# 计算一天时间内每五分钟的路口总体平均速度，用于玫瑰图分析是否存在拥堵
+def aver_speed():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
+
+    # 初始化时间段数据
+    segment_data = [[] for _ in range(num_segments)]  # 使用列表存储每个时间段的数据
+
     # 获取多边形坐标数据
     file_path1 = './static/data/BoundryRoads/polygons_people.json'
     with open(file_path1, "r", encoding="utf-8") as f:
         road_polygons = json.load(f)
 
-    helper_list=[]
+    root_folder_path = './static/data/DataProcess'
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        # 机动车数据
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+            continue
+        # 获取文件夹中的所有文件
+        file_list = os.listdir(folder_path)
+        # 遍历文件列表，筛选出JSON文件并读取
+        for file_name in file_list:
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            velocity_data = [[] for _ in range(num_segments)]  # 使用列表存储每个时间段的速度数据   
+            for item in data:
+                if item['is_moving']==1:
+                    pos = json.loads(item['position'])
+                    arr = []
+                    arr.append(pos['x'])
+                    arr.append(pos['y'])
+                    # 创建Point对象
+                    point = Point(arr)
+                    for road in road_polygons:
+                        # 判断是否位于车道内
+                        if Polygon(road).contains(point) or Polygon(road).touches(point):
+                            # 将时间戳转换为日期时间
+                            dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                            time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+                            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                            if segment_index>287:
+                                segment_index=287
+                            velocity_data[segment_index].append(item['velocity'])  # 将速度存储到对应的时间段中
+                            break
+                    center_polygon = [[-66.64, -116.48], [-23.2, -146.52],
+                                    [-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+                    if Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                        # 将时间戳转换为日期时间
+                        dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                        time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                        segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                        if segment_index>287:
+                            segment_index=287
+                        velocity_data[segment_index].append(item['velocity'])  # 将速度数据存储到对应的时间段中 
+                        
+            #计算每辆车在某个时间段内的平均速度，作为计算该时间段总的平均速度的基础数据   
+            for index, velocity in enumerate(velocity_data):                  
+                if velocity:
+                    aver_velocity=sum(velocity)/len(velocity) 
+                    segment_data[index].append(aver_velocity) 
+            # count+=1
+            # if count>50:
+            #     print(segment_data)
+            #     break   
+        print('finish'+folder_name)
+        
+    averspeed_path = './static/data/Result/segment_speed_data.json'
+    with open(averspeed_path, 'w') as f:
+        json.dump(segment_data, f)  
+            
+    final_result=[]
+    for segment in segment_data:
+        if segment:
+            average=sum(segment)/len(segment) 
+            final_result.append(average) 
+        else:
+            final_result.append(0)  
+
+    print(final_result) 
+
+# 计算每小时路口总的车流量数据，用于玫瑰图
+def traffic_flow():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=60)  # 时间段时长为60分钟
+    num_segments = 24  # 时间段数量
+    # 初始化时间段数据
+    traffic_flow = [0 for _ in range(num_segments)]  # 使用列表存储每个时间段的数据
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+
     root_folder_path = './static/data/DataProcess'
     # 遍历根文件夹
     for folder_name in os.listdir(root_folder_path):
@@ -1736,10 +1826,7 @@ def road_flow():
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            start_index=-1  #记录出口道路的标识
-            end_index=-1   #记录入口道路的标识
-            flag=0
-            # 针对每个时间戳的坐标点
+            aindex=-1
             for item in data:
                 if item['is_moving']==1:
                     pos = json.loads(item['position'])
@@ -1748,36 +1835,497 @@ def road_flow():
                     arr.append(pos['y'])
                     # 创建Point对象
                     point = Point(arr)
-                    # 判断该坐标点位于哪条道路
-                    for index,polygon in enumerate(road_polygons):
-                        if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
-                            # 判断是否为出口道路
-                            if index in [1,3,4,6] and start_index==-1:
-                                start_index=index 
-                                flag=1 #用于固定先后顺序，只有先从出口道路出来，才能进入入口道路
-                                break 
-                            # 记录入口道路 
-                            if index in [0,2,5,7] and flag==1:
-                                end_index=index
-                                break   
-                    if end_index!=-1:
-                        break
-            #记录出入口信息 
-            if start_index!=-1 and end_index!=-1:
-                helper_list.append([file_name,start_index,end_index])
-                
-    flow_path = './static/data/Result/road_flow.json'
-    with open(flow_path, 'w') as f:
-        json.dump(helper_list, f) 
+                    for road in road_polygons:
+                        if Polygon(road).contains(point) or Polygon(road).touches(point):
+                            # 将时间戳转换为日期时间
+                            dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                            time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+                            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                            if aindex!=segment_index:
+                                if segment_index>23:
+                                    traffic_flow[23]+=1
+                                else:
+                                    traffic_flow[segment_index]+=1
+                                aindex=segment_index
+                            break      
+        # print('finish'+folder_name)                
+    print(traffic_flow)                    
+          
 
-    # 将数据存入8乘8的矩阵
-    road_flow_data = [[0 for _ in range(8)] for _ in range(8)]
-    for item in helper_list:
-        index1=item[1]
-        index2=item[2]
-        road_flow_data[index1][index2]+=1
+# 分解高价值场景数据，以便跟好地统计数量，此外还修改数据的部分格式
+def decomposition():
+    decomposition_data=[]
+    folder_path = './static/data/DataResult'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        if file_name=='people_cross.json':
+            new_data=[]
+            for item in data:
+                time_arr=item['time_arr']
+                # 将时间段数据分为start_time和end_time，同时加上类型标识
+                new_data.append({
+                    'id':item['id'],
+                    'type':2,
+                    'start_time':time_arr[0],
+                    'end_time':time_arr[1],
+                    'road':item['road'],
+                    'action_name':file_name_without_extension
+                })
+            data=new_data  
+        elif file_name=='nomotor_cross.json':
+            new_data=[]
+            for item in data:
+                time_arr=item['time_arr']
+                # 将时间段数据分为start_time和end_time，同时加上类型标识
+                new_data.append({
+                    'id':item['id'],
+                    'type':3,
+                    'start_time':time_arr[0],
+                    'end_time':time_arr[1],
+                    'road':item['road'],
+                    'action_name':file_name_without_extension
+                })
+            data=new_data
+        elif file_name=='car_cross.json':
+            new_data=[]
+            for item in data:
+                time_arr=item['time_arr']
+                road=item['road']
+                # 将切入切出数据分解，同时加上类型标识
+                for i,t in enumerate(time_arr):
+                    new_data.append({
+                        'id':item['id'],
+                        'type':item['type'],
+                        'count':item['count'],
+                        'start_time':t,
+                        'road':road[i],
+                        'action_name':file_name_without_extension
+                    })
+            data=new_data
+                    
+        elif file_name=='long_time.json':
+            new_data=[]
+            for item in data:
+                time_arr=item['time_arr']
+                road=item['road']
+                for i,t in enumerate(time_arr):
+                    new_data.append({
+                        'id':item['id'],
+                        'type':item['type'],
+                        'start_time':t[0],
+                        'end_time':t[1],
+                        'road':road[i],
+                        'action_name':file_name_without_extension
+                    })
+            data=new_data        
         
-    print(road_flow_data)
+        elif file_name=='reverse.json':
+            for item in data:
+                item['start_time'] = item.pop('time')
+                item['action_name']=file_name_without_extension
+        
+        else:
+            for item in data:
+                item["action_name"]=file_name_without_extension        
+            
+        decomposition_data.append(data) 
+    decom_path = './static/data/Result/decomposition_data.json'
+    with open(decom_path, 'w') as f:
+        json.dump(decomposition_data, f)
+
+# 获取一天时间内每五分钟的路口总停止频率，只有停车次数大于1次才被计入
+def stop_frequency():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
+
+    # 初始化车辆总数的数据
+    car_total = [0 for _ in range(num_segments)]  # 使用列表存储每个时间段的数据
+    # 初始化停车总数的数据
+    stop_total = [0 for _ in range(num_segments)]
+
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+
+    root_folder_path = './static/data/DataProcess'
+    # 十字路口的坐标
+    center_polygon = [[-66.64, -116.48], [-23.2, -146.52],[-3.16, -103.59], [-46.99, -74.72], [-66.64, -116.48]]
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        # 机动车流量
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+            continue
+        # 获取文件夹中的所有文件
+        file_list = os.listdir(folder_path)
+        # 遍历文件列表，筛选出JSON文件并读取
+        for file_name in file_list:
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            # 用于判断轨迹时间戳数据是否跨越时间段
+            segment_index1=-1
+            segment_index2=-1
+            # 记录停车次数
+            stop_count=-1
+            # 记录前一个时间戳的车辆状态（停止和移动）
+            previous_attribute = None
+            for item in data:
+                pos = json.loads(item['position'])
+                arr = []
+                arr.append(pos['x'])
+                arr.append(pos['y'])
+                # 创建Point对象
+                point = Point(arr)
+                for road in road_polygons:
+                    # 判断该时间戳内车辆是否位于车道内
+                    if Polygon(road).contains(point) or Polygon(road).touches(point) or Polygon(center_polygon).contains(point) or Polygon(center_polygon).touches(point):
+                        # 将时间戳转换为日期时间
+                        dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                        time_diff = dt - datetime.datetime(dt.year, dt.month, dt.day)  # 计算时间戳与当天零点之间的时间差
+                        new_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                        current_attribute = item['is_moving']
+                        # 变化次数
+                        if previous_attribute!=None and current_attribute != previous_attribute:
+                            stop_count += 1
+                        previous_attribute = current_attribute
+                        # 计算某个时间段内车辆总数
+                        if new_index!=segment_index1:
+                            car_total[new_index]+=1  # 将数据存储到对应的时间段中
+                            segment_index1=new_index
+                        # 计算某个时间段内停过车的车辆总数
+                        if new_index!=segment_index2:
+                            # 停车次数必须大于1
+                            if stop_count>1:
+                                stop_total[new_index]+=1
+                                stop_count=-1
+                                segment_index2=new_index    
+                        break 
+
+    adata = {
+        "list1": car_total,
+        "list2": stop_total
+    }
+    averspeed_path = './static/data/Result/stop.json'
+    with open(averspeed_path, 'w') as f:
+        json.dump(adata, f)
+        
+    stop_frequency=[]
+    for num1, num2 in zip(stop_total, car_total):
+        if num2 != 0:
+            stop_frequency.append(num1 / num2)
+        else:
+            stop_frequency.append(0)  
+            
+    print(stop_frequency)
+
+# 获取每个小车道每五分钟的车流量
+def little_road_flow():
+    # 车道对应序号
+    pair_dict={'part1912':0,'part1911':1,'part1910_2':2,'part1910_1':3,'part1898_1':4,'part1898_2':5,'part1900':6,'part1901':7,'part1957_4':8,'part1957_3':9,'part1956':10,
+    'part1955':11,'part1934':12,'part1935':13,'part1936_3':14,'part1936_4':15,'part1450':16,'part1449':17,'part1448':18,'part1447':19,'part1446':20,'part1442':21,'part1443':22,
+    'part1444':23,'part1445':24,'part1974':25,'part1973':26,'part1972':27,'part1975_1':28,'part1975_2':29,'part1977':30,'part1978':31,'part3487':32,'part3486':33}
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    flow_result=[[0 for _ in range(288)] for _ in range(34)]
+    folder_path = './static/data/DataProcess/road'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        # 获取文件名字符串
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        id_list=[[] for _ in range(288)]
+        # 遍历字典的键值对
+        for key, value in data.items():
+            # 将时间段的时间转换为 datetime 对象
+            key_time = datetime.datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+            time_diff = key_time - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+            if segment_index>287:
+                segment_index=287
+            for item in value:
+                if item['is_moving']==0:
+                    continue
+                car_id=item['id']
+                # 保存车辆id，重复的不计入
+                if car_id not in id_list[segment_index]:
+                    id_list[segment_index].append(car_id) 
+        for index,alist in enumerate(id_list): 
+            # 列表长度对应流量  
+            flow_result[pair_dict[file_name_without_extension]][index]=len(alist)
+    # print(flow_result)
+    with open('./static/data/Result/little_road_flow.json', 'w') as f:
+        json.dump(flow_result, f)  
+
+# 获取从出口小车道进入入口小车道的流量数据，用于弦图，按每五分钟计
+def little_road_flow_new():
+    pair_dict={'part1912':0,'part1911':1,'part1910_2':2,'part1910_1':3,'part1898_1':4,'part1898_2':5,'part1900':6,'part1901':7,'part1957_4':8,'part1957_3':9,'part1956':10,
+    'part1955':11,'part1934':12,'part1935':13,'part1936_3':14,'part1936_4':15,'part1450':16,'part1449':17,'part1448':18,'part1447':19,'part1446':20,'part1442':21,'part1443':22,
+    'part1444':23,'part1445':24,'part1974':25,'part1973':26,'part1972':27,'part1975_1':28,'part1975_2':29,'part1977':30,'part1978':31}
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    rows = 32
+    cols = 32
+    length = 288
+    # 创建长度为 288 的列表，其中每个元素是一个 32x32 的矩阵
+    flow_result = [[[0 for _ in range(cols)] for _ in range(rows)] for _ in range(length)]
+    left_id_list=[]
+    right_id_list=[]
+    folder_path = './static/data/DataProcess/road'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        # 不考虑两个特殊车道
+        if file_name=='part3486.json' or file_name=='part3487.json':
+            continue
+        id_list=[[] for _ in range(288)]
+        # 遍历字典的键值对
+        for key, value in data.items():
+            # 将时间段的起始时间和结束时间转换为 datetime 对象
+            key_time = datetime.datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+            time_diff = key_time - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+            if segment_index>287:
+                segment_index=287
+            for item in value:
+                if item['is_moving']==0:
+                    continue
+                car_id=item['id']
+                if car_id not in id_list[segment_index]:
+                    id_list[segment_index].append(car_id)
+        # 小车道出口的序号，只能作为出口 
+        if pair_dict[file_name_without_extension] in [4,5,6,7,12,13,14,15,21,22,23,24,28,29,30,31]:
+            # 保存位于出口道路的车辆id
+            right_id_list.append({
+                'serial_num':pair_dict[file_name_without_extension],
+                'idlist':id_list
+            })  
+        else:
+            # 保存位于入口道路的车辆id
+            left_id_list.append({
+                'serial_num':pair_dict[file_name_without_extension],
+                'idlist':id_list
+            })   
+    # 判断每个出口道路的车辆id是否与入口道路的车辆id相同
+    for item1 in right_id_list:
+        idList1=item1['idlist']
+        for index,segment_list1 in enumerate(idList1):
+            for item2 in left_id_list:
+                idList2=item2['idlist']
+                segment_list2=idList2[index]
+                for aid in segment_list1:
+                    for bid in segment_list2:
+                        if aid==bid:
+                            flow_result[index][item1['serial_num']][item2['serial_num']]+=1
+    
+        # for index,alist in enumerate(id_list):       
+        #     flow_result[pair_dict[file_name_without_extension]][index]=len(alist) 
+    # print(flow_result)
+    with open('./static/data/Result/little_road_flow_new.json', 'w') as f:
+        json.dump(flow_result, f)  
+        
+# 获取每条小车道24小时的流量、最大流量、最小流量，用于健康指数计算
+def little_road_flow_health():
+    pair_dict={'part1912':0,'part1911':1,'part1910_2':2,'part1910_1':3,'part1898_1':4,'part1898_2':5,'part1900':6,'part1901':7,'part1957_4':8,'part1957_3':9,'part1956':10,
+    'part1955':11,'part1934':12,'part1935':13,'part1936_3':14,'part1936_4':15,'part1450':16,'part1449':17,'part1448':18,'part1447':19,'part1446':20,'part1442':21,'part1443':22,
+    'part1444':23,'part1445':24,'part1974':25,'part1973':26,'part1972':27,'part1975_1':28,'part1975_2':29,'part1977':30,'part1978':31,'part3487':32,'part3486':33}
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=60)  # 时间段时长为5分钟
+    # 用于保存每条小车道的24小时的流量
+    flow_result=[[0 for _ in range(24)] for _ in range(34)]
+    # 用于保存每条小车道的最大流量
+    max_flow=[0 for _ in range(34)]
+    # 用于保存每条小车道的最小流量
+    min_flow=[0 for _ in range(34)]
+    folder_path = './static/data/DataProcess/road'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        # 保存该车道的每个小时的车辆id
+        id_list=[[] for _ in range(24)]
+        maxcount=0
+        mincount=500
+        # 遍历字典的键值对
+        for key, value in data.items():
+            # 将键的时间转换为 datetime 对象
+            key_time = datetime.datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+            time_diff = key_time - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+            if segment_index>23:
+                segment_index=23
+            for item in value:
+                if item['is_moving']==0:
+                    continue
+                car_id=item['id']
+                if car_id not in id_list[segment_index]:
+                    id_list[segment_index].append(car_id) 
+        for index,alist in enumerate(id_list):       
+            flow_result[pair_dict[file_name_without_extension]][index]=len(alist)
+            # 获取24小时内的最大流量
+            if len(alist)>maxcount:
+                maxcount=len(alist)
+            # 获取24小时内的最小流量
+            if len(alist)<mincount:
+                mincount=len(alist)
+        max_flow[pair_dict[file_name_without_extension]]=maxcount
+        min_flow[pair_dict[file_name_without_extension]]=mincount
+    # print(flow_result)
+    with open('./static/data/Result/little_road_flow_health.json', 'w') as f:
+        json.dump(flow_result, f)
+    print(max_flow)
+    print(min_flow)  
+
+# 获取每条小车道24小时的平均速度、总的平均速度和高峰平均速度，用于健康指数计算
+def little_road_velocity_health():
+    pair_dict={'part1912':0,'part1911':1,'part1910_2':2,'part1910_1':3,'part1898_1':4,'part1898_2':5,'part1900':6,'part1901':7,'part1957_4':8,'part1957_3':9,'part1956':10,
+    'part1955':11,'part1934':12,'part1935':13,'part1936_3':14,'part1936_4':15,'part1450':16,'part1449':17,'part1448':18,'part1447':19,'part1446':20,'part1442':21,'part1443':22,
+    'part1444':23,'part1445':24,'part1974':25,'part1973':26,'part1972':27,'part1975_1':28,'part1975_2':29,'part1977':30,'part1978':31,'part3487':32,'part3486':33}
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=60)  # 时间段时长为5分钟
+    # 保存24小时平均速度数据
+    velocity_result=[[0 for _ in range(24)] for _ in range(34)]
+    # 保存用于计算总的平均速度的数据
+    sum_velocity=[0 for _ in range(34)]
+    # 保存用于计算高峰平均速度的数据
+    high_velocity=[0 for _ in range(34)]
+    folder_path = './static/data/DataProcess/road'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        # 保存针对特定小车道的中间数据
+        road_velocity=[[] for _ in range(24)]
+        road_all_velocity=[]
+        road_high_velocity=[]
+        # 遍历字典的键值对
+        for key, value in data.items():
+            # 将键的时间转换为 datetime 对象
+            key_time = datetime.datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+            time_diff = key_time - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+            speed_list=[]
+            if segment_index>23:
+                segment_index=23
+            for item in value:
+                if item['is_moving']==0:
+                    continue
+                item_velocity=item['velocity']
+                # 将该时间段内的速度存入列表，用于计算该时间段的平均速度
+                speed_list.append(item_velocity)
+            if speed_list:
+                # 计算该时间段的平均速度
+                aver_velocity=sum(speed_list)/len(speed_list)
+                # 将该时间段的平均速度放入指定的小时数据列表中，用于计算小时的平均速度
+                road_velocity[segment_index].append(aver_velocity)
+                road_all_velocity.append(aver_velocity)
+                # 存入高峰平均速度的中间数据
+                if segment_index in [8,17]:
+                    road_high_velocity.append(aver_velocity)    
+        for index,alist in enumerate(road_velocity):
+            if alist:  
+                # 计算每小时的平均速度 
+                velocity_result[pair_dict[file_name_without_extension]][index]=sum(alist)/len(alist)
+        if road_all_velocity:
+            # 计算总的平均速度
+            sum_velocity[pair_dict[file_name_without_extension]]=sum(road_all_velocity)/len(road_all_velocity)
+        else:
+            sum_velocity[pair_dict[file_name_without_extension]]=0
+        if road_high_velocity:
+            # 计算高峰平均速度
+            high_velocity[pair_dict[file_name_without_extension]]=sum(road_high_velocity)/len(road_high_velocity)
+        else:
+            high_velocity[pair_dict[file_name_without_extension]]=0
+    # print(flow_result)
+    with open('./static/data/Result/little_road_velocity_health.json', 'w') as f:
+        json.dump(velocity_result, f)
+    print(sum_velocity)
+    print(high_velocity)  
+
+# 计算客车指标数据（平均速度、速度占比），用于健康指数计算
+def little_road_bus_velocity_health():
+    pair_dict={'part1912':0,'part1911':1,'part1910_2':2,'part1910_1':3,'part1898_1':4,'part1898_2':5,'part1900':6,'part1901':7,'part1957_4':8,'part1957_3':9,'part1956':10,
+    'part1955':11,'part1934':12,'part1935':13,'part1936_3':14,'part1936_4':15,'part1450':16,'part1449':17,'part1448':18,'part1447':19,'part1446':20,'part1442':21,'part1443':22,
+    'part1444':23,'part1445':24,'part1974':25,'part1973':26,'part1972':27,'part1975_1':28,'part1975_2':29,'part1977':30,'part1978':31,'part3487':32,'part3486':33}
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=60)  # 时间段时长为5分钟
+    velocity_result=[[0 for _ in range(24)] for _ in range(34)]
+    velocity_propotion=[[0 for _ in range(24)] for _ in range(34)]
+    folder_path = './static/data/DataProcess/road'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_name_without_extension = file_name.rsplit(".", 1)[0]
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        road_velocity=[[] for _ in range(24)]
+        # 遍历字典的键值对
+        for key, value in data.items():
+            # 将键的时间转换为 datetime 对象
+            key_time = datetime.datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+            time_diff = key_time - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+            speed_list=[]
+            if segment_index>23:
+                segment_index=23
+            for item in value:
+                if item['is_moving']==0:
+                    continue
+                # 判断是否为公交车
+                if item['type']!=6:
+                    continue
+                item_velocity=item['velocity']
+                speed_list.append(item_velocity)
+            if speed_list:
+                aver_velocity=sum(speed_list)/len(speed_list)
+                road_velocity[segment_index].append(aver_velocity)  
+        for index,alist in enumerate(road_velocity):
+            if alist:       
+                velocity_result[pair_dict[file_name_without_extension]][index]=sum(alist)/len(alist)
+    # print(flow_result)
+    with open('./static/data/Result/little_road_bus_velocity_health.json', 'w') as f:
+        json.dump(velocity_result, f)
+    with open('./static/data/Result/little_road_velocity_health.json', "r", encoding="utf-8") as f:
+        social_car_velocity = json.load(f)
+    # 计算客车平均速度与社会车辆平均速度占比
+    for r_index,r_velocity in enumerate(velocity_result):
+        for hour_index,hour_velocity in enumerate(r_velocity):
+            social_speed=social_car_velocity[r_index][hour_index]
+            if social_speed!=0:
+                velocity_propotion[r_index][hour_index]=hour_velocity/social_speed
+    with open('./static/data/Result/little_road_bus_propotion_health.json', 'w') as f:
+        json.dump(velocity_propotion, f)    
+
+
 
 def getLightData():
     f = open("./static/data/ChinaVis Data/road10map/laneroad10.geojson", "r")
