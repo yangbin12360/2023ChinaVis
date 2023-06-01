@@ -523,6 +523,32 @@ def getFlow():
     return newRes
 
 
+# 获取关于人行道的所有数据
+def getCrossWalkData():
+    startTime=request.json.get('startTime')
+    file_path1 = './static/data/Result/people_flow.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        people_flow = json.load(f)
+    file_path2 = './static/data/Result/people_velocity.json'
+    with open(file_path2, "r", encoding="utf-8") as f:
+        people_velocity = json.load(f)
+    file_path3 = './static/data/Result/crosswalkroad_high_value.json'
+    with open(file_path3, "r", encoding="utf-8") as f:
+        crosswalkroad_high_value = json.load(f) 
+    resultData= [[] for _ in range(288)]
+    for i in range(288):
+        resultData[i].append(crosswalkroad_high_value[i])
+        resultData[i].append(people_velocity[i])
+        resultData[i].append(people_flow[i])   
+    startTime = datetime.datetime.fromtimestamp(startTime)
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    time_diff = startTime - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+    segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+    if segment_index>287:
+        segment_index=287
+    # print(resultData[segment_index])
+    return resultData[segment_index]       
 
 
 if __name__ == '__main__':
