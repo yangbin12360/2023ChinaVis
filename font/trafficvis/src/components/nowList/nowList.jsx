@@ -13,8 +13,8 @@ const NowList = (props) => {
 
   useEffect(() => {
     let sorted = [...nowTimeData].sort((a, b) => b.startTime - a.startTime);
-    if (sorted.length > 100) {
-      sorted = sorted.splice(0, 100);
+    if (sorted.length > 150) {
+      sorted = sorted.splice(0, 150);
     }
     setSortedData(sorted);
   }, [nowTimeData]);
@@ -33,8 +33,9 @@ const NowList = (props) => {
   };
 
   const handleRowClick = (rowData) => {
-    console.log(rowData.id);
-    handleSelectId(rowData.id)
+    console.log(rowData.type);
+    handleSelectId(rowData.id,rowData.type)
+
     setSelectedRow(rowData);
   };
 
@@ -70,7 +71,6 @@ const NowList = (props) => {
           </Cell>
         </Column>
       </Table>
-
     </div>
   );
 };

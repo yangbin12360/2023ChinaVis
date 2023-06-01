@@ -2,23 +2,16 @@ import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
 import { getIdHighValue } from "../../apis/api";
 import { LANE_ID_LIST } from "../utils/constant";
+import { Table} from 'rsuite';
 import "./singleTrace.css";
 
-const VData = [
-  { x: 0, y: 5 },
-  { x: 1, y: 9 },
-  { x: 2, y: 7 },
-  { x: 3, y: 5 },
-  { x: 4, y: 3 },
-  { x: 20, y: 8 },
-];
+const { Column, HeaderCell, Cell } = Table;
 
-const colorData = [0.05, 0.1, 0.15, 0.2, 0.3, 0.25, 0.35, 0.45, 0.5];
 const SingleTrace = (props) => {
   const { isTraceVisible, selectTraceId, singleType } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
-
+  const { Column, HeaderCell, Cell } = Table;
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
@@ -344,11 +337,59 @@ const SingleTrace = (props) => {
       .attr("y", (d) => boundedHeight - yScale(d.count) - 10)
       .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
   };
+
+  const data =[{
+    "id": 1,
+    "name": "Mae Hansen",
+    "firstName": "Mae",
+    "lastName": "Hansen",
+    "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/484.jpg",
+    "city": "Wisozkburgh",
+    "street": "Bahringer Course",
+    "postcode": "11798",
+    "email": "Larry_DAmore@hotmail.com",
+    "phone": "337.773.1918 x84180",
+    "gender": "male",
+    "age": 28,
+    "stars": 1450,
+    "followers": 5274,
+    "rating": 3,
+    "progress": 33,
+    "amount": "43701.84",
+    "company": "O'Connell - Abshire"
+  }]
   return (
-    <div className="box">
-      <div className="bar" ref={barRef} id="bar"></div>
-      <div className="container" ref={singleTraceRef} id="singleTrace"></div>
+
+<div className="box">
+    {/* <div className="infoBox">
+    <Table height={81} data={data} headerHeight={35}>
+        <Column width={150} align="center" fixed>
+          <HeaderCell>ID</HeaderCell>
+          <Cell dataKey="id" />
+        </Column>
+        <Column width={150} fixed>
+          <HeaderCell>Type</HeaderCell>
+          <Cell dataKey="name" ></Cell>
+        </Column>
+        <Column width={150} fixed>
+          <HeaderCell>startTime</HeaderCell>
+          <Cell dataKey="street" ></Cell>
+        </Column>
+        <Column width={150} fixed>
+          <HeaderCell>endTime</HeaderCell>
+          <Cell dataKey="amount" ></Cell>
+        </Column>
+        <Column width={150} fixed>
+          <HeaderCell>endTime</HeaderCell>
+          <Cell dataKey="amount" ></Cell>
+        </Column>
+      </Table>
+    </div> */}
+    <div className="content">
+        <div className="bar" ref={barRef} id="bar"></div>
+        <div className="container" ref={singleTraceRef} id="singleTrace"></div>
     </div>
+</div>
   );
 };
 export default SingleTrace;

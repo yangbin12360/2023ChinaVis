@@ -156,7 +156,7 @@ const SceneList = (props) => {
 
   const toggleRowSelection = (id) => {
     if (selectedRows.length === 0) {
-      setSelectedRows([id]); // 如果当前没有选中行，则选中当前行
+     setSelectedRows([id]); // 如果当前没有选中行，则选中当前行
     } else {
       setSelectedRows((prevSelectedRows) =>
         prevSelectedRows.includes(id) ? [] : [id] // 如果当前行已经选中，则取消选中，否则选中当前行并取消其他行的选中状态
