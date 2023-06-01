@@ -1,15 +1,15 @@
-import { Button } from "antd";
 import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 useRef 和 useEffect hooks
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { getJson, getTimeJson} from "../../apis/api";
+import { getJson, getTimeJson } from "../../apis/api";
 import traffic from "../../assets/gltf/traffic_modifiedV4.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
+import { GUI } from "dat.gui";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 //import {draco} from "../../assets/draco/gltf/draco_decoder.js"
 // import sky_up from '../../assets/fig/nz.png';
 // import sky_right from '../../assets/fig/px.png';
@@ -19,7 +19,6 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 // import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
-import ChordFlow from "../chordFlow/chordFlow";
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -30,7 +29,8 @@ const move = {
   angle: 90,
 };
 const MainView = (props) => {
-  const { timeStamp,selectId} = props; //选中时间点
+
+  const { timeStamp, selectId, handleNowTimeData } = props; //选中时间点
   const containerRef = useRef(); // 使用 useRef 创建容器引用
   const [startTime, setStartTime] = useState(timeStamp);
   const [timeMsg, setTimeMsg] = useState(timeStamp);
@@ -42,9 +42,12 @@ const MainView = (props) => {
   const [renderer, setRenderer] = useState(null);
   const [loader, setLoader] = useState(null);
   const [models, setModels] = useState(null);
-  const [dracoLoader,setDracoLoader] = useState(null);
+  const [dracoLoader, setDracoLoader] = useState(null);
+
+  // 创建一个全局状态对象
+
   // const [selectId,setSelectId] = useState(null);
-/**********************场景、相机、光照、渲染器及地图模型和相机控制器 */
+  /**********************场景、相机、光照、渲染器及地图模型和相机控制器 */
   useEffect(() => {
     // 创建场景
     const scene = new THREE.Scene();
@@ -92,7 +95,7 @@ const MainView = (props) => {
     setLoader(loader);
     setCamera(camera);
     setRenderer(renderer);
-    //创建天空盒  
+    //创建天空盒
     // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
@@ -127,11 +130,11 @@ const MainView = (props) => {
     //   renderer.render(scene, camera);
     // };
     // 创建动画
-    const animate=() => {
+    const animate = () => {
       requestAnimationFrame(animate);
       TWEEN.update();
       renderer.render(scene, camera);
-    }
+    };
     animate();
     //创建一个控制器，控制器会自动绑定到相机上
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -143,7 +146,7 @@ const MainView = (props) => {
     controls.enableRotate = true;
     controls.update();
   }, []); // 注意这里依赖项数组为空，表示只在组件首次挂载时运行
-/**********************timemeans发生改变，引起各类交通参与者模型进行更新*/
+  /**********************timemeans发生改变，引起各类交通参与者模型进行更新*/
   useEffect(() => {
     setTimeMsg(timeStamp);
     if (scene) {
@@ -163,31 +166,36 @@ const MainView = (props) => {
         //对所有交通参与者数据进行遍历，并创建小车模型等操作
         let modelsToLoad = {};
         for (let trafficId in data) {
-          //交通参与者100s秒的轨迹
           const carTrace = movePosition(data[trafficId]["trace"]);
-          const directions = data[trafficId]["orientation"]
+          const directions = data[trafficId]["orientation"];
+          const velocity = data[trafficId]["velocity"];
+          const type = data[trafficId]["type"];
           modelsToLoad[trafficId] = {
             timestamp: parseFloat(
               data[trafficId]["startTime"] / 1000000 - timeStamp
             ),
             trace: carTrace,
             instance: null,
-            halo:null,
+            halo: null,
             id: trafficId,
-            directions:directions
+            directions: directions,
+            velocity: velocity,
+            type: type,
+            startTime:parseInt(data[trafficId]["startTime"] / 1000000),
+            endTime:parseInt(data[trafficId]["endTime"] / 1000000)
           };
           const shape = JSON.parse(data[trafficId]["shape"]);
           loader.load(ferrari, (gltf) => {
             let instance = gltf.scene.clone();
             const geometry = new THREE.TorusGeometry(1, 0.5, 16, 100); // 配置光环几何属性
-            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // 配置光环材料属性
+            const material = new THREE.MeshBasicMaterial({ color: "red" }); // 配置光环材料属性
             const halo = new THREE.Mesh(geometry, material); // 创建光环
             halo.position.z = -1; // 将光环置于模型底部
             halo.visible = false; // 初始设为不可见
             instance.add(halo); // 将光环添加到模型中
             instance.userData.id = trafficId;
-            instance.scale.set(shape.x/4, shape.y/4, shape.z/4);  // 设置模型的大小
-            instance.visible = false;  // 设置初始可见性为 false
+            instance.scale.set(shape.x / 4, shape.y / 4, shape.z / 4); // 设置模型的大小
+            instance.visible = false; // 设置初始可见性为 false
             modelsToLoad[trafficId].instance = instance;
             modelsToLoad[trafficId].halo = halo; // 存储对光环的引用以便后续使用
             scene.add(instance);
@@ -195,8 +203,11 @@ const MainView = (props) => {
           //对每个交通参与者轨迹进行渲染
           // moveModel(0,instance,scene,carTrace)
         }
-        
+
         setModels(modelsToLoad);
+
+        // 在车辆模型加载完毕后创建 GUI 控制器
+
         // console.log("modelsToLoad", models);
         const clock = new THREE.Clock();
         // 渲染循环
@@ -204,36 +215,69 @@ const MainView = (props) => {
           requestAnimationFrame(animate);
           // 检查是否有新模型需要加载
           const elapsedTime = clock.getElapsedTime();
+          let modelsData =[]
           for (let modelId in modelsToLoad) {
             if (
               modelsToLoad[modelId].timestamp <= elapsedTime &&
-              modelsToLoad[modelId].instance !== null 
-              &&
-            modelsToLoad[modelId].instance.visible === false
+              modelsToLoad[modelId].instance !== null &&
+              modelsToLoad[modelId].instance.visible === false
             ) {
               modelsToLoad[modelId].instance.visible = true;
-            moveModel(0, modelsToLoad[modelId].instance, scene, modelsToLoad[modelId].trace,modelsToLoad[modelId].directions);
+              moveModel(
+                0,
+                modelsToLoad[modelId].instance,
+                scene,
+                modelsToLoad[modelId].trace,
+                modelsToLoad[modelId].directions
+              );
+            }
+            // 检查模型是否正在运动且显示
+            console.log("timeMsg",standardTimeMsg);
+            console.log(modelsToLoad[modelId].startTime );
+            if (
+              modelsToLoad[modelId].instance !== null
+              &&
+              modelsToLoad[modelId].instance.visible === true
+              &&
+              modelsToLoad[modelId].timestamp <= elapsedTime
+              
+            ) {
+              // 获取模型的信息
+              const modelInfo = {
+                id: modelId,
+                timestamp: modelsToLoad[modelId].timestamp,
+                trace: modelsToLoad[modelId].trace,
+                position: modelsToLoad[modelId].instance.position,
+                rotation: modelsToLoad[modelId].instance.rotation,
+                scale: modelsToLoad[modelId].instance.scale,
+                velocity:modelsToLoad[modelId].velocity,
+                type:modelsToLoad[modelId].type,
+                startTime:modelsToLoad[modelId].startTime,
+                endTime:modelsToLoad[modelId].endTime
+              };
+              modelsData.push(modelInfo);
+            }
           }
-          }
-          // // 更新所有活动的 tween 对象
+          handleNowTimeData(modelsData)
+          // 更新所有活动的 tween 对象
           TWEEN.update();
           renderer.render(scene, camera);
         };
         animate();
       });
     }
-  }, [timeStamp, scene]); 
+  }, [timeStamp, scene]);
   /**********************光圈选中及销毁 */
   useEffect(() => {
     for (let id in models) {
       const model = models[id];
       if (id === String(selectId)) {
-        console.log("model",model.halo);
+        console.log("model", model.halo);
         model.halo.visible = true; // 只有被选中的模型的光环才可见
       }
     }
-  },[selectId,models])
-/**********************静态信息展示*/
+  }, [selectId, models]);
+  /**********************静态信息展示*/
   useEffect(() => {
     const interval = setInterval(() => {
       setStandardTimeMsg(converTimestamp(timeMsg));
@@ -244,20 +288,25 @@ const MainView = (props) => {
 
   return (
     <div className="mainView">
-      <div className="timeMsg">{standardTimeMsg}</div>
+      <div className="timeMsg">当前时间：{standardTimeMsg}|实时列表：</div>
       <div ref={containerRef}></div>
+      <div className="activaTable"></div>
     </div>
   ); // 返回带有容器引用的 div 元素
 };
 
 //16位时间戳转换
 const converTimestamp = (timestamp) => {
-  // 将微秒时间戳转换为毫秒
-  const milliseconds = timestamp * 1000;
-  // 使用毫秒时间戳创建一个新的 Date 对象
-  const date = new Date(milliseconds);
-  // 返回日期和时间字符串
-  return date.toLocaleString("en-US", { hour12: false });
+  const date = new Date(timestamp * 1000);
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 //******************封装单一交通参与者轨迹放入、模型运动、模型销毁四大功能 */
@@ -286,7 +335,7 @@ const moveModel = (startIndex, model, scene, tracePositions, directions) => {
       model.lookAt(model.position.clone().add(direction));
     })
     .onComplete(() => {
-      moveModel(startIndex + 1, model, scene, tracePositions,directions);
+      moveModel(startIndex + 1, model, scene, tracePositions, directions);
     })
     .start();
 };

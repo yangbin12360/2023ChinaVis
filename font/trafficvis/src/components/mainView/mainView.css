@@ -1,3 +1,5 @@
+/* @import "rsuite/dist/rsuite.css"; */
+
 .mainView {
     width: 100vw;
     height: 30vh;
@@ -5,8 +7,17 @@
 }
 
 .mainView .timeMsg {
-    width: 150px;
+    width: 270px;
     height: 20px;
     position: absolute;
     background-color: pink;
+    left: 44.8%;
+}
+
+.mainView .activaTable {
+    width: 300px;
+    height: 200px;
+    position: absolute;
+    top: 0;
+    left: 43.5%;
 }

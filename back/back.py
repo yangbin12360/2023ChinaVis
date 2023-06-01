@@ -47,7 +47,7 @@ def getTimeJson():
     startTime = request.json.get('startTime')
     pathList = []
     # startTime = 1681315196
-    for i in range(0,1000):
+    for i in range(0,300):
         fileName = str(i+startTime)+'.0.json'
         pathList.append(fileName)
     res = {}
@@ -65,6 +65,12 @@ def getTimeJson():
     for id in res:
         res[id].sort(key=lambda x: x['time_meas'])  
     newRes = {}
+    def calculate_average(lst):
+        if len(lst) == 0:
+            return 0  # 如果列表为空，则返回0或者其他你认为合适的默认值
+        else:
+            average = sum(lst) / len(lst)
+            return round(average, 2)
     # 每个id对应的position、shape、orientation、velocity、heading、type放入
     for id in res:
         pList = []
@@ -79,9 +85,10 @@ def getTimeJson():
             hList.append(item["heading"])
             newRes[id]["shape"] = item["shape"]
             newRes[id]["type"] = item["type"]
+        v_meas = calculate_average(vList)
         newRes[id]["trace"] = pList
         newRes[id]["orientation"] = oList
-        newRes[id]["velocity"] = vList
+        newRes[id]["velocity"] = v_meas
         newRes[id]["heading"] = hList
     for id in res:
         newRes[id]["startTime"] = res[id][0]["time_meas"]
@@ -561,6 +568,7 @@ def getCrossWalkData():
         segment_index=287
     # print(resultData[segment_index])
     return resultData[segment_index]       
+
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

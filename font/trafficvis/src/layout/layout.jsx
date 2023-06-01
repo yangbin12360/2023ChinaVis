@@ -13,6 +13,7 @@ import RoseComponent from "../components/Rose/rose";
 import ClusterScatter from "../components/clusterScatter/clusterScatter";
 import ForecastHeat from "../components/forecastHeat/forecastHeat";
 import RoadHealth from "../components/roadHealth/roadHealth";
+import NowList from "../components/nowList/nowList";
 import Light from "../components/light/light";
 const style = {
   background: "#0092ff",
@@ -25,7 +26,9 @@ const Layout = () => {
   const [selectId, setSelectId] = useState(null); //高选框中
   const [selectTraceId, setSelectTraceId] = useState(null); //单轨迹绘制
   const [isTraceVisible, setIsTraceVisible] = useState(false); //单轨迹视图生成控制
-  const [singleType,setSingleType]  = useState(null)
+  const [singleType, setSingleType] = useState(null); //场景列表类型获取
+  const [nowTimeData, setNowTimeData] = useState([]);
+  const [clusterSelectData, setClusterSelectData] = useState(null);
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
@@ -36,12 +39,16 @@ const Layout = () => {
     setSelectId(id);
   };
   //高价值场景列表传递id、type
-  const handleSelectTraceId = (id,type) => {
+  const handleSelectTraceId = (id, type) => {
     setIsTraceVisible(true);
     setSelectTraceId(id);
-    setSingleType(type)
+    setSingleType(type);
   };
-
+  //主视图实时场景获取
+  const handleNowTimeData = (newData) => {
+    setNowTimeData(newData);
+  };
+  // ----------------------- 布局--------------------------
   return (
     <div
       style={{
@@ -82,10 +89,9 @@ const Layout = () => {
             <Box
               title={"MainView"}
               component={
-                <MainView timeStamp={timeStamp} selectId={selectId}></MainView>
+                <MainView timeStamp={timeStamp} selectId={selectId} handleNowTimeData ={handleNowTimeData}></MainView>
               }
-            >     
-            </Box>
+            ></Box>
           </div>
           <div style={{ height: "33%" }}>
             <Box
@@ -145,7 +151,33 @@ const Layout = () => {
           </div>
         </Col>
       </Row>
-      <div style={{left:'17%',top:'4%',width:200,height:200,position:"absolute",opacity:0.5,background:'white',borderRadius:'50%'}}><ChordFlow timeStamp={timeStamp}></ChordFlow></div>
+      <div
+        style={{
+          left: "17%",
+          top: "2%",
+          width: 200,
+          height: 200,
+          position: "absolute",
+          opacity: 0.5,
+          background: "white",
+          borderRadius: "50%",
+        }}
+      >
+        <ChordFlow timeStamp={timeStamp}></ChordFlow>
+      </div>
+      <div
+        style={{
+          left: "56.8%",
+          top: "3.3%",
+          width: 400,
+          height: 200,
+          position: "absolute",
+          opacity: 0.7,
+          background: "white",
+        }}
+      >
+        <NowList  nowTimeData ={nowTimeData} handleSelectId={handleSelectId}></NowList>
+      </div>
     </div>
   );
 };
