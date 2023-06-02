@@ -169,22 +169,9 @@ function ChordFlow(props){
         for(var i = 0;i<32;i++){
             city_name.push(i);
         }
-        // console.log(city_name)
 
         setTemp(temp+10);
 
-    //    var f = [
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [temp, 0, 366, 0, 293, 0,1,0 ],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [375, 0, 65, 0,  470, 0, 2,0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [286, 0, 2, 0, 88, 0, 345,0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [1212, 0, 5, 0,  709, 0, 158,0],
-
-    //       ];
-        //   console.log(flow)
         // 弦布局
         var chord_layout = d3.chord() 
         .padAngle(0.05)  
@@ -335,6 +322,7 @@ function ChordFlow(props){
     useEffect(() => {
         setUpdate(timeStamp);
     },[timeStamp])
+
     //每过5分钟update更新一次为后五分钟的时间戳
     useEffect(() => {
         //定时器每5分钟执行一次
@@ -345,9 +333,9 @@ function ChordFlow(props){
                 updateChord(flow);
                })
 
-            setUpdate(update+5);
+            setUpdate(update+120);
             // console.log(update);
-        },5000)
+        },120000)
         return () => {
             //清理定时器
             clearInterval(timer);
