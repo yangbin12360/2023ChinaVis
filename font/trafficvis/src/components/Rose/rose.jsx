@@ -348,6 +348,7 @@ function RoseComponent() {
                         6.928578570765757, 8.09759204750708, 6.513680154999284
                     ], // 数据
                     itemStyle: {
+                        // color: '#ff9c47' // 柱子颜色
                         color: '#87c1fa' // 柱子颜色
                     },
                     emphasis: {
@@ -444,6 +445,7 @@ function RoseComponent() {
                         0.21428571428571427
                     ], // 数据
                     itemStyle: {
+                        // color: '#87c1fa' // 柱子颜色
                         color: '#cd5c3c' // 柱子颜色
                     },
                     emphasis: {
@@ -498,10 +500,10 @@ function RoseComponent() {
               // 计算点击花瓣所在的中心角度
               var centerAngle = sectorAngle * (dataIndex + 0.5);
               // 执行切换视图的逻辑
-              switchView(params.seriesIndex,dataIndex,centerAngle);
+              switchView(dataIndex,centerAngle);
             }
             else{
-              switchView(params.seriesIndex,0,0);
+              switchView(0,0);
             }
         });
         var currentView = 'original'; // 初始显示的视图，可根据实际情况修改

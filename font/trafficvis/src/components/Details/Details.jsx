@@ -23,7 +23,7 @@ function Details (props){
     var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
-
+    var typecolor = ['','white','black','red','green','','blue','purple','','','pink'];
     //时间戳的完整转换
     const converTimestampall = (timestamp) => {
 
@@ -62,7 +62,7 @@ function Details (props){
 
   var triangle = d3.symbol()
                    .type(d3.symbolTriangle)
-                   .size(20);
+                   .size(30);
 
 
 
@@ -120,16 +120,17 @@ function Details (props){
 
       d3.select('#detailInformation').selectAll('*').remove();
       var arcsvg = d3.select('#detailInformation')
-      .append('svg')
-      .attr('id','arcsvg')
-      .attr('width','100%')
-      .attr("transform","translate(0,10)");
+                     .append('svg')
+                     .attr('id','arcsvg')
+                     .attr('width','100%')
+                     .attr("transform","translate(0,10)");
       var padding = (document.getElementById('arcsvg').clientWidth-160)/3;
-      console.log(document.getElementById('arcsvg').clientWidth);
+
+      
 //切入切出
      if( scence == 0){
     dataset.map((item,index) => {
-      console.log(index);
+
       arcsvg.append("path")
             .attr("d",arcPath(arcdata))	
             .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
@@ -159,10 +160,12 @@ function Details (props){
       arcsvg.append("path")
             .attr("d", triangle)
             .attr("stroke", 'black')
-            .attr("fill", 'black')
+            .attr("fill", function(d,i){
+                return typecolor[item.type];
+            })
             .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
       arcsvg.append("text")
-            .text('特征信息')
+            .text('次数')
             .attr('font-size','11px')
             .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
       arcsvg.append("text")
@@ -239,10 +242,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+                })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('时间段')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -318,10 +323,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+            })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('时间段')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -397,10 +404,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+                 })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('最大速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -476,10 +485,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+             })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('时间段')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -555,7 +566,9 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+             })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
               .text('特征信息')
@@ -634,10 +647,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+                 })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('加速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -713,10 +728,12 @@ function Details (props){
         arcsvg.append("path")
               .attr("d", triangle)
               .attr("stroke", 'black')
-              .attr("fill", 'black')
+              .attr("fill", function(d,i){
+                return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('加速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
         arcsvg.append("text")
@@ -774,11 +791,11 @@ function Details (props){
 
 
     return (
-      <div style={{position:'relative', background:'#d3e0d4'}}>
+      <div style={{position:'relative'}}>
        
-        <div className = 'detail' style={{height:'400px',width:'100%',position:'absolute',background:'#d3e0d4'}}> 
-        <div style={{height:'20%'}}>
-        <p id = 'information' style={{lineHeight:'180%'}}>在{converTimestampall(time)}所在5分钟内,车道{carNum+1}的{label[scence]}场景详细信息如下：</p>
+        <div className = 'detail' style={{height:'400px',width:'100%',position:'absolute'}}> 
+        <div style={{height:'20%' ,background:'#edede8',borderRadius:'20px',border:'5px solid #cccccc'}}>
+        <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在{converTimestampall(time)}所在5分钟内,车道{carNum+1}的{label[scence]}场景详细信息如下：</p>
         </div>
 
         <div id = 'detailInformation' style={{height:'80%',width:'100%',overflowY:'auto',position:'relative'}}>
