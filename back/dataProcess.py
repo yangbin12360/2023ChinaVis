@@ -2325,7 +2325,209 @@ def little_road_bus_velocity_health():
     with open('./static/data/Result/little_road_bus_propotion_health.json', 'w') as f:
         json.dump(velocity_propotion, f)    
 
+# 获取中车道的车流量（24小时）
+def middle_road_flow():
+    # 获取多边形坐标数据
+    file_path1 = './static/data/BoundryRoads/polygons_people.json'
+    with open(file_path1, "r", encoding="utf-8") as f:
+        road_polygons = json.load(f)
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=60)  # 时间段时长为5分钟
+    flow_result=[[0 for _ in range(8)] for _ in range(24)]
+    root_folder_path = './static/data/DataProcess'
+    # 遍历根文件夹
+    for folder_name in os.listdir(root_folder_path):
+        folder_path = os.path.join(root_folder_path, folder_name)
+        # 判断是否为需要处理的文件夹
+        # 机动车流量
+        if not os.path.isdir(folder_path) or folder_name not in ['1','4','6']:
+            continue
+        # 获取文件夹中的所有文件
+        file_list = os.listdir(folder_path)
+        # 遍历文件列表，筛选出JSON文件并读取
+        for file_name in file_list:
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            previous_segment_index=-1
+            previous_index=-1
+            # 针对每个时间戳的坐标点
+            for item in data:
+                if item['is_moving']==1:
+                    pos = json.loads(item['position'])
+                    arr = []
+                    arr.append(pos['x'])
+                    arr.append(pos['y'])
+                    # 创建Point对象
+                    point = Point(arr)
+                    # 判断该坐标点位于哪条道路
+                    for index,polygon in enumerate(road_polygons):
+                        if Polygon(polygon).contains(point) or Polygon(polygon).touches(point):
+                            # 将时间戳转换为日期时间
+                            dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                            time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+                            segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                            if segment_index>23:
+                                segment_index=23
+                            if segment_index!=previous_segment_index or previous_index!=index:
+                                flow_result[segment_index][index]+=1
+                                previous_segment_index=segment_index
+                                previous_index=index
+                            break    
+                        
+    flow_path = './static/data/Result/middle_road_flow.json'
+    with open(flow_path, 'w') as f:
+        json.dump(flow_result, f) 
+    print(flow_result) 
 
+# 计算每五分钟的人行道流量
+def people_flow():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
+    # 初始化时间段数据
+    segment_data = [[0 for _ in range(7)] for _ in range(num_segments)]  # 使用列表存储每个时间段的数据
+    # 获取人行道坐标数据
+    file_path = './static/data/BoundryRoads/crosswalkroad.json'
+    with open(file_path, "r", encoding="utf-8") as f:
+        crosswalkRoad = json.load(f)
+    pair_dict={'0':4,'1':0,'2':3,'3':2,'4':1,'5':5,'6':6}    
+    folder_path = './static/data/DataProcess/2'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        previous_index=-1
+        previous_road=-1
+        for item in data:
+            if item['is_moving']==1:
+                pos = json.loads(item['position'])
+                arr = []
+                arr.append(pos['x'])
+                arr.append(pos['y'])
+                # 创建Point对象
+                point = Point(arr)
+                # 判断行人轨迹点是否位于人行道内
+                for index,road in enumerate(crosswalkRoad):
+                    if Polygon(road).contains(point) or Polygon(road).touches(point):
+                        # 将时间戳转换为日期时间
+                        dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                        time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+                        segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                        if segment_index>287:
+                            segment_index=287
+                        # 当时间段索引改变或者行人走到不同的人行道时，就计入一次流量
+                        if previous_index!=segment_index or previous_road!=index:
+                            segment_data[segment_index][pair_dict[str(index)]]+=1
+                            previous_index=segment_index
+                            previous_road=index
+                            
+    with open('./static/data/Result/people_flow.json', 'w') as f:
+        json.dump(segment_data, f)
+
+# 计算每五分钟的人行道平均速度
+def people_velocity():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
+    # 初始化时间段数据
+    segment_data = [[0 for _ in range(7)] for _ in range(num_segments)]  # 使用列表存储每个时间段的数据
+    # 获取人行道坐标数据
+    file_path = './static/data/BoundryRoads/crosswalkroad.json'
+    with open(file_path, "r", encoding="utf-8") as f:
+        crosswalkRoad = json.load(f)
+    pair_dict={'0':4,'1':0,'2':3,'3':2,'4':1,'5':5,'6':6}  
+    # 保存每条人行道的每个时间段内的行人行走速度
+    speed_list=[[[] for _ in range(7)] for _ in range(num_segments)]    
+    folder_path = './static/data/DataProcess/2'
+    # 获取文件夹中的所有文件
+    file_list = os.listdir(folder_path)
+    # 遍历文件列表，筛选出JSON文件并读取
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        for item in data:
+            if item['is_moving']==1:
+                pos = json.loads(item['position'])
+                arr = []
+                arr.append(pos['x'])
+                arr.append(pos['y'])
+                # 创建Point对象
+                point = Point(arr)
+                for index,road in enumerate(crosswalkRoad):
+                    if Polygon(road).contains(point) or Polygon(road).touches(point):
+                        # 将时间戳转换为日期时间
+                        dt = datetime.datetime.fromtimestamp(item['time_meas'] / 1000000)
+                        time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳的时间差
+                        segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                        if segment_index>287:
+                            segment_index=287
+                        # 将原始速度数据放入对应的列表位置内
+                        speed_list[segment_index][pair_dict[str(index)]].append(item['velocity'])
+    for index1,item1 in enumerate(speed_list):
+        for index2,item2 in enumerate(item1):
+            if item2:
+                # 计算每条人行道的每个时间段的平均行人速度
+                segment_data[index1][index2]=sum(item2)/len(item2)                       
+    with open('./static/data/Result/people_velocity.json', 'w') as f:
+        json.dump(segment_data, f)
+
+# 计算每五分钟的人行道对应的高价值场景数量
+def crosswalkroad_high_value():
+    # 时间段时长和数量
+    segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
+    num_segments = 288  # 时间段数量
+    segment_data = [[0 for _ in range(7)] for _ in range(num_segments)]
+    # 获取所有高价值数据
+    file_path = './static/data/Result/decomposition_data.json'
+    with open(file_path, "r", encoding="utf-8") as f:
+        decomposition = json.load(f)
+    #遍历对应的高价值数组 
+    for index,highValueData in enumerate(decomposition):
+        for item in highValueData:
+            if index in [1,2,3,4]:
+                # 将时间戳转换为日期时间
+                dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
+                time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
+                time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index2>287:
+                    segment_index2=287
+                for i in range(segment_index1,segment_index2+1):
+                    # 只计算路口的人行道对应的高价值场景数据
+                    if item['road'] in [0,1]:
+                        segment_data[i][1]+=1
+                    if item['road'] in [2,3]:
+                        segment_data[i][0]+=1
+                    if item['road'] in [4,5]:
+                        segment_data[i][3]+=1
+                    if item['road'] in [6,7]:
+                        segment_data[i][2]+=1
+            else:
+                dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index>287:
+                    segment_index=287
+                # 只计算路口的人行道对应的高价值场景数据
+                if item['road'] in [0,1]:
+                    segment_data[segment_index][1]+=1
+                if item['road'] in [2,3]:
+                    segment_data[segment_index][0]+=1
+                if item['road'] in [4,5]:
+                    segment_data[segment_index][3]+=1
+                if item['road'] in [6,7]:
+                    segment_data[segment_index][2]+=1
+    with open('./static/data/Result/crosswalkroad_high_value.json', 'w') as f:
+        json.dump(segment_data, f)
 
 def getLightData():
     f = open("./static/data/ChinaVis Data/road10map/laneroad10.geojson", "r")
