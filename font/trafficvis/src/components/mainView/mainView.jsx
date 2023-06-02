@@ -232,8 +232,8 @@ const MainView = (props) => {
               );
             }
             // 检查模型是否正在运动且显示
-            console.log("timeMsg",standardTimeMsg);
-            console.log(modelsToLoad[modelId].startTime );
+            // console.log("timeMsg",standardTimeMsg);
+            // console.log(modelsToLoad[modelId].startTime );
             if (
               modelsToLoad[modelId].instance !== null
               &&

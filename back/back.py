@@ -543,6 +543,7 @@ def detail_item():
     return item_data
 
 # 获取关于人行道的所有数据
+@app.route('/getCrossWalkData',methods=["POST"])
 def getCrossWalkData():
     startTime=request.json.get('startTime')
     file_path1 = './static/data/Result/people_flow.json'

@@ -91,3 +91,15 @@ export const getIdHighValue=(id,type)=>{
     actionName:actionName
   })
 }
+
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+//获取弦图数据
+export const getCrossWalkData= (startTime) => {
+  return post("/getCrossWalkData",{
+    startTime:startTime
+  });
+};

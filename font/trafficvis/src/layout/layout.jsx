@@ -15,6 +15,7 @@ import ForecastHeat from "../components/forecastHeat/forecastHeat";
 import RoadHealth from "../components/roadHealth/roadHealth";
 import NowList from "../components/nowList/nowList";
 import Light from "../components/light/light";
+import Details from "../components/Details/Details";
 const style = {
   background: "#0092ff",
   padding: "8px 0",
@@ -29,6 +30,10 @@ const Layout = () => {
   const [singleType, setSingleType] = useState(null); //场景列表类型获取
   const [nowTimeData, setNowTimeData] = useState([]);
   const [clusterSelectData, setClusterSelectData] = useState(null);
+  //细节图的参数
+  const [time,setTime] = useState(1681315196);
+  const [carNum,setcarNum] = useState(0);
+  const [scence,setScence] = useState(0);
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
@@ -48,6 +53,13 @@ const Layout = () => {
   const handleNowTimeData = (newData) => {
     setNowTimeData(newData);
   };
+
+  //细节图的参数
+  const handleDetail = (time, carnumber, scencenumber) =>{
+    setTime(time);
+    setcarNum(carnumber);
+    setScence(scencenumber);
+  }
   // ----------------------- 布局--------------------------
   return (
     <div
@@ -74,7 +86,7 @@ const Layout = () => {
             ></Box>
           </div>
           <div style={{ height: "34%" }}>
-            <Box title={"Light"} component={<Light></Light>} ></Box>
+            <Box title={"Light"} component={<Light timeStamp={timeStamp}></Light>} ></Box>
           </div>
           {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
           <div style={{ height: "33%" }}>
@@ -93,12 +105,34 @@ const Layout = () => {
               }
             ></Box>
           </div>
-          <div style={{ height: "33%" }}>
+          <Row>
+            <Col span={14}>
+          <div style={{ height: "100%" }}>
             <Box
               title={"relationshipScene"}
-              component={<RelationshipScene></RelationshipScene>}
+              component={<RelationshipScene
+                time ={time}
+                carNum = {carNum}
+                scence = {scence}
+                handleDetail = {handleDetail}
+              ></RelationshipScene>}
             ></Box>
           </div>
+          </Col>
+          <Col span={10}>
+          <div style={{ height: "100%"}}>
+            <Box
+              title={"Details"}
+              component={<Details
+                time ={time}
+                carNum = {carNum}
+                scence = {scence}
+                handleDetail = {handleDetail}
+              ></Details>}
+            ></Box>
+          </div>
+          </Col>
+          </Row>
         </Col>
         <Col span={7} id="right">
           <div style={{ height: "17%" }}>
