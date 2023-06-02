@@ -13,6 +13,11 @@ function ChordFlow(props){
     //const [timeFlag,SetTimeFlag] = useState(1681315196);
     const [temp,setTemp] = useState(20);
     // console.log(timeStamp);
+    var colorarray = ['rgb(34, 148, 83)','rgb(217,164, 14)','rgb(34, 162, 195)','rgb(222, 118, 34)'];
+    // var color20 = d3.scaleOrdinal(colorarray);
+    var color20 = d3.scaleOrdinal()
+                        .domain([0,32])
+                        .range(colorarray);
 
     function drawChord(flow){
         var width = document.getElementById('flowContainer').clientWidth;
@@ -45,7 +50,7 @@ function ChordFlow(props){
         var groups = chord_layout.groups;
         //var chords = chord_layout.chords;
         //var color20 = d3.scale.category20();
-        var color20 = d3.scaleOrdinal(d3.schemeCategory10);
+       // var color20 = d3.scaleOrdinal(d3.schemeCategory10);
         //绘制节点弧
         // 弧生成器
         var innerRadius = width/2 * 0.8;
@@ -169,22 +174,9 @@ function ChordFlow(props){
         for(var i = 0;i<32;i++){
             city_name.push(i);
         }
-        // console.log(city_name)
 
         setTemp(temp+10);
 
-    //    var f = [
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [temp, 0, 366, 0, 293, 0,1,0 ],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [375, 0, 65, 0,  470, 0, 2,0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [286, 0, 2, 0, 88, 0, 345,0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [1212, 0, 5, 0,  709, 0, 158,0],
-
-    //       ];
-        //   console.log(flow)
         // 弦布局
         var chord_layout = d3.chord() 
         .padAngle(0.05)  
@@ -198,7 +190,7 @@ function ChordFlow(props){
         var groups = chord_layout.groups;
         //var chords = chord_layout.chords;
         //var color20 = d3.scale.category20();
-        var color20 = d3.scaleOrdinal(d3.schemeCategory10);
+
         //绘制节点弧
         // 弧生成器
         var innerRadius = width/2 * 0.8;
@@ -218,8 +210,8 @@ function ChordFlow(props){
             .style("stroke",function(d) {
                 color20(d.index);
             })
-            .attr("d",outer_arc)   // 此处调用了弧生成器
-            ;
+            .attr("d",outer_arc);   // 此处调用了弧生成器
+
     // // 节点文字
     //     g_outer.selectAll("text")
     //         .data(groups)
@@ -262,6 +254,8 @@ function ChordFlow(props){
                 .style("fill",function(d) {
                 return color20(d.source.index);
                 })
+                .transition()
+                .duration(1000)
                 .style("opacity",0.5);
         
         g_outer.selectAll("path")
@@ -322,7 +316,7 @@ function ChordFlow(props){
     }
     
     //用于控制弦图更新
-    const [update,setUpdate] = useState(0);
+    const [update,setUpdate] = useState(timeStamp);
     useEffect(() => {
         // console.log(1)
         getLittleRoadFlow(timeStamp).then(res => {
@@ -331,23 +325,30 @@ function ChordFlow(props){
             setUpdate(timeStamp);
            })
     },[])
+
     //主视图时间戳改变导致更新得时间点改变
     useEffect(() => {
+        console.log(timeStamp);
         setUpdate(timeStamp);
+        getLittleRoadFlow(timeStamp).then(res => {
+            let flow = res;
+            updateChord(flow);
+           })
+
     },[timeStamp])
+
     //每过5分钟update更新一次为后五分钟的时间戳
     useEffect(() => {
+        console.log('update');
         //定时器每5分钟执行一次
         let timer = setInterval(() => {
-            // console.log(update);
             getLittleRoadFlow(update).then(res => {
                 let flow = res;
                 updateChord(flow);
                })
-
-            setUpdate(update+5);
+            setUpdate(update+120);
             // console.log(update);
-        },5000)
+        },120000)
         return () => {
             //清理定时器
             clearInterval(timer);
