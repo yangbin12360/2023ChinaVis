@@ -7,7 +7,38 @@ function RoseComponent() {
         var chartDom = document.getElementById('main');
         var myChart = echarts.init(chartDom);
         var option;
-
+        var piedata=[
+            { value: 106, name: '0:00' },
+            { value: 101, name: '1:00' },
+            { value: 58, name: '2:00' },
+            { value: 22, name: '3:00' },
+            { value: 40, name: '4:00' },
+            { value: 134, name: '5:00' },
+            { value: 570, name: '6:00' },
+            { value: 1288, name: '7:00' },
+            { value: 1795, name: '8:00' },
+            { value: 1331, name: '9:00' },
+            { value: 1062, name: '10:00' },
+            { value: 1327, name: '11:00' },
+            { value: 1282, name: '12:00' },
+            { value: 1115, name: '13:00' },
+            { value: 1176, name: '14:00' },
+            { value: 1226, name: '15:00' },
+            { value: 1227, name: '16:00' },
+            { value: 1684, name: '17:00' },
+            { value: 1328, name: '18:00' },
+            { value: 913, name: '19:00' },
+            { value: 804, name: '20:00' },
+            { value: 703, name: '21:00' },
+            { value: 477, name: '22:00' },
+            { value: 292, name: '23:00' }
+          ];
+          var bardata=[[30, 17, 35, 21, 13, 14, 43, 23], [24, 16, 29, 34, 13, 12, 20, 22], [16, 6, 15, 23, 3, 5, 20, 10], [1, 7, 4, 10, 0, 5, 5, 8], 
+          [6, 3, 3, 23, 1, 8, 12, 11], [22, 12, 31, 60, 7, 8, 38, 39], [165, 65, 94, 233, 18, 22, 155, 221], [230, 207, 441, 425, 38, 99, 399, 420], 
+          [301, 191, 582, 659, 75, 224, 611, 581], [268, 167, 374, 487, 81, 145, 422, 478], [203, 104, 296, 373, 84, 146, 365, 356], [321, 158, 354, 452, 89, 121, 401, 415], 
+          [349, 178, 333, 419, 76, 140, 385, 386], [231, 129, 327, 391, 79, 119, 351, 392], [216, 154, 333, 437, 76, 129, 377, 418], [210, 144, 377, 443, 80, 115, 410, 432], 
+          [267, 158, 321, 430, 97, 102, 361, 435], [273, 258, 521, 564, 175, 109, 468, 590], [268, 205, 425, 434, 96, 94, 429, 457], [186, 137, 250, 311, 48, 80, 291, 330], 
+          [181, 114, 264, 251, 49, 59, 246, 247], [166, 115, 194, 234, 36, 70, 211, 219], [136, 57, 122, 177, 18, 32, 143, 173], [102, 33, 95, 78, 13, 21, 102, 63]];
         option = {
             polar: [
                 {
@@ -21,6 +52,10 @@ function RoseComponent() {
                 {
                     center: ['50%', '50%'], // 极坐标系中心位置
                     radius: ['61%', '81%'] // 极坐标系半径范围
+                },
+                {
+                    center: ['50%', '50%'], // 极坐标系中心位置
+                    radius: ['10','60%']  // 极坐标系半径范围
                 }
             ],
             tooltip: {},
@@ -98,6 +133,17 @@ function RoseComponent() {
                             color: '#ccc' // 设置刻度线的颜色
                         }
                     }
+                },
+                {
+                    max: 680,
+                    startAngle:90,
+                    polarIndex:3,
+                    axisLabel: {
+                      show: false, // 显示刻度标签
+                    },
+                    axisLine: {
+                      show: false // 隐藏角度轴线
+                    },
                 }
             ],
             radiusAxis: [
@@ -168,6 +214,20 @@ function RoseComponent() {
                     },
                     axisLabel: {
                         show: false // 不显示坐标轴标签
+                    }
+                },
+                {
+                    type: 'category',
+                    polarIndex:3,
+                    data: Array.from({ length: 8 }, (_, i) => `${i + 1}`),
+                    axisLine: {
+                      show: false // 不显示坐标轴线
+                    },
+                    axisTick: {
+                      show: false // 不显示坐标轴刻度
+                    },
+                    axisLabel: {
+                      show: false // 不显示坐标轴标签
                     }
                 }
             ],
@@ -393,36 +453,11 @@ function RoseComponent() {
                     }
                 },
                 {
-                    name: '车流量',
+                    name: '总体车流量',
                     type: 'pie',
                     radius: ['10', '60%'],
                     center: ['50%', '50%'],
-                    data: [
-                        { value: 106, name: '0:00' },
-                        { value: 101, name: '1:00' },
-                        { value: 58, name: '2:00' },
-                        { value: 22, name: '3:00' },
-                        { value: 40, name: '4:00' },
-                        { value: 134, name: '5:00' },
-                        { value: 570, name: '6:00' },
-                        { value: 1288, name: '7:00' },
-                        { value: 1795, name: '8:00' },
-                        { value: 1331, name: '9:00' },
-                        { value: 1062, name: '10:00' },
-                        { value: 1327, name: '11:00' },
-                        { value: 1282, name: '12:00' },
-                        { value: 1115, name: '13:00' },
-                        { value: 1176, name: '14:00' },
-                        { value: 1226, name: '15:00' },
-                        { value: 1227, name: '16:00' },
-                        { value: 1684, name: '17:00' },
-                        { value: 1328, name: '18:00' },
-                        { value: 913, name: '19:00' },
-                        { value: 804, name: '20:00' },
-                        { value: 703, name: '21:00' },
-                        { value: 477, name: '22:00' },
-                        { value: 292, name: '23:00' }
-                    ],
+                    data: piedata,
                     roseType: 'area',
                     label: {
                         normal: {
@@ -445,6 +480,76 @@ function RoseComponent() {
         };
 
         option && myChart.setOption(option);
+        myChart.on('click', function(params) {
+            // 判断点击的组件是否为玫瑰图的系列
+            if (params.seriesIndex === 2 && params.seriesType === 'pie') {
+               // 获取点击的花瓣索引
+              var dataIndex = params.dataIndex;
+              // 获取当前 echarts 实例的配置项
+              var option = myChart.getOption();
+              // 获取玫瑰图的系列配置
+              var seriesOption = option.series.find(function(series) {
+                return series.type === 'pie';
+              });
+              // 获取玫瑰图的总扇区数
+              var totalSectors = seriesOption.data.length;
+              // 计算每个扇区的角度
+              var sectorAngle = 360 / totalSectors;
+              // 计算点击花瓣所在的中心角度
+              var centerAngle = sectorAngle * (dataIndex + 0.5);
+              // 执行切换视图的逻辑
+              switchView(params.seriesIndex,dataIndex,centerAngle);
+            }
+            else{
+              switchView(params.seriesIndex,0,0);
+            }
+        });
+        var currentView = 'original'; // 初始显示的视图，可根据实际情况修改
+        var series1 ={
+            type: 'pie',
+            radius: ['10','60%'],
+            center: ['50%', '50%'],
+            data:piedata,
+            roseType: 'area',
+            label:{
+                normal:{
+                show:false
+                }
+            },
+            tooltip:{
+                trigger:'item'
+            },
+            itemStyle: {
+                borderColor:'#fff'
+            }
+        };
+        function switchView(dataIndex,centerAngle) {
+            // 获取当前 echarts 实例的配置项
+            var currentOption = myChart.getOption();
+            // 根据 seriesIndex 执行切换视图的逻辑
+            if (currentView === 'original') {
+              var newSeries = {
+                type: 'bar',
+                name: '中车道车流量',
+                data: bardata[dataIndex],
+                coordinateSystem: 'polar',
+                polarIndex:3
+              };
+              currentOption.angleAxis[3].startAngle=90-centerAngle;
+              // 替换第一个系列为新的系列配置
+              currentOption.series[2] = newSeries;
+              // 更新 echarts 实例的配置项
+              myChart.setOption(currentOption);
+              currentView = 'new'; // 更新当前显示的视图为新视图
+            } else if (currentView === 'new') {
+              // 备份原始的系列和极坐标轴的配置
+              var originalSeries = JSON.parse(JSON.stringify(series1));
+              currentOption.series[2] = originalSeries;
+              currentOption.angleAxis[3].startAngle=90;
+              myChart.setOption(currentOption);
+              currentView = 'original'; // 更新当前显示的视图为原始视图
+            }
+        }
 
     }
 
