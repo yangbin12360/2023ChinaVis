@@ -507,6 +507,7 @@ function RoseComponent() {
         var currentView = 'original'; // 初始显示的视图，可根据实际情况修改
         var series1 ={
             type: 'pie',
+            name: '总体车流量',
             radius: ['10','60%'],
             center: ['50%', '50%'],
             data:piedata,
