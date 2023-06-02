@@ -93,6 +93,18 @@ export const getIdHighValue=(id,type)=>{
 }
 
 /**
+* 获取流量预测数据
+* @param {时间戳} timeStamp
+* @returns 
+*/
+export const getFlow=(timeStamp)=>{
+ return post('/getFlow',{
+  timeStamp:timeStamp,
+ })
+}
+
+
+/**
  * 
  * @param {时间戳} startTime
  * @returns 

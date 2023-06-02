@@ -28,6 +28,22 @@ const move = {
   z: -13,
   angle: 90,
 };
+
+
+const updateCamera = (camera, model, scene) => {
+  if (!model) return;
+  
+  const position = model.position.clone();
+  position.z += 20; // Increase the z-coordinate to place the camera above the model
+
+  const tween = new TWEEN.Tween(camera.position)
+    .to(position, 2000)
+    .onUpdate(() => {
+      camera.lookAt(model.position);
+    })
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .start();
+};
 const MainView = (props) => {
 
   const { timeStamp, selectId, handleNowTimeData } = props; //选中时间点
@@ -43,6 +59,7 @@ const MainView = (props) => {
   const [loader, setLoader] = useState(null);
   const [models, setModels] = useState(null);
   const [dracoLoader, setDracoLoader] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
 
   // 创建一个全局状态对象
 
@@ -146,6 +163,15 @@ const MainView = (props) => {
     controls.enableRotate = true;
     controls.update();
   }, []); // 注意这里依赖项数组为空，表示只在组件首次挂载时运行
+
+
+  useEffect(() => {
+    if (!camera || !models || !models[selectId]) return;
+  
+    const selectedModel = models[selectId].instance;
+    updateCamera(camera, selectedModel, scene,  );
+  
+  }, [selectId, camera, models, scene]);
   /**********************timemeans发生改变，引起各类交通参与者模型进行更新*/
   useEffect(() => {
     setTimeMsg(timeStamp);
@@ -185,7 +211,7 @@ const MainView = (props) => {
             endTime:parseInt(data[trafficId]["endTime"] / 1000000)
           };
           const shape = JSON.parse(data[trafficId]["shape"]);
-          loader.load(ferrari, (gltf) => {
+          loader.load(car, (gltf) => {
             let instance = gltf.scene.clone();
             const geometry = new THREE.TorusGeometry(1, 0.5, 16, 100); // 配置光环几何属性
             const material = new THREE.MeshBasicMaterial({ color: "red" }); // 配置光环材料属性
@@ -210,12 +236,14 @@ const MainView = (props) => {
 
         // console.log("modelsToLoad", models);
         const clock = new THREE.Clock();
+        // console.log("clock",clock);
         // 渲染循环
         const animate = () => {
           requestAnimationFrame(animate);
           // 检查是否有新模型需要加载
           const elapsedTime = clock.getElapsedTime();
           let modelsData =[]
+          // console.log("elapsedTime",elapsedTime);
           for (let modelId in modelsToLoad) {
             if (
               modelsToLoad[modelId].timestamp <= elapsedTime &&
@@ -272,7 +300,7 @@ const MainView = (props) => {
     for (let id in models) {
       const model = models[id];
       if (id === String(selectId)) {
-        console.log("model", model.halo);
+        // console.log("model", model.halo);
         model.halo.visible = true; // 只有被选中的模型的光环才可见
       }
     }
@@ -288,7 +316,7 @@ const MainView = (props) => {
 
   return (
     <div className="mainView">
-      <div className="timeMsg">当前时间：{standardTimeMsg}|实时列表：</div>
+      <div className="timeMsg">当前时间：{standardTimeMsg}</div>
       <div ref={containerRef}></div>
       <div className="activaTable"></div>
     </div>

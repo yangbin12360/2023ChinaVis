@@ -102,6 +102,7 @@ def getActionAndRoadCount():
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
     all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
+
     file_path = './static/data/Result/decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
@@ -115,14 +116,17 @@ def getActionAndRoadCount():
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
                 time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index1>287:
-                    segment_index1=287
                 time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index2>287:
-                    segment_index2=287
-                for i in range(segment_index1,segment_index2+1):
-                    all_count[index][item['road']][i]+=1
+                if segment_index1==segment_index2:
+                    all_count[index][item['road']][segment_index1]+=1
+                else:
+                    all_count[index][item['road']][segment_index1]+=1
+                    if segment_index2>287:
+                        # print(segment_index2,dt2)
+                        all_count[index][item['road']][287]+=1
+                    else:
+                        all_count[index][item['road']][segment_index2]+=1 
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -131,12 +135,14 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index>287:
-                    segment_index=287
-                all_count[index][item['road']][segment_index]+=1    
-                           
+                all_count[index][item['road']][segment_index]+=1
+                
+                
+    # print(all_count)
+    # list_path = './static/data/Result/all_list.json'
+    # with open(list_path, 'w') as f:
+    #     json.dump(all_count, f)                  
     return all_count
-
 
 # def getActionAndRoadCount():
 #     file_path = './static/data/Result/all_list.json'
@@ -453,20 +459,28 @@ def getCluster():
 
 
 # 按照时间戳和车道获取流量预测数据
-@app.route('/getFlowPredict',methods=["POST"])
-def getFlowPredict():
+@app.route('/getFlow',methods=["POST"])
+def getFlow():
     timeStamp = request.json.get('timeStamp')
-    lane = request.json.get('lane')
-    laneDict = {
-  "left_l":["1912", "1911", "1910_2", "1910_1"],
-  "left_r":["1898_1", "1898_2", "1900", "1901"],
-  "bottom_l":["1957_4", "1957_3", "1956", "1955"],
-  "bottom_r":["1934", "1935", "1936_3", "1936_4"],
-  "right_l":["1450", "1449", "1448", "1447", "1446"],
-  "right_r":["1442", "1443", "1444", "1445"],
-  "top_l":["1974", "1973", "1972"],
-  "top_r":["1975_1", "1975_2", "1977", "1978"],
-}
+    print("timeStamp",timeStamp)
+    def timeHour(time):
+        # 将时间戳转换为 datetime 对象
+        dt = datetime.datetime.fromtimestamp(time)
+# 获取 datetime 对象的分钟数和秒数
+        minutes = dt.minute
+        seconds = dt.second
+# 计算与上一个整点时刻和下一个整点时刻的时间差
+        prev_hour = dt.replace(minute=0, second=0)
+        next_hour = prev_hour + datetime.timedelta(hours=1)
+        diff_prev = dt - prev_hour
+        diff_next = next_hour - dt
+        if diff_prev < diff_next:
+            closest_hour = prev_hour
+        else:
+            closest_hour = next_hour
+        closest_timestamp = int(closest_hour.timestamp())
+        return closest_timestamp
+
     laneYList = [
   "1912", "1911", "1910_2", '1910_1',
   "1898_1", "1898_2", "1900", "1901",
@@ -477,18 +491,36 @@ def getFlowPredict():
   "1974", "1973", "1972",
   "1975_1", "1975_2", "1977", "1978"
 ];
-    lanNumber= {
-    "left_l":[0,1,2,3],
-    "left_r":[4,5,6,7],
-    "bottom_l":[8,9,10,11],
-    "bottom_r":[12,13,14,15],
-    "right_l":[16,17,18,19,20],
-    "right_r":[21,22,23,24],
-    "top_l":[25,26,27],
-    "top_r":[28,29,30,31]
-    }
-    file_path ="../back/static/data/DataProcess/flowForecast/vehicle_count.csv"
 
+    file_path ="../back/static/data/DataProcess/flowForecast/forFlow.csv"
+    df = pd.read_csv(file_path)
+    res={}
+    indexTime = timeHour(timeStamp)
+    initTime = 1681315200
+    forTiems = int((indexTime-initTime)/3600)
+    for i in laneYList:
+        res[i] = []
+        # print(initTime)
+        initTime = 1681315200
+        for j in range(0,forTiems):
+            print("iniTime",initTime)
+            tempDf = df[(df['timestamp'] == initTime) & (df['roadid'].astype(str) == i)]
+            res[i]=res[i]+tempDf['TRUE'].tolist()
+            initTime+=3600
+    # print(df[df['roadid'].astype(str).isin(indexLaneList)])
+
+    res["trueLane"] = {}
+    # 求一小时后的预测值
+    forTime = indexTime
+    for i in laneYList:
+        tempDf = df[(df['timestamp'] == forTime) & (df['roadid'].astype(str) == i)]
+        res[i]=res[i]+tempDf['pre'].tolist()
+        res[i]=res[i]+tempDf['TRUE'].tolist()
+    newRes ={}
+    newRes["all"] = []
+    for i in laneYList:
+        newRes["all"].append(res[i])
+    return newRes
 
 #按照时间戳、道路号和高价值场景名称获取对应5分钟的高价值详细数据
 @app.route('/detail_item',methods=["POST"])
@@ -541,7 +573,7 @@ def detail_item():
     
     # print(item_data)                     
     return item_data
-
+    
 # 获取关于人行道的所有数据
 @app.route('/getCrossWalkData',methods=["POST"])
 def getCrossWalkData():

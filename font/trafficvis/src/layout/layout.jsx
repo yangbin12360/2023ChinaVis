@@ -15,6 +15,7 @@ import ForecastHeat from "../components/forecastHeat/forecastHeat";
 import RoadHealth from "../components/roadHealth/roadHealth";
 import NowList from "../components/nowList/nowList";
 import Light from "../components/light/light";
+import InfoList from "../components/infoList/infoList";
 import Details from "../components/Details/Details";
 const style = {
   background: "#0092ff",
@@ -30,6 +31,10 @@ const Layout = () => {
   const [singleType, setSingleType] = useState(null); //场景列表类型获取
   const [nowTimeData, setNowTimeData] = useState([]);
   const [clusterSelectData, setClusterSelectData] = useState(null);
+  const [roadId, setRoadId] = useState(null);
+  const [controlCamra, setControlCamra] = useState(1);
+  const [selectType, setSelectType] = useState(null);  //主面板选中id展示
+  const [flowTime,setFlowTime] = useState(1681372078);
   //细节图的参数
   const [time,setTime] = useState(1681315196);
   const [carNum,setcarNum] = useState(0);
@@ -40,18 +45,23 @@ const Layout = () => {
     setTimeStamp(timeStamp);
   };
   //控制台id高亮选中主视图中的交通参与者
-  const handleSelectId = (id) => {
+  const handleSelectId = (id,type) => {
     setSelectId(id);
+    setSelectType(type)
   };
   //高价值场景列表传递id、type
   const handleSelectTraceId = (id, type) => {
     setIsTraceVisible(true);
     setSelectTraceId(id);
-    setSingleType(type);
+    setSingleType(type)
   };
   //主视图实时场景获取
   const handleNowTimeData = (newData) => {
     setNowTimeData(newData);
+  };
+  //相机控制
+  const handleControlCamra = (index) => {
+    setControlCamra(index);
   };
 
   //细节图的参数
@@ -81,6 +91,7 @@ const Layout = () => {
                   timeStamp={timeStamp}
                   handleChangeTime={handleChangeTime}
                   handleSelectId={handleSelectId}
+                  handleControlCamra={handleControlCamra}
                 ></ControlPanel>
               }
             ></Box>
@@ -101,7 +112,11 @@ const Layout = () => {
             <Box
               title={"MainView"}
               component={
-                <MainView timeStamp={timeStamp} selectId={selectId} handleNowTimeData ={handleNowTimeData}></MainView>
+                <MainView
+                  timeStamp={timeStamp}
+                  selectId={selectId}
+                  handleNowTimeData={handleNowTimeData}
+                ></MainView>
               }
             ></Box>
           </div>
@@ -135,6 +150,9 @@ const Layout = () => {
           </Row>
         </Col>
         <Col span={7} id="right">
+          <div style={{height:"7%"}}>
+            <Box title={"InfoList"} component={<InfoList></InfoList>}></Box>
+          </div>
           <div style={{ height: "17%" }}>
             <Box
               title={"SceneList"}
@@ -169,11 +187,11 @@ const Layout = () => {
               }
             ></Box>
           </div>
-          <div style={{ height: "38%" }}>
+          <div style={{ height: "31%" }}>
             <Row style={{ width: "100%", height: "50%" }}>
               <Box
                 title={"TrafficForecast"}
-                component={<ForecastHeat></ForecastHeat>}
+                component={<ForecastHeat flowTime={flowTime}></ForecastHeat>}
               ></Box>
             </Row>
             <Row style={{ width: "100%", height: "50%" }}>
@@ -210,7 +228,23 @@ const Layout = () => {
           background: "white",
         }}
       >
-        <NowList  nowTimeData ={nowTimeData} handleSelectId={handleSelectId}></NowList>
+        <NowList
+          nowTimeData={nowTimeData}
+          handleSelectId={handleSelectId}
+        ></NowList>
+      </div>
+      <div
+        style={{
+          left: "56.8%",
+          top: "1.9%",
+          width: 199,
+          height: 20,
+          position: "absolute",
+          opacity: 0.7,
+          background: "white",
+        }}
+      >
+        选中id:{selectId},type:{selectType}
       </div>
     </div>
   );

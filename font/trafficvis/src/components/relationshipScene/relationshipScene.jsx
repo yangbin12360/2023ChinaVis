@@ -1121,7 +1121,7 @@ function RelationshipScene(props){
 
 
     return (
-      <div style={{position:'relative', background:'#d3e0d4'}}>
+      <div style={{position:'relative', background:'#efefef'}}>
         <div style={{height:'400px',width:'100%',overflowY:'auto'}}>
              <div className="group-lines-bar">
           {/* <Radio.Group
