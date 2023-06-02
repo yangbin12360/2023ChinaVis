@@ -2925,11 +2925,57 @@ def processFid():
 #将预测数据处理成整点数据
 def forecastToInt():
     df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre.csv")
+    # 处理timestamp列，使其变为最接近的整点时刻
+# 处理timestamp列，将其转换为最接近的整点时刻
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['timestamp'] = df['timestamp'].apply(lambda t: t + dt.timedelta(hours=1) if t.minute >= 30 else t)
-    df['timestamp'] = df['timestamp'].dt.floor('H')
-    df.to_csv('../back/static/data/DataProcess/flowForecast/modified_data.csv', date_format='%Y-%m-%d %H:%M:%S', index=False)
+    df['timestamp'] = df['timestamp'].dt.round('H')
+# 将timestamp列转换为10位时间戳
+    df['timestamp'] = df['timestamp'].apply(lambda x: int(time.mktime(x.timetuple())))
+    df.to_csv('../back/static/data/DataProcess/flowForecast/new_file1.csv', index=False)
 
+
+def getDriveReserve():
+    laneAll = open("./static/data/DataProcess/laneAll.json", "r")
+    laneAll = json.load(laneAll)
+    for i in laneAll:
+        for j in laneAll[i]:
+            for k in laneAll[i][j]:
+                driveReserve = {}
+                nowDataStart = laneAll[i][j][k][0]["geometry"]["coordinates"][0]
+                nowDataEnd = laneAll[i][j][k][-1]["geometry"]["coordinates"][-1]
+                slope = (nowDataEnd[1] - nowDataStart[1] )/ (nowDataEnd[0] -nowDataStart[0])
+                useLaneData = open("./static/data/DataProcess/laneData/part" + str(k) +".json", "r")
+                useLaneData = json.load(useLaneData)
+                radin = math.atan(slope)
+                if(nowDataEnd[1] < nowDataStart[1]):
+                    radin = radin - math.pi
+                # 当前方向左右各加90度是正向范围
+                if(radin < math.pi / 2 and radin > -math.pi / 2):
+                    radinS = radin - math.pi / 2
+                    radinE = radin + math.pi / 2
+                    for l in useLaneData:
+                        driveReserve[l] = {}
+                        for m in useLaneData[l]:
+                            if(useLaneData[l][m]["heading"] < radinS or useLaneData[l][m]["heading"] > radinE):
+                                driveReserve[l][m] = useLaneData[l][m]
+                elif(radin < -math.pi / 2):
+                    radinS = radin + math.pi / 2 * 3
+                    radinE = radin + math.pi / 2
+                    for l in useLaneData:
+                        driveReserve[l] = {}
+                        for m in useLaneData[l]:
+                            if(useLaneData[l][m]["heading"] < radinS  and useLaneData[l][m]["heading"] > radinE):
+                                driveReserve[l][m] = useLaneData[l][m]
+                elif(radin > math.pi / 2):
+                    radinS = radin - math.pi / 2
+                    radinE = radin - math.pi / 2 * 3
+                    for l in useLaneData:
+                        driveReserve[l] = {}
+                        for m in useLaneData[l]:
+                            if(useLaneData[l][m]["heading"] < radinS  and useLaneData[l][m]["heading"] > radinE):
+                                driveReserve[l][m] = useLaneData[l][m]
+                reverseF =  open("./static/data/DataProcess/reverse/reverse"+str(k)+'.json', "w")
+                json.dump(driveReserve, reverseF)
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -2945,4 +2991,5 @@ if __name__ == '__main__':
     # dimReduction_no()
     # mergeCluster()
     # processFid() #  1 2 已经修改
-    forecastToInt()
+    # forecastToInt()
+    getDriveReserve()

@@ -7,11 +7,11 @@
 }
 
 .mainView .timeMsg {
-    width: 270px;
+    width: 200px;
     height: 20px;
     position: absolute;
     background-color: pink;
-    left: 44.8%;
+    left: 47%;
 }
 
 .mainView .activaTable {

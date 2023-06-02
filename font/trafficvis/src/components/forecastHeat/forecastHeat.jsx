@@ -1,27 +1,36 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef } from "react";
 import "./forecastHeat.css";
+import { getFlow } from "../../apis/api";
 
-const ForecastHeat = () => {
+const ForecastHeat = (props) => {
+  const { flowTime } = props;
   const heatRef = useRef(null);
 
   useEffect(() => {
-    drawHeat();
-  }, []);
-  const drawHeat = () => {
+    getFlow(flowTime).then((res)=>{
+      const flowData = Object.values(res["all"]);
+      
+      console.log("flowData",typeof(flowData));
+      drawHeat(flowData);
+    })
+    // drawHeat();
+  }, [flowTime]);
+
+  const drawHeat = (colordata) => {
     const divHeight = heatRef.current.offsetHeight;
     const divWidth = heatRef.current.offsetWidth;
-
     const dimensions = {
       width: divWidth,
       height: divHeight,
       margin: {
         top: 30,
-        right: 30,
+        right: 300,
         bottom: 30,
-        left: 50,
+        left: 300,
       },
     };
+
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
     const boundedHeight =
@@ -37,73 +46,126 @@ const ForecastHeat = () => {
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
       .style("background", "#fff");
+
     const bounds = svg
       .append("g")
       .style(
         "transform",
         `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
       );
-    const rectGroup = bounds.append("g");
-    rectGroup
-      .append("rect")
-      .attr("width", boundedWidth)
-      .attr("height", boundedHeight)
-      .attr("fill", "#fff");
-    //绘制热力图
-    const colorData = [
-      [0.1, 0.2, 0.3, 0.7],
-      [0.4, 0.5, 0.6, 0.1],
-      [0.7, 0.8, 0.9, 0.2],
-      [0.1, 0.2, 0.3, 0.7],
-      [0.4, 0.5, 0.6, 0.1],
-    ];
-    const colorScale = d3
-      .scaleQuantize()
-      .domain([0, 1])
-      .range(d3.schemeBlues[9]);
-    const rectWidth = boundedWidth / 5;
-    const rectHeight = boundedHeight / 4;
-    const rectHeatGroup = bounds.append("g");
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 4; j++) {
-        rectHeatGroup
-          .append("rect")
-          .attr("x", i * rectWidth)
-          .attr("y", j * rectHeight)
-          .attr("width", rectWidth)
-          .attr("height", rectHeight)
-          .attr("fill", colorScale(colorData[i][j]))
-          .attr("stroke", "black")
-          .attr("stroke-width", 1)
-          .style("opacity", 0.8);
-      }
-    }
-    //绘制健康度折线图
-    const xScale = d3.scaleLinear().domain([0, 300]).range([0, boundedWidth]);
-    const yScale = d3.scaleLinear().domain([0, 4]).range([boundedHeight, 0]);
+      const xScale = d3
+      .scaleBand()
+      .range([0, boundedWidth])
+      .domain(d3.range(colordata[0].length)) 
+      .padding(0.01);
 
-    const tickArray = [0,60,120,180,240,300]
-    const xAxis = d3.axisBottom(xScale).tickValues(tickArray);;
-    rectGroup
+    const yScale = d3
+      .scaleBand()
+      .range([0, boundedHeight])
+      .domain(d3.range(colordata.length)) 
+      .padding(0.01);
+
+    const colorScale = d3.scaleSequential()
+    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/4)])
+    .interpolator(t => d3.interpolateRgb(
+      d3.rgb(255, 215, 0),  // 黄色
+      t < 0.5
+        ? d3.rgb(255, 165, 0)  // 橙色
+        : d3.rgb(238, 63,17)   // 红色
+    )(t * 2));
+
+    const tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+    const rects = bounds
+    .selectAll("rect")
+    .data(
+      colordata.flatMap((row, i) => row.map((value, j) => ({ i, j, value })))
+    )
+    .enter()
+    .append("rect")
+    .attr("x", (d) => xScale(d.j))
+    .attr("y", (d) => yScale(d.i))
+    .attr("width", xScale.bandwidth())
+    .attr("height", yScale.bandwidth())
+    .attr("fill", (d) => colorScale(d.value))
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 1.5)
+    .attr("rx", 1) // 添加这一行
+    .attr("ry", 1) // 添加这一行
+    .on("mouseover", function (event, d) {
+      d3.select(this).transition().duration("50").attr("opacity", ".85");
+      tooltip.transition().duration(50).style("opacity", 0.8);
+      tooltip
+        .html("Traffic Volume: " + d.value)
+        .style("left", event.pageX + 10 + "px")  // change here
+        .style("top", event.pageY - 15 + "px");  // change here
+    })
+    .on("mouseout", function () {
+      d3.select(this).transition().duration("50").attr("opacity", "1");
+      tooltip.transition().duration("50").style("opacity", 0);
+    });
+
+    bounds
+  .append("line")
+  .attr("x1", xScale(colordata[0].length - 2))
+  .attr("y1", -25)
+  .attr("x2", xScale(colordata[0].length - 2))
+  .attr("y2", boundedHeight+25)
+  .style("stroke", "black")
+  .style("stroke-dasharray", ("3, 3"));  
+    // Create the x-axis
+    const xAxis = d3
+      .axisBottom(xScale)
+      .tickValues(d3.range(colordata[0].length))
+      .tickFormat((d) =>
+        d === colordata[0].length - 2
+          ? "Predicted"
+          : d === colordata[0].length - 1
+          ? "Actual"
+          : `${d}`
+      )
+      .tickSize(0);
+
+    svg
       .append("g")
-      .attr("class", "xAixs")
+      .attr(
+        "transform",
+        `translate(${dimensions.margin.left}, ${
+          dimensions.height - dimensions.margin.bottom
+        })`
+      )
       .call(xAxis)
-      .attr("transform", `translate(0,${boundedHeight})`)
-      ;
-      bounds
-      .append("g")
-      .attr("calss", "text-labels")
-      .selectAll("text")
-      .data(Array.from({ length:4 }, (v, i) => i))
-      .enter()
-      .append("text")
-      .attr("x", dimensions.margin.left - 60)
-      .attr("y", (d) => yScale(d)+(yScale(1)-yScale(0))/3 )
-      .attr("text-anchor", "end") // 设置文本对齐方式为右对齐
-      .style("font-size", "12px") // 设置文本字体大小
-      .text((d) => `road${d + 1}`);
-  };
+      .select(".domain")
+      .remove();
 
+    const legend = svg
+      .selectAll(".legend")
+      .data(colorScale.ticks(6).slice(1).reverse())
+      .enter()
+      .append("g")
+      .attr("class", "legend")
+      .attr(
+        "transform",
+        (d, i) => `translate(${10}, ${40 + i * 20})`
+      );
+
+    legend
+      .append("rect")
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", colorScale);
+
+    // legend
+    //   .append("text")
+    //   .attr("x", -26)
+    //   .attr("y", 10)
+    //   .attr("dy", ".35em")
+    //   .text(String);
+  };
   return <div ref={heatRef} id="heat" className="container"></div>;
 };
 
