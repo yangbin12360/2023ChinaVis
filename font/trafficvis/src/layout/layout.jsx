@@ -26,34 +26,34 @@ const Layout = () => {
   // ----------------------- 初始化状态--------------------------
   const [timeStamp, setTimeStamp] = useState(1681372078); //控制时间
   const [selectId, setSelectId] = useState(null); //高选框中
-  const [selectTraceId, setSelectTraceId] = useState(null); //单轨迹绘制
-  const [isTraceVisible, setIsTraceVisible] = useState(false); //单轨迹视图生成控制
-  const [singleType, setSingleType] = useState(null); //场景列表类型获取
+  const [selectTraceId, setSelectTraceId] = useState(269548444); //单轨迹绘制
+  const [isTraceVisible, setIsTraceVisible] = useState(true); //单轨迹视图生成控制
+  const [singleType, setSingleType] = useState(1); //场景列表类型获取
   const [nowTimeData, setNowTimeData] = useState([]);
   const [clusterSelectData, setClusterSelectData] = useState(null);
   const [roadId, setRoadId] = useState(null);
   const [controlCamra, setControlCamra] = useState(1);
-  const [selectType, setSelectType] = useState(null);  //主面板选中id展示
-  const [flowTime,setFlowTime] = useState(1681372078);
+  const [selectType, setSelectType] = useState(null); //主面板选中id展示
+  const [flowTime, setFlowTime] = useState(1681372078);
   //细节图的参数
-  const [time,setTime] = useState(1681315196);
-  const [carNum,setcarNum] = useState(0);
-  const [scence,setScence] = useState(0);
+  const [time, setTime] = useState(1681315196);
+  const [carNum, setcarNum] = useState(0);
+  const [scence, setScence] = useState(0);
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
     setTimeStamp(timeStamp);
   };
   //控制台id高亮选中主视图中的交通参与者
-  const handleSelectId = (id,type) => {
+  const handleSelectId = (id, type) => {
     setSelectId(id);
-    setSelectType(type)
+    setSelectType(type);
   };
   //高价值场景列表传递id、type
   const handleSelectTraceId = (id, type) => {
     setIsTraceVisible(true);
     setSelectTraceId(id);
-    setSingleType(type)
+    setSingleType(type);
   };
   //主视图实时场景获取
   const handleNowTimeData = (newData) => {
@@ -65,13 +65,189 @@ const Layout = () => {
   };
 
   //细节图的参数
-  const handleDetail = (time, carnumber, scencenumber) =>{
+  const handleDetail = (time, carnumber, scencenumber) => {
     setTime(time);
     setcarNum(carnumber);
     setScence(scencenumber);
-  }
+  };
   // ----------------------- 布局--------------------------
   return (
+    // <div
+    //   style={{
+    //     width: "100vw",
+    //     height: "100vh",
+    //     overflow: "hidden",
+    //     background: "#cacaca",
+    //     position: "relative",
+    //   }}
+    // >
+    //   <Row style={{ width: "100%", height: "100%" }}>
+    //     <Col span={4} id="left">
+    //       <div style={{ height: "33%" }} className="box">
+    //         <Box
+    //           title={"ControlPanel"}
+    //           component={
+    //             <ControlPanel
+    //               timeStamp={timeStamp}
+    //               handleChangeTime={handleChangeTime}
+    //               handleSelectId={handleSelectId}
+    //               handleControlCamra={handleControlCamra}
+    //             ></ControlPanel>
+    //           }
+    //         ></Box>
+    //       </div>
+    // <div style={{ height: "34%" }}>
+    //   <Box title={"Light"} component={<Light timeStamp={timeStamp}></Light>} ></Box>
+    // </div>
+    //       {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
+    // <div style={{ height: "33%" }}>
+    //   <Box
+    //     title={"Rose"}
+    //     component={<RoseComponent></RoseComponent>}
+    //   ></Box>
+    // </div>
+    //     </Col>
+    //     <Col span={13} id="middle">
+    //       <div style={{ height: "67%" }}>
+    //         <Box
+    //           title={"MainView"}
+    //           component={
+    //             <MainView
+    //               timeStamp={timeStamp}
+    //               selectId={selectId}
+    //               handleNowTimeData={handleNowTimeData}
+    //             ></MainView>
+    //           }
+    //         ></Box>
+    //       </div>
+    //       <Row>
+    //         <Col span={14}>
+    //       <div style={{ height: "100%" }}>
+    //         <Box
+    //           title={"relationshipScene"}
+    //           component={<RelationshipScene
+    //             time ={time}
+    //             carNum = {carNum}
+    //             scence = {scence}
+    //             handleDetail = {handleDetail}
+    //           ></RelationshipScene>}
+    //         ></Box>
+    //       </div>
+    //       </Col>
+    //       <Col span={10}>
+    // <div style={{ height: "100%"}}>
+    //   <Box
+    //     title={"Details"}
+    //     component={<Details
+    //       time ={time}
+    //       carNum = {carNum}
+    //       scence = {scence}
+    //       handleDetail = {handleDetail}
+    //     ></Details>}
+    //   ></Box>
+    // </div>
+    //       </Col>
+    //       </Row>
+    //     </Col>
+    //     <Col span={7} id="right">
+    // <div style={{height:"7%"}}>
+    //   <Box title={"InfoList"} component={<InfoList></InfoList>}></Box>
+    // </div>
+    // <div style={{ height: "17%" }}>
+    //   <Box
+    //     title={"SceneList"}
+    //     component={
+    //       <SceneList
+    //         timeStamp={timeStamp}
+    //         isTraceVisible={isTraceVisible}
+    //         selectTraceId={selectTraceId}
+    //         singleType={singleType}
+    //         handleSelectTraceId={handleSelectTraceId}
+    //       ></SceneList>
+    //     }
+    //   ></Box>
+    // </div>
+    // <div style={{ height: "20%" }}>
+    //   <Box
+    //     title={"SingleTrace"}
+    //     component={
+    //       <SingleTrace
+    //         isTraceVisible={isTraceVisible}
+    //         selectTraceId={selectTraceId}
+    //         singleType={singleType}
+    //       ></SingleTrace>
+    //     }
+    //   ></Box>
+    // </div>
+    // <div style={{ height: "25%" }}>
+    //   <Box
+    //     title={"DrivingBehaviorAnalysis"}
+    //     component={
+    //       <ClusterScatter timeStamp={timeStamp}></ClusterScatter>
+    //     }
+    //   ></Box>
+    // </div>
+    //       <div style={{ height: "31%" }}>
+    //         <Row style={{ width: "100%", height: "50%" }}>
+    // <Box
+    //   title={"TrafficForecast"}
+    //   component={<ForecastHeat flowTime={flowTime}></ForecastHeat>}
+    // ></Box>
+    //         </Row>
+    // <Row style={{ width: "100%", height: "50%" }}>
+    //   <Box
+    //     title={"RoadHealth"}
+    //     component={<RoadHealth></RoadHealth>}
+    //   ></Box>
+    // </Row>
+    //       </div>
+    //     </Col>
+    //   </Row>
+      // <div
+      //   style={{
+      //     left: "17%",
+      //     top: "2%",
+      //     width: 200,
+      //     height: 200,
+      //     position: "absolute",
+      //     opacity: 0.5,
+      //     background: "white",
+      //     borderRadius: "50%",
+      //   }}
+      // >
+      //   <ChordFlow timeStamp={timeStamp}></ChordFlow>
+      // </div>
+      // <div
+      //   style={{
+      //     left: "56.8%",
+      //     top: "3.3%",
+      //     width: 400,
+      //     height: 200,
+      //     position: "absolute",
+      //     opacity: 0.7,
+      //     background: "white",
+      //   }}
+      // >
+      //   <NowList
+      //     nowTimeData={nowTimeData}
+      //     handleSelectId={handleSelectId}
+      //   ></NowList>
+      // </div>
+      // <div
+      //   style={{
+      //     left: "56.8%",
+      //     top: "1.9%",
+      //     width: 199,
+      //     height: 20,
+      //     position: "absolute",
+      //     opacity: 0.7,
+      //     background: "white",
+      //   }}
+      // >
+      //   选中id:{selectId},type:{selectType}
+      // </div>
+    // </div>
+
     <div
       style={{
         width: "100vw",
@@ -82,9 +258,55 @@ const Layout = () => {
       }}
     >
       <Row style={{ width: "100%", height: "100%" }}>
-        <Col span={4} id="left">
-          <div style={{ height: "33%" }} className="box">
-            <Box
+        <Col span={14} id="left">
+          <Row style={{ width: "100%", height: "2%" }}>title </Row>
+          <Row style={{ width: "100%", height: "68%" }}>
+            <Col span={24} id="left_top">
+              <div style={{ height: "100%" }}>
+                <Box
+                  title={"MainView"}
+                  component={
+                    <MainView
+                      timeStamp={timeStamp}
+                      selectId={selectId}
+                      handleNowTimeData={handleNowTimeData}
+                    ></MainView>
+                  }
+                ></Box>
+              </div>
+            </Col>
+          </Row>
+          <Row style={{ width: "100%", height: "30%" }}>
+            <Col span={15} id="left_bottom_left">
+              <div style={{ height: "100%" }}>
+                <Box
+                  title={"relationshipScene"}
+                  component={<RelationshipScene></RelationshipScene>}
+                ></Box>
+              </div>
+            </Col>
+            <Col span={9} id="left_bottom_right">
+              <div style={{ height: "100%" }}>
+                <Box
+                  title={"Details"}
+                  component={
+                    <Details
+                      time={time}
+                      carNum={carNum}
+                      scence={scence}
+                      handleDetail={handleDetail}
+                    ></Details>
+                  }
+                ></Box>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+        <Col span={10} id="right">
+          <Row style={{ height: "28%", width: "100%" }}>
+            <Col span={15} id="right_top_left_">
+                <div style={{ height: "16%" }} className="box">
+             <Box
               title={"ControlPanel"}
               component={
                 <ControlPanel
@@ -96,116 +318,88 @@ const Layout = () => {
               }
             ></Box>
           </div>
-          <div style={{ height: "34%" }}>
-            <Box title={"Light"} component={<Light timeStamp={timeStamp}></Light>} ></Box>
-          </div>
-          {/* <div style={{ height: "34%" }}><Box title={"ChordFlow"} component = {<div><ChordFlow></ChordFlow></div>}></Box></div> */}
-          <div style={{ height: "33%" }}>
-            <Box
-              title={"Rose"}
-              component={<RoseComponent></RoseComponent>}
-            ></Box>
-          </div>
-        </Col>
-        <Col span={13} id="middle">
-          <div style={{ height: "67%" }}>
-            <Box
-              title={"MainView"}
-              component={
-                <MainView
-                  timeStamp={timeStamp}
-                  selectId={selectId}
-                  handleNowTimeData={handleNowTimeData}
-                ></MainView>
-              }
-            ></Box>
-          </div>
-          <Row>
-            <Col span={14}>
-          <div style={{ height: "100%" }}>
-            <Box
-              title={"relationshipScene"}
-              component={<RelationshipScene
-                time ={time}
-                carNum = {carNum}
-                scence = {scence}
-                handleDetail = {handleDetail}
-              ></RelationshipScene>}
-            ></Box>
-          </div>
-          </Col>
-          <Col span={10}>
-          <div style={{ height: "100%"}}>
-            <Box
-              title={"Details"}
-              component={<Details
-                time ={time}
-                carNum = {carNum}
-                scence = {scence}
-                handleDetail = {handleDetail}
-              ></Details>}
-            ></Box>
-          </div>
-          </Col>
+              <div style={{ height: "84%" }}>
+                <Box
+                  title={"DrivingBehaviorAnalysis"}
+                  component={
+                    <ClusterScatter timeStamp={timeStamp}></ClusterScatter>
+                  }
+                ></Box>
+              </div>
+            </Col>
+            <Col span={9}>
+              <Box title={"相似度矩阵"}></Box>
+            </Col>
           </Row>
-        </Col>
-        <Col span={7} id="right">
-          <div style={{height:"7%"}}>
-            <Box title={"InfoList"} component={<InfoList></InfoList>}></Box>
-          </div>
-          <div style={{ height: "17%" }}>
-            <Box
-              title={"SceneList"}
-              component={
-                <SceneList
-                  timeStamp={timeStamp}
-                  isTraceVisible={isTraceVisible}
-                  selectTraceId={selectTraceId}
-                  singleType={singleType}
-                  handleSelectTraceId={handleSelectTraceId}
-                ></SceneList>
-              }
-            ></Box>
-          </div>
-          <div style={{ height: "20%" }}>
-            <Box
-              title={"SingleTrace"}
-              component={
-                <SingleTrace
-                  isTraceVisible={isTraceVisible}
-                  selectTraceId={selectTraceId}
-                  singleType={singleType}
-                ></SingleTrace>
-              }
-            ></Box>
-          </div>
-          <div style={{ height: "25%" }}>
-            <Box
-              title={"DrivingBehaviorAnalysis"}
-              component={
-                <ClusterScatter timeStamp={timeStamp}></ClusterScatter>
-              }
-            ></Box>
-          </div>
-          <div style={{ height: "31%" }}>
-            <Row style={{ width: "100%", height: "50%" }}>
+          <Row style={{ height: "14%", width: "100%" }}>
+            <div style={{ width: "100%" }}>
               <Box
-                title={"TrafficForecast"}
-                component={<ForecastHeat flowTime={flowTime}></ForecastHeat>}
+                title={"SceneList"}
+                component={
+                  <SceneList
+                    timeStamp={timeStamp}
+                    isTraceVisible={isTraceVisible}
+                    selectTraceId={selectTraceId}
+                    singleType={singleType}
+                    handleSelectTraceId={handleSelectTraceId}
+                  ></SceneList>
+                }
               ></Box>
-            </Row>
-            <Row style={{ width: "100%", height: "50%" }}>
+            </div>
+          </Row>
+          <Row style={{ height: "22%", width: "100%" }}>
+            <div style={{ width: "100%" }}>
               <Box
-                title={"RoadHealth"}
-                component={<RoadHealth></RoadHealth>}
+                title={"SingleTrace"}
+                component={
+                  <SingleTrace
+                    isTraceVisible={isTraceVisible}
+                    selectTraceId={selectTraceId}
+                    singleType={singleType}
+                  ></SingleTrace>
+                }
               ></Box>
-            </Row>
-          </div>
+            </div>
+          </Row>
+          <Row style={{ height: "36%", width: "100%" }}>
+            <Col span={15} id="right_bottom_left">
+              <Row style={{ height: "55%", width: "100%" }}>
+                <div style={{ height: "100%", width: "40%" }}>
+                  <Box
+                    title={"Light"}
+                    component={<Light timeStamp={timeStamp}></Light>}
+                  ></Box>
+                </div>
+                <div style={{ height: "100%", width: "60%" }}>
+                  <Box
+                    title={"TrafficForecast"}
+                    component={
+                      <ForecastHeat flowTime={flowTime}></ForecastHeat>
+                    }
+                  ></Box>
+                </div>
+              </Row>
+              <Row style={{ height: "45%", width: "100%" }}>
+                <Box
+                  title={"RoadHealth"}
+                  component={<RoadHealth></RoadHealth>}
+                ></Box>
+              </Row>
+            </Col>
+            <Col span={9} id="right_bottom_right">
+              <div style={{ height: "100%" }}>
+                <Box
+                  title={"Rose"}
+                  component={<RoseComponent></RoseComponent>}
+                ></Box>
+              </div>
+            </Col>
+          </Row>
         </Col>
       </Row>
       <div
         style={{
-          left: "17%",
+          left: "0%",
           top: "2%",
           width: 200,
           height: 200,
@@ -219,7 +413,7 @@ const Layout = () => {
       </div>
       <div
         style={{
-          left: "56.8%",
+          left: "44.2%",
           top: "3.3%",
           width: 400,
           height: 200,
@@ -235,7 +429,7 @@ const Layout = () => {
       </div>
       <div
         style={{
-          left: "56.8%",
+          left: "44.2%",
           top: "1.9%",
           width: 199,
           height: 20,

@@ -66,8 +66,8 @@ const SceneList = (props) => {
     const svg = d3
       .select("#sceneBar")
       .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
+      .attr("width", dimensions.width-10)
+      .attr("height", dimensions.height-10)
       .attr("videBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
       .style("background", "#fff");

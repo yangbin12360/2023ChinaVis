@@ -25,9 +25,9 @@ const ForecastHeat = (props) => {
       height: divHeight,
       margin: {
         top: 30,
-        right: 300,
+        right: 50,
         bottom: 30,
-        left: 300,
+        left: 50,
       },
     };
 
@@ -94,15 +94,15 @@ const ForecastHeat = (props) => {
     .attr("fill", (d) => colorScale(d.value))
     .attr("stroke", "#fff")
     .attr("stroke-width", 1.5)
-    .attr("rx", 1) // 添加这一行
-    .attr("ry", 1) // 添加这一行
+    .attr("rx", 1) 
+    .attr("ry", 1) 
     .on("mouseover", function (event, d) {
       d3.select(this).transition().duration("50").attr("opacity", ".85");
       tooltip.transition().duration(50).style("opacity", 0.8);
       tooltip
         .html("Traffic Volume: " + d.value)
-        .style("left", event.pageX + 10 + "px")  // change here
-        .style("top", event.pageY - 15 + "px");  // change here
+        .style("left", event.pageX + 10 + "px")  
+        .style("top", event.pageY - 15 + "px");  
     })
     .on("mouseout", function () {
       d3.select(this).transition().duration("50").attr("opacity", "1");

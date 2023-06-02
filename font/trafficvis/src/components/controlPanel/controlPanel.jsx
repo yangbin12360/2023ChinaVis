@@ -1,40 +1,34 @@
-import { Select, Button} from "antd";
-import {Table} from 'rsuite'
+import { Select, Button } from "antd";
+import { DatePicker } from "rsuite";
 import { hourList, sixtyList } from "../utils/constant";
 import { useState } from "react";
 import "./controlPanel.css";
 
 const ControlPanel = (props) => {
-  const {handleChangeTime,  handleSelectId} = props
+  const { handleChangeTime, handleSelectId, handleControlCamra } = props;
   const [yearStr, setYearStr] = useState("2023/4/");
   const [dayStr, setDayStr] = useState("");
   const [hourStr, setHourStr] = useState("8");
   const [minuteStr, setMinuteStr] = useState("13");
   const [secondStr, setSecondStr] = useState("13");
+  const { cameFlag, setcamaFlag } = useState(1);
 
-  const timeSelect = ()=>{
-    const timeStr = yearStr+dayStr+' '+hourStr+':'+minuteStr+':'+secondStr;
-    handleChangeTime(Date.parse(timeStr)/1000);
-  }
-  const changeId =()=>{
-    handleSelectId(269548444)
-  }
-  const { Column, HeaderCell, Cell } = Table;
-  const data = [{ id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' },
-  { id: 1, name: 'foobar', email: 'foobar@xxx.com' }];
+  // const timeSelect = ()=>{
+  //   const timeStr = yearStr+dayStr+' '+hourStr+':'+minuteStr+':'+secondStr;
+  //   handleChangeTime(Date.parse(timeStr)/1000);
+  // }
+  const timeSelect = (date) => {
+    handleChangeTime(Date.parse(date) / 1000);
+  };
+  const changeId = () => {
+    handleSelectId(269548444);
+  };
+
   return (
     <div className="container">
-      <div className="control">
+      <span>时间选择：</span>
+      <DatePicker format="yyyy-MM-dd HH:mm:ss" onChange={timeSelect} />
+      {/* <div className="control">
       <div className="controlDay">
         日：
         <Select
@@ -100,7 +94,7 @@ const ControlPanel = (props) => {
       <div className="controlButton">
         <Button onClick={changeId}>Default Button</Button>
       </div>
-      </div>
+      </div> */}
     </div>
   );
 };
