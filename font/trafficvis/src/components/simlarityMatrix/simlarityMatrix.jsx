@@ -63,7 +63,7 @@ const SimlarityMatrix = (props) => {
 
   useEffect(() => {
     const { width, height } = matrixRef.current.getBoundingClientRect();
-
+    // drawMatrix(res["data"], res["mark"], width, height);
     // getSimilarity(dataset, embeddingMethod).then((res) => {
     //   drawMatrix(res["data"], res["mark"], width, height);
     // });

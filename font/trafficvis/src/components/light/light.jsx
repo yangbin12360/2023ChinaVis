@@ -59,7 +59,8 @@ function Light(props){
             var translate = [ barWidth * i, 0 ]
             return 'translate(' + translate + ')'
             })
-            .attr('fill', '#d9d9d9');
+            .attr('stroke','black')
+            .attr('fill', '#d5dce2');
     
         var text = Scence.selectAll('text')
             .data(lightData[0])
@@ -85,7 +86,10 @@ function Light(props){
                                     .attr('r',function(d,i){
                                         return GrScale(d);
                                     })
-                                    .attr('fill','green');
+                                    .attr('fill','#84b791')
+                                    .on('mouseover',tipy(true))
+                                    .on('mouseout',tipy(false));
+
                                     
         var redLight = svg.append('g').attr('id','redLight');
 
@@ -102,16 +106,19 @@ function Light(props){
                                 .attr('r',function(d,i){
                                     return RrScale(d);
                                 })
-                                .attr('fill','red');
+                                .attr('fill','#de7266')
+                                .on('mouseover',tipy(true))
+                                .on('mouseout',tipy(false));
+
 
         function tipy(flag){
             return function(g,i){
                 if(flag == true){
                     setTipyFlag(true);
                     console.log(g,i);
-                    setTipyContent(i);
-                    setTipyX(g.offsetX+'px');;
-                    setTipyY(g.offsetY+'px');
+                    setTipyContent(i.toFixed(2));
+                    setTipyX(g.offsetX+10+'px');
+                    setTipyY(g.offsetY+10+'px');
                 }
                 else {
                     setTipyFlag(false);
@@ -121,11 +128,11 @@ function Light(props){
 
         }
 
-        greenCircle.on('mouseover',tipy(true))
-                   .on('mouseout',tipy(false));
+        // greenCircle.on('mouseover',tipy(true))
+        //            .on('mouseout',tipy(false));
 
-        redCircle.on('mouseover',tipy(true))
-                 .on('mouseout',tipy(false));
+        // redCircle.on('mouseover',tipy(true))
+        //          .on('mouseout',tipy(false));
 
 
     }
@@ -169,21 +176,26 @@ function Light(props){
             .enter()
             .append('rect')
             .attr('y', d =>height - yScale(d))
-            .attr('height', d => yScale(d))
             .attr('width', barWidth - barPadding)
             .attr('transform', (d, i) => {
             var translate = [ barWidth * i, 0 ]
             return 'translate(' + translate + ')'
             })
-            .attr('fill', '#d9d9d9');
+            .attr('stroke','black')
+            .attr('fill', '#d5dce2')
+            .transition()
+            .duration(500)
+            .attr('height', d => yScale(d));
     
         var text = Scence.selectAll('text')
             .data(lightData[0])
             .enter()
             .append('text')
             .text(d => d)
-            .attr('y', (d, i) => height - yScale(d) - 2)
             .attr('x', (d, i) => barWidth * i)
+            .transition()
+            .duration(500)
+            .attr('y', (d, i) => height - yScale(d) - 2)
             .attr('fill', '#000000');
         
         var greenLight = svg.append('g').attr('id','greenLight');
@@ -192,16 +204,20 @@ function Light(props){
                                     .data(lightData[1])
                                     .enter()
                                     .append('circle')
-                                    .attr('cx',function(d,i){
-                                        return barWidth*i+barWidth/2-2.5;
-                                    })
                                     .attr('cy',function(d,i){
                                         return (height-(yScale(lightData[0][i])/3));
                                     })
+                                    .attr('cx',function(d,i){
+                                        return barWidth*i+barWidth/2-2.5;
+                                    })
+                                    .on('mouseover',tipy(true))
+                                    .on('mouseout',tipy(false))
+                                    .transition()
+                                    .duration(500)
                                     .attr('r',function(d,i){
                                         return GrScale(d);
                                     })
-                                    .attr('fill','#b6d7a8');
+                                    .attr('fill','#84b791');
                                     
         var redLight = svg.append('g').attr('id','redLight');
 
@@ -209,25 +225,29 @@ function Light(props){
                                 .data(lightData[2])
                                 .enter()
                                 .append('circle')
-                                .attr('cx',function(d,i){
-                                    return barWidth*i+barWidth/2-2.5;
-                                })
                                 .attr('cy',function(d,i){
                                     return (height-(yScale(lightData[0][i])*2/3));
                                 })
+                                .attr('cx',function(d,i){
+                                    return barWidth*i+barWidth/2-2.5;
+                                })
+                                .on('mouseover',tipy(true))
+                                .on('mouseout',tipy(false))
+                                .transition()
+                                .duration(500)
                                 .attr('r',function(d,i){
                                     return RrScale(d);
                                 })
-                                .attr('fill','#f59898');
+                                .attr('fill','#de7266');
 
         function tipy(flag){
             return function(g,i){
                 if(flag == true){
                     setTipyFlag(true);
                     console.log(g,i);
-                    setTipyContent(i);
-                    setTipyX(g.offsetX+'px');;
-                    setTipyY(g.offsetY+'px');
+                    setTipyContent( i.toFixed(2));
+                    setTipyX(g.offsetX+10+'px');
+                    setTipyY(g.offsetY+10+'px');
                 }
                 else {
                     setTipyFlag(false);
@@ -263,7 +283,7 @@ function Light(props){
         <div id = 'lightContainer' style={{height:'100%',width:'100%' }} >
                 {/* 提示框 */}
          {tipyFlag ? <div className ="tip" id="flow_tip" 
-        style={{width:"20px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center'}}>
+        style={{width:"30px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center'}}>
             {tipyContent}
             </div> : null }
 

@@ -49,8 +49,8 @@ const ClusterScatter = (props) => {
     const svg = d3
       .select("#cluster")
       .append("svg")
-      .attr("width", dimensions.width - 10)
-      .attr("height", dimensions.height - 10)
+      .attr("width", dimensions.width -2)
+      .attr("height", dimensions.height -2)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
       .style("background", "#fff");
