@@ -102,7 +102,7 @@ def getActionAndRoadCount():
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
     all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
-
+    pair_dict={'2':0,'3':1,'0':2,'1':3,'7':4,'6':5,'5':6,'4':7,'8':8}
     file_path = './static/data/Result/decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
@@ -116,17 +116,14 @@ def getActionAndRoadCount():
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
                 time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
                 time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index1==segment_index2:
-                    all_count[index][item['road']][segment_index1]+=1
-                else:
-                    all_count[index][item['road']][segment_index1]+=1
-                    if segment_index2>287:
-                        # print(segment_index2,dt2)
-                        all_count[index][item['road']][287]+=1
-                    else:
-                        all_count[index][item['road']][segment_index2]+=1 
+                if segment_index2>287:
+                    segment_index2=287
+                for i in range(segment_index1,segment_index2+1):
+                    all_count[index][pair_dict[item['road']]][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -135,7 +132,7 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                all_count[index][item['road']][segment_index]+=1
+                all_count[index][pair_dict[item['road']]][segment_index]+=1
                 
                 
     # print(all_count)
