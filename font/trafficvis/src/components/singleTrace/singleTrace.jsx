@@ -33,8 +33,8 @@ const SingleTrace = (props) => {
     const divWidth = singleTraceRef.current.offsetHeight;
     const dimensions = {
       width: divHeight,
-      height: 315,
-      margin: { top: 10, right: 20, bottom: 40, left: 50 },
+      height: 294,
+      margin: { top: 10, right: 30, bottom: 40, left: 50 },
     };
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
@@ -198,9 +198,10 @@ const SingleTrace = (props) => {
       lineGroup
         .append("path")
         .datum(segment)
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2)
         .attr("fill", "none")
-        .attr("stroke", "blue") // 你可以选择你喜欢的颜色
-        .attr("stroke-width", 1.5)
+        .attr("stroke-linejoin", "round")
         .attr("d", line);
     });
 
@@ -249,7 +250,7 @@ const SingleTrace = (props) => {
     const divWidth = barRef.current.offsetWidth;
     const dimensions = {
       width: divWidth,
-      height: 234,
+      height: 215,
       margin: { top: 10, right: 10, bottom: 50, left: 10 },
     };
     const boundedWidth =
@@ -343,7 +344,7 @@ const SingleTrace = (props) => {
 
 <div className="box">
         <div className=".barBox">
-          <div className="infoList"><InfoList></InfoList></div>
+          <div className="infoList"><InfoList selectTraceId={selectTraceId} singleType={singleType}></InfoList></div>
         <div className="bar" ref={barRef} id="bar"></div>
         </div>
         <div className="container" ref={singleTraceRef} id="singleTrace"></div>

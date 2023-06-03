@@ -214,20 +214,17 @@ def getIdHighValue():
 
     # 获取车道号
 # 获取车道号
-    def find_keys(laneDict, values):
+    def find_set_in_dict(input_set, input_dict):
+    # Convert the input set to a set of strings
+        input_set = set(str(i) for i in input_set)
         keys = []
-        for key in laneDict:
-        # 将字典中的元素转换为字符串
-            str_values = []
-            for value in laneDict[key]:
-                tempStr =str(value)
-                if tempStr.find('.')!=-1:
-                    tempStr=tempStr.split('.')[0]
-                str_values.append(tempStr)
-            for value in values:
-                if value in str_values and key not in keys:
-                    keys.append(key)
+        for key, value in input_dict.items():
+            # Convert the list of strings to a set
+            value_set = set(value)
+            if input_set.intersection(value_set):
+                keys.append(key)
         return keys
+
     tfPath = "../back/static/data/DataProcess/trafficFlow/little_road_flow.json"
     with open(tfPath,"r") as f:
         tfData = json.load(f)
@@ -306,10 +303,10 @@ def getIdHighValue():
         data = pd.read_csv(f)
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
     # print(data.iloc[0:]["lineFid"].to_list())
-    laneRoadList = list(set(data.iloc[0:]["lineFid"].to_list())) #所在车道列表，对应轨迹
-    print("laneRoadList",laneRoadList)
+    laneRoadList = list(set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())) #所在车道列表，对应轨迹
+    print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
     # 获取中车道的键名
-    keys = find_keys(laneDict, laneRoadList)
+    keys = find_set_in_dict(laneRoadList,laneDict)
     print("keys",keys)
     #获取到了flow文件中的车道号值了
     values = [value for key in keys for value in lanNumber[key]]
@@ -448,13 +445,19 @@ def getCluster():
             tempDict['type'] = row['type']
             tempDict['cluster'] = row['cluster']
             res["scatter"].append(tempDict)
-    
+    cluster0 = dfCluster[dfCluster['cluster'] == 0].shape[0]
+    cluster1 = dfCluster[dfCluster['cluster'] == 1].shape[0]
+    cluster2 = dfCluster[dfCluster['cluster'] == 2].shape[0]
     tempDict = {}
     res["radar"]=[]
     tempDict["0"] =  cluster_avg_values["0"]
     tempDict["1"] = cluster_avg_values["1"]
     tempDict["2"] = cluster_avg_values["2"]
     res["radar"].append(tempDict)
+    res["count"] =[]
+    res["count"].append(cluster0)
+    res["count"].append(cluster1)
+    res["count"].append(cluster2)
     return res  
 
 
@@ -602,6 +605,21 @@ def getCrossWalkData():
     # print(resultData[segment_index])
     return resultData[segment_index]       
 
+# 获取相似度矩阵数据
+@app.route('/getSimilarity',methods=["POST"])
+def getSimilarity():
+    start_time = 1681315196
+    nowTime = request.get_json().get('timeStamp')
+    span = math.ceil(((nowTime-start_time)/300))
+    realTime = span*300
+    file_path = './static/data/DataProcess/5m/testS/'+ str(realTime) +'s.csv'
+    res ={}
+    df = pd.read_csv(file_path)
+    df = df.iloc[:, 1:]
+    data = df.values.tolist()
+    # print(data)
+    res["data"] =data
+    return res 
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

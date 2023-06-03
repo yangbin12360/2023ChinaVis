@@ -132,7 +132,7 @@ const dataBJ = [
   const option = {
     backgroundColor: '#fff',
     legend: {
-      bottom: 20,
+      bottom: 90,
       data: ['Beijing', 'Shanghai', 'Guangzhou'],
       itemGap: 20,
       textStyle: {
@@ -164,6 +164,7 @@ const dataBJ = [
     parallel: {
       left: '10%',
       right: '18%',
+      bottom:"40%",
     //   bottom: '100%',
       parallelAxisDefault: {
         type: 'value',
