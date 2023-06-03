@@ -65,7 +65,6 @@ function Details (props){
                    .size(30);
 
 
-
   //鼠标事件展示弧形信息
   function detailtipyinfo(flag){
     if(flag == true){
@@ -133,27 +132,27 @@ function Details (props){
 
       arcsvg.append("path")
             .attr("d",arcPath(arcdata))	
-            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
             .attr("stroke","black")
             .attr("stroke-width","3px")
             .attr("fill","white");
      var info =  arcsvg.append("path")
             .attr("d",arcPath(transformDataInfo(3)))	
-            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
             .attr('value',3)
             .attr("stroke","black")
             .attr("stroke-width","3px")
             .attr("fill","#caedc9");
       arcsvg.append("path")
             .attr("d",arcPathSmall(arcdata))	
-            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
             .attr("stroke","black")
             .attr("stroke-width","3px")
             .attr("fill","white");
       var velo = arcsvg.append("path")
             .attr("d",arcPathSmall(transformDataVelo(1)))	
             .attr('value',1)
-            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
             .attr("stroke","black")
             .attr("stroke-width","3px")
             .attr("fill","#fedf86");
@@ -163,39 +162,39 @@ function Details (props){
             .attr("fill", function(d,i){
                 return typecolor[item.type];
             })
-            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+            .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
       arcsvg.append("text")
             .text('次数')
             .attr('font-size','11px')
-            .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+            .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
       arcsvg.append("text")
             .text('速度')
             .attr('font-size','11px')
-            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
       arcsvg.append("text")
             .text('id：')
             .attr('font-size','13px')
-            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
       arcsvg.append("text")
             .text('开始：')
             .attr('font-size','13px')
-            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
       arcsvg.append("text")
             .text('结束：')
             .attr('font-size','13px')
-            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+            .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
       arcsvg.append("text")
             .text(item.id)
             .attr('font-size','13px')
-            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
       arcsvg.append("text")
             .text(converTimestamp(item.start_time/1000000))
             .attr('font-size','13px')
-            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
       arcsvg.append("text")
             .text(converTimestamp(item.start_time/1000000))
             .attr('font-size','13px')
-            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+            .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
 
     var svgS1 = document.getElementById('arcsvg');
     var svgh = svgS1.getBBox();
@@ -215,27 +214,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#bae1f2");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -245,39 +244,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
                 })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('时间段')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -296,27 +295,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#bae1f2");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -326,39 +325,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
             })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('时间段')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4))-40)-50)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -377,27 +376,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#ff9c47");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -407,39 +406,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
                  })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('最大速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4))-40)-50)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -458,27 +457,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#bae1f2");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -488,39 +487,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
              })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('时间段')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -539,27 +538,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#bae1f2");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -569,39 +568,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
              })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('特征信息')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -620,27 +619,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#ff9c47");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -650,15 +649,15 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
                  })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('加速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
@@ -666,23 +665,23 @@ function Details (props){
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
@@ -701,27 +700,27 @@ function Details (props){
         console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
        var info =  arcsvg.append("path")
               .attr("d",arcPath(transformDataInfo(3)))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
               .attr('value',3)
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#ff9c47");
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
               .attr("d",arcPathSmall(transformDataVelo(1)))	
               .attr('value',1)
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
               .attr("stroke-width","3px")
               .attr("fill","#fedf86");
@@ -731,39 +730,39 @@ function Details (props){
               .attr("fill", function(d,i){
                 return typecolor[item.type];
               })
-              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4)))+") rotate(180)");
+              .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
               .text('加速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50)+")");
+              .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
               .text('速度')
               .attr('font-size','11px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4)))+")")
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");      
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
         arcsvg.append("text")
               .text('结束：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");            
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestamp(item.start_time/1000000))
               .attr('font-size','13px')
-              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+65)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
   
       var svgS1 = document.getElementById('arcsvg');
       var svgh = svgS1.getBBox();
