@@ -17,6 +17,8 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import datetime as dt
 
@@ -3178,6 +3180,54 @@ def getDriveReserve():
                                 driveReserve[l][m] = useLaneData[l][m]
                 reverseF =  open("./static/data/DataProcess/reverse/reverse"+str(k)+'.json', "w")
                 json.dump(driveReserve, reverseF)
+
+# 获取样本之间的相似度
+def getSimilarity():
+    # 获取文件夹下所有的csv文件
+    folder_path = './static/data/DataProcess/5m/merge'  # 请替换为你的文件夹路径
+    csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
+    new_path  = './static/data/DataProcess/5m/similaryity'
+    with alive_bar(len(csv_files), title='Processing files') as bar:
+        for file in csv_files:
+            file_path = os.path.join(folder_path, file)
+            df = pd.read_csv(file_path)        
+        # 检查是否包含所需的列
+            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']
+            if not all(column in df.columns for column in required_columns):
+                print(f"Skipping file {file} as it does not contain all required columns.")
+                bar()
+                continue
+        # Z-Score归一化
+            scaler = StandardScaler()
+            df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']] = scaler.fit_transform(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
+        # 计算余弦相似度
+            similarity = cosine_similarity(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
+        # 创建一个新的DataFrame来存储相似度，id和cluster
+            similarity_df = pd.DataFrame(similarity)
+            similarity_df.columns = df['id'].tolist()
+            similarity_df.index = df['id'].tolist()
+            similarity_df = similarity_df.reset_index().melt(id_vars='index', var_name='id2', value_name='similarity')
+            similarity_df.columns = ['id1', 'id2', 'similarity']
+        # 将cluster信息添加到新的DataFrame
+            cluster_dict = df.set_index('id')['cluster'].to_dict()
+            similarity_df['cluster1'] = similarity_df['id1'].map(cluster_dict)
+            similarity_df['cluster2'] = similarity_df['id2'].map(cluster_dict)
+        # 将相似度写入新的csv文件
+            similarity_df.to_csv(os.path.join(new_path, f'{file}'), index=False)
+        bar()
+
+#读取reverse文件中的非空数据：
+def getReverseData():
+    input_directory = './static/data/DataProcess/reverse'
+    output_directory = './static/data/DataProcess/newReverse'
+    for filename in os.listdir(input_directory):
+        if filename.endswith('.json'):  
+            with open(os.path.join(input_directory, filename), 'r') as f:  
+                json_data = json.load(f)  
+                non_empty_data = {key: value for key, value in json_data.items() if value}  
+                new_filename = filename.rsplit('.', 1)[0] + '_non_empty.json' 
+                with open(os.path.join(output_directory, new_filename), 'w') as nf: 
+                    json.dump(non_empty_data, nf)  
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3194,4 +3244,6 @@ if __name__ == '__main__':
     # mergeCluster()
     # processFid() #  1 2 已经修改
     # forecastToInt()
-    getDriveReserve()
+    # getDriveReserve()
+    # getSimilarity()
+    getReverseData()

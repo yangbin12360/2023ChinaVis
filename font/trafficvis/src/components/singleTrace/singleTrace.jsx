@@ -4,6 +4,7 @@ import { getIdHighValue } from "../../apis/api";
 import { LANE_ID_LIST } from "../utils/constant";
 import { Table} from 'rsuite';
 import "./singleTrace.css";
+import InfoList from "../infoList/infoList";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -11,7 +12,6 @@ const SingleTrace = (props) => {
   const { isTraceVisible, selectTraceId, singleType } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
-  const { Column, HeaderCell, Cell } = Table;
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
@@ -33,8 +33,8 @@ const SingleTrace = (props) => {
     const divWidth = singleTraceRef.current.offsetHeight;
     const dimensions = {
       width: divHeight,
-      height: divWidth,
-      margin: { top: 10, right: 20, bottom: 30, left: 50 },
+      height: 315,
+      margin: { top: 10, right: 20, bottom: 40, left: 50 },
     };
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
@@ -245,12 +245,12 @@ const SingleTrace = (props) => {
   //绘制柱状图
   const drawBar = (data) => {
     // 获取div元素的高度和宽度
-    const divHeight = barRef.current.offsetWidth;
-    const divWidth = barRef.current.offsetHeight;
+    const divHeight = barRef.current.offsetHeight;
+    const divWidth = barRef.current.offsetWidth;
     const dimensions = {
-      width: divHeight,
-      height: divWidth,
-      margin: { top: 10, right: 10, bottom: 30, left: 10 },
+      width: divWidth,
+      height: 234,
+      margin: { top: 10, right: 10, bottom: 50, left: 10 },
     };
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
@@ -338,57 +338,15 @@ const SingleTrace = (props) => {
       .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
   };
 
-  const data =[{
-    "id": 1,
-    "name": "Mae Hansen",
-    "firstName": "Mae",
-    "lastName": "Hansen",
-    "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/484.jpg",
-    "city": "Wisozkburgh",
-    "street": "Bahringer Course",
-    "postcode": "11798",
-    "email": "Larry_DAmore@hotmail.com",
-    "phone": "337.773.1918 x84180",
-    "gender": "male",
-    "age": 28,
-    "stars": 1450,
-    "followers": 5274,
-    "rating": 3,
-    "progress": 33,
-    "amount": "43701.84",
-    "company": "O'Connell - Abshire"
-  }]
+
   return (
 
 <div className="box">
-    {/* <div className="infoBox">
-    <Table height={81} data={data} headerHeight={35}>
-        <Column width={150} align="center" fixed>
-          <HeaderCell>ID</HeaderCell>
-          <Cell dataKey="id" />
-        </Column>
-        <Column width={150} fixed>
-          <HeaderCell>Type</HeaderCell>
-          <Cell dataKey="name" ></Cell>
-        </Column>
-        <Column width={150} fixed>
-          <HeaderCell>startTime</HeaderCell>
-          <Cell dataKey="street" ></Cell>
-        </Column>
-        <Column width={150} fixed>
-          <HeaderCell>endTime</HeaderCell>
-          <Cell dataKey="amount" ></Cell>
-        </Column>
-        <Column width={150} fixed>
-          <HeaderCell>endTime</HeaderCell>
-          <Cell dataKey="amount" ></Cell>
-        </Column>
-      </Table>
-    </div> */}
-    <div className="content">
+        <div className=".barBox">
+          <div className="infoList"><InfoList></InfoList></div>
         <div className="bar" ref={barRef} id="bar"></div>
+        </div>
         <div className="container" ref={singleTraceRef} id="singleTrace"></div>
-    </div>
 </div>
   );
 };

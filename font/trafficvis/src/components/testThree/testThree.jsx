@@ -6,8 +6,11 @@ import traffic from "../../assets/gltf/traffic_modifiedV1.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import type1 from "../../assets/gltf/type1.gltf";
+import type2 from "../../assets/gltf/type1(rotate).gltf";
 //import sky from '../../assets/fig/sky.jpg';
 import * as TWEEN from "@tweenjs/tween.js";
+import * as dat from 'dat.gui';
 //import road_background from './static/road_pic/road_background.png';
 // import sky_up from '../../assets/fig/nz.png';
 // import sky_right from '../../assets/fig/px.png';
@@ -15,6 +18,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 // import sky_front from '../../assets/fig/ny.png';
 // import sky_back from '../../assets/fig/py.png';
 // import sky_down from '../../assets/fig/pz.png';
+
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -25,6 +29,18 @@ const move = {
   angle: 90,
 };
 const TestThree = ({}) => {
+
+
+  // 创建一个新的dat.GUI对象
+const gui = new dat.GUI();
+
+// 创建一个控制对象，这个对象将被添加到GUI中
+const controlObject = {
+  rotationSpeed: 0.01, // 初始旋转速度
+};
+
+// 将控制对象添加到GUI中
+gui.add(controlObject, 'rotationSpeed', -0.01, 0.01);
   const containerRef = useRef(); // 使用 useRef 创建容器引用
   useEffect(() => {
     // //判断先前是否已经创建了渲染器实例，如果已经创建了，就不再创建
@@ -37,6 +53,16 @@ const TestThree = ({}) => {
     });
   }, []);
   const drawThree = (data) => {
+      // 创建一个新的dat.GUI对象
+const gui = new dat.GUI();
+
+// 创建一个控制对象，这个对象将被添加到GUI中
+const controlObject = {
+  rotationSpeed: 1, // 初始旋转速度
+};
+
+// 将控制对象添加到GUI中
+gui.add(controlObject, 'rotationSpeed', -0.01, 0.01);
     /**three.js基础配置 */
     // 创建场景
     const scene = new THREE.Scene();
@@ -50,10 +76,7 @@ const TestThree = ({}) => {
     );
     // camera.position.set(10, 100, 250);
     camera.position.set(0, -100, 250);
-    // let x_axis = new THREE.Vector3( 1, 0, 0 );
-    // let quaternion = new THREE.Quaternion();
-    // camera.position.applyQuaternion(quaternion.setFromAxisAngle(x_axis,move.angle));
-
+ 
     // 创建渲染器
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -71,20 +94,29 @@ const TestThree = ({}) => {
     // loader.load(traffic, (gltf) => {
     //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
     //   gltf.scene.position.set(move.x, move.y, move.z);
-    //   // 返回的场景对象gltf.scene插入到threejs场景中
     //   scene.add(gltf.scene);
     // });
     // 导入小车模型
     let model1, model2;
-    loader.load(car, (gltf) => {
+    loader.load(type1, (gltf) => {
       model1 = gltf.scene.clone();
-      model2 = gltf.scene.clone();
+      // model2 = gltf.scene.clone();
       scene.add(model1);
       scene.add(model2);
       // 在模型加载完成后，开始移动模型
-      moveModel(0);
-      moveModel2(0);
+      moveModel(model1,0);
     });
+    let quaternion = new THREE.Quaternion()
+    function render() {
+      // 更新模型的旋转
+      model1.rotation.y += controlObject.rotationSpeed;
+    
+      // 渲染场景
+      renderer.render(scene, camera);
+    
+      // 请求下一帧
+      requestAnimationFrame(render);
+    }
     /**临时绘制地图轨迹 */
     // 处理GeoJSON数据
     const handleGeoJSON = (data) => {
@@ -147,24 +179,7 @@ const TestThree = ({}) => {
         timeStamps.push(car.time_meas);
       }
     });
-    let positions2 = []; //位置坐标
-    let indexArr2 = []; //位置索引
-    let indexCar2 = 0; //小车索引
-    let timeStamps2 = []; //时间戳数组
-    data["car2"].forEach((car) => {
-      const strPosition = car.position;
-      const objPostion = JSON.parse(strPosition);
-      const arr = [objPostion.x, objPostion.y];
-      const coordinates = arr;
-      //暂时将在动的轨迹坐标放入
-      if (car.is_moving == 1) {
-        positions2.push(new THREE.Vector3(coordinates[0], coordinates[1]));
-        indexArr2.push(indexCar2);
-        indexCar2 = indexCar + 1;
-        timeStamps2.push(car.time_meas);
-      }
-    });
-    console.log("positions2", positions2);
+;
     //创建小车轨迹
     const material = new THREE.LineBasicMaterial({
       color: "green",
@@ -176,77 +191,41 @@ const TestThree = ({}) => {
     scene.add(carLine);
     /**小车按帧移动 */
     let currentCoordIndex = 0;
-    const moveModel = (index) => {
+    const moveModel = (model,index) => {
       if (index >= positions.length - 1) {
         // destroyModel(model1,scene);
         return;
       }
       // console.log("car1第",index,"次的时间为：",converTimestamp(timeStamps[index]));
       currentCoordIndex = index;
+      let directLength = positions.length;
       // 创建一个新的 tween 对象，以在 0.2 秒内将模型从当前坐标移动到下一个坐标
       const tween1 = new TWEEN.Tween(positions[currentCoordIndex])
         .to(positions[currentCoordIndex + 1], 200)
-        .onUpdate((positions) => {
-          // 更新模型的位置
-          model1.position.copy(positions);
+        .onUpdate((positions1) => {
+      // 更新模型的位置
+      model.position.copy(positions1);
+      if ( currentCoordIndex< directLength  - 2) {
+        // console.log("朝向发生改变");
+        let targetQuaternion = new THREE.Quaternion(); // 创建一个目标四元数
+        targetQuaternion.setFromRotationMatrix(
+          new THREE.Matrix4().lookAt(
+            positions[currentCoordIndex + 2],
+            model.position,
+            new THREE.Vector3(0, 0, 1) // 这是模型的上方向
+          )
+        );
+        quaternion.slerp(targetQuaternion, 0.1);
+        model.quaternion.copy(quaternion);
+      }
         })
         .onComplete(() => {
           // 当 tween 对象完成时，递归调用 moveModel 函数
-          moveModel(currentCoordIndex + 1);
+          moveModel(model,currentCoordIndex + 1);
         })
         .start(); // 开始 tween 动画
     };
-    let currentCoordIndex2 = 0;
-    const moveModel2 = (index) => {
-      if (index >= positions2.length - 1) {
-        destroyModel(model2, scene);
-        return;
-      }
-      console.log(
-        "car2第",
-        index,
-        "次的时间为：",
-        converTimestamp(timeStamps2[index])
-      );
-      currentCoordIndex2 = index;
-      const tween2 = new TWEEN.Tween(positions2[currentCoordIndex2])
-      .to(positions2[currentCoordIndex2 + 1], 200)
-      .onUpdate((positions2) => {
-        // 更新模型的位置
-        model2.position.copy(positions2)
-      })
-      .onComplete(() => {
-        // 当 tween 对象完成时，递归调用 moveModel 函数
-        moveModel2(currentCoordIndex2 + 1);
-      })
-      .start(); // 开始 tween 动画
-    }
-    //创建天空盒  （6张图片都需要换）
-    //  scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
-    //         scene.background = new THREE.CubeTextureLoader().load([sky,sky,sky,sky,sky,sky]);
-    //         // 创建一个地面
-    //         function createPlaneGeometryBasicMaterial() {
-    //           var textureLoader = new THREE.TextureLoader();
-    //           var cubeMaterial = new THREE.MeshStandardMaterial({
-    //             map: textureLoader.load(sky),
-    //           });
-    //           cubeMaterial.map.wrapS = THREE.RepeatWrapping;
-    //           cubeMaterial.map.wrapT = THREE.RepeatWrapping;
-    //           cubeMaterial.map.repeat.set(8, 8)
-    //           // 创建地平面并设置大小
-    //           var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
-    //           var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
-    
-    //           // 设置平面位置并旋转
-    //           plane.rotation.x = -0.5 * Math.PI;
-    //           plane.position.x = 0;
-    //           plane.position.y = 10;
-    //           plane.position.z = 0;
-    //           return plane;
-    //         }
-    //         // 将平面添加到场景中
-    //         var plane = createPlaneGeometryBasicMaterial();
-    //         scene.add(plane);
+
     // 渲染循环
     const animate = () => {
       requestAnimationFrame(animate);

@@ -40,18 +40,18 @@ const InfoList =() =>{
               <HeaderCell style={{ fontWeight: 'bold' }}>ID</HeaderCell>
               <Cell dataKey="id" />
             </Column>
-            <Column width={150} fixed>
+            <Column width={142} fixed>
               <HeaderCell style={{ fontWeight: 'bold' }}>Type</HeaderCell>
               <Cell dataKey="name" ></Cell>
             </Column>
-            <Column width={170} fixed>
+            {/* <Column width={170} fixed>
               <HeaderCell style={{ fontWeight: 'bold' }}>startTime</HeaderCell>
               <Cell dataKey="street" ></Cell>
             </Column>
             <Column width={170} fixed>
               <HeaderCell style={{ fontWeight: 'bold' }}>endTime</HeaderCell>
               <Cell dataKey="amount" ></Cell>
-            </Column>
+            </Column> */}
             <Column width={150} fixed>
               <HeaderCell style={{ fontWeight: 'bold' }}>状态追踪</HeaderCell>
               <Cell>{renderStatusCell}</Cell>
