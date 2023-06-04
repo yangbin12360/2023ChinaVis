@@ -4,6 +4,8 @@ import json
 import numpy as np
 import os
 import datetime
+from itertools import groupby
+from operator import itemgetter
 import pandas as pd
 import math
 app = Flask(__name__)
@@ -102,8 +104,7 @@ def getActionAndRoadCount():
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
     all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
-    pair_dict={'2':0,'3':1,'0':2,'1':3,'7':4,'6':5,'5':6,'4':7,'8':8}
-    file_path = './static/data/Result/decomposition_data.json'
+    file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
@@ -123,7 +124,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][pair_dict[str(item['road'])]][i]+=1
+                    all_count[index][str(item['road'])][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -132,13 +133,8 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                all_count[index][pair_dict[str(item['road'])]][segment_index]+=1
-                
-                
-    # print(all_count)
-    # list_path = './static/data/Result/all_list.json'
-    # with open(list_path, 'w') as f:
-    #     json.dump(all_count, f)                  
+                all_count[index][item['road']][segment_index]+=1
+                                 
     return all_count
 
 # def getActionAndRoadCount():
@@ -541,15 +537,16 @@ def detail_item():
     segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
     if segment_index>287:
         segment_index=287
+    car_data=[]
     # 获取所有高价值数据
-    file_path = './static/data/Result/decomposition_data.json'
+    file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition = json.load(f)
     #遍历对应的高价值数组 
     for item in decomposition[actionName]:
         # 寻找对应的中道路
         if item['road']==roadNumber:
-            if actionName in [1,2,3,4]:
+            if actionName in [1,2,3,4,5]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
@@ -575,7 +572,31 @@ def detail_item():
                 # 判断是否在该五分钟内
                 if segment_index==segment_index1:
                     item_data.append(item)
-    
+    if car_data:
+        sorted_data = sorted(car_data, key=itemgetter('id'))
+        grouped_data = groupby(sorted_data, key=itemgetter('id'))
+        print(grouped_data)
+        for key, group in grouped_data:
+            group=list(group)
+            start_time=group[0]['start_time']
+            end_time=group[0]['start_time']
+            speed=[]
+            for item in group:
+                if item['start_time']<start_time:
+                    start_time=item['start_time']
+                if item['start_time']>end_time:
+                    end_time=item['start_time']
+                if item['velocity']!=0:
+                    speed.append(item['velocity'])
+            item_data.append({
+                'id':group[0]['id'],
+                'type':group[0]['type'],
+                'count':len(group),
+                'start_time':start_time,
+                'end_time':end_time,
+                'road':group[0]['road'],
+                'velocity':sum(speed)/len(speed)
+            })
     # print(item_data)                     
     return item_data
     
@@ -622,6 +643,54 @@ def getSimilarity():
     # print(data)
     res["data"] =data
     return res 
+
+# 获取道路健康度数据
+@app.route('/getRoadHealth',methods=["POST"])
+def getRoadHealth():
+    file_path1 = './static/data/Result/little_road_flow_health.json'
+    file_path2 = './static/data/Result/little_road_velocity_health.json'
+    file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    restemp =[]
+    with open(file_path1, "r", encoding="utf-8") as f1:
+        road_flow = json.load(f1)
+    with open(file_path2, "r", encoding="utf-8") as f2:
+        road_velocity = json.load(f2)    
+    with open(file_path3, "r", encoding="utf-8") as f3:
+        road_bus = json.load(f3)
+
+    for n in range(0,34,1):
+        for t in range(0,24,1):
+            temp = []
+            temp.append(t)
+            temp.append(road_flow[n][t])
+            temp.append(road_velocity[n][t])
+            temp.append(road_bus[n][t])
+            temp.append(n)
+            print(temp)
+            restemp.append(temp)
+    restotal = [[],[],[],[],[],[],[],[],[]]
+    for i in restemp:
+        if i[4]<=3:
+            restotal[0].append(i)
+        elif i[4]<=7:
+            restotal[1].append(i)
+        elif i[4]<=11:
+            restotal[2].append(i)
+        elif i[4]<=15:
+            restotal[3].append(i)
+        elif i[4]<=20:
+            restotal[4].append(i)
+        elif i[4]<=24:
+            restotal[5].append(i)
+        elif i[4]<=27:
+            restotal[6].append(i)
+        elif i[4]<=31:
+            restotal[7].append(i)
+        elif i[4]<=33:
+            restotal[8].append(i)
+          
+    #print(restotal)
+    return restotal
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

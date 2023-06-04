@@ -129,3 +129,8 @@ export const getSimilarity= (timeStamp) => {
     timeStamp:timeStamp
   });
 };
+
+//获取道路健康数据
+export const getRoadHealth= () => {
+  return post("/getRoadHealth");
+};
