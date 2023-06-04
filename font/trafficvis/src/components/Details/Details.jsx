@@ -792,7 +792,7 @@ function Details (props){
     return (
       <div style={{position:'relative'}}>
        
-        <div className = 'detail' style={{height:'400px',width:'100%',position:'absolute'}}> 
+        <div className = 'detail' style={{height:'420px',width:'100%',position:'absolute'}}> 
         <div style={{height:'20%' ,background:'#edede8',borderRadius:'20px',border:'5px solid #cccccc'}}>
         <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>车道{carNum+1}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
         <div style={{textAlign:'center'}}>

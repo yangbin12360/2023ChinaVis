@@ -1123,7 +1123,7 @@ function RelationshipScene(props){
 
     return (
       <div style={{position:'relative', background:'#efefef'}}>
-        <div style={{height:'400px',width:'100%',overflowY:'auto'}}>
+        <div style={{height:'420px',width:'100%',overflowY:'auto'}}>
              <div className="group-lines-bar">
           {/* <Radio.Group
             value={isZoomForAll}
