@@ -281,7 +281,11 @@ const Layout = () => {
               <div style={{ height: "100%" }}>
                 <Box
                   title={"relationshipScene"}
-                  component={<RelationshipScene></RelationshipScene>}
+                  component={<RelationshipScene                      
+                  time={time}
+                  carNum={carNum}
+                  scence={scence}
+                  handleDetail={handleDetail}></RelationshipScene>}
                 ></Box>
               </div>
             </Col>

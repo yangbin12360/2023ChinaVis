@@ -60,8 +60,8 @@ function Light(props){
             return 'translate(' + translate + ')'
             })
             .attr('stroke','black')
-            .attr('fill', '#d5dce2');
-    
+            .attr('fill', '#f1faee');
+
         var text = Scence.selectAll('text')
             .data(lightData[0])
             .enter()
@@ -86,7 +86,7 @@ function Light(props){
                                     .attr('r',function(d,i){
                                         return GrScale(d);
                                     })
-                                    .attr('fill','#84b791')
+                                    .attr('fill','#e8e8e4')
                                     .on('mouseover',tipy(true))
                                     .on('mouseout',tipy(false));
 
@@ -182,7 +182,7 @@ function Light(props){
             return 'translate(' + translate + ')'
             })
             .attr('stroke','black')
-            .attr('fill', '#d5dce2')
+            .attr('fill', '#e8e8e4')
             .transition()
             .duration(500)
             .attr('height', d => yScale(d));
