@@ -36,8 +36,6 @@ function ChordFlow(props){
             city_name.push(i);
         }
 
-        // console.log(city_name)
-
         // 弦布局
         var chord_layout = d3.chord() 
         .padAngle(0.05)  
@@ -358,7 +356,7 @@ function ChordFlow(props){
     return (
         <div id ='flowContainer' style={{width:'100%',height:'100%'}}>
 
-        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],opacity:0.8}}>
+        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],opacity:1.5}}>
                    {/* 提示框 */}
          {tipyFlag ? <div className ="tip" id="flow_tip" 
         style={{width:"150px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center',transform:[`rotateZ(-90deg) rotateY(-180deg)`]}}>

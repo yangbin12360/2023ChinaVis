@@ -18,12 +18,12 @@ import { GUI } from "dat.gui";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 //import {draco} from "../../assets/draco/gltf/draco_decoder.js"
-// import sky_up from '../../assets/fig/nz.png';
-// import sky_right from '../../assets/fig/px.png';
-// import sky_left from '../../assets/fig/nx.png';
-// import sky_front from '../../assets/fig/ny.png';
-// import sky_back from '../../assets/fig/py.png';
-// import sky_down from '../../assets/fig/pz.png';
+import sky_up from '../../assets/fig/nz.png';
+import sky_right from '../../assets/fig/px.png';
+import sky_left from '../../assets/fig/nx.png';
+import sky_front from '../../assets/fig/ny.png';
+import sky_back from '../../assets/fig/py.png';
+import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 
@@ -120,7 +120,7 @@ const MainView = (props) => {
     setCamera(camera);
     setRenderer(renderer);
     //创建天空盒
-    // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,

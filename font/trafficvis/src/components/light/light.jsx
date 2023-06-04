@@ -60,7 +60,7 @@ function Light(props){
             return 'translate(' + translate + ')'
             })
             .attr('stroke','black')
-            .attr('fill', '#f1faee');
+            .attr('fill', '#e8e8e4');
 
         var text = Scence.selectAll('text')
             .data(lightData[0])
@@ -68,7 +68,7 @@ function Light(props){
             .append('text')
             .text(d => d)
             .attr('y', (d, i) => height - yScale(d) - 2)
-            .attr('x', (d, i) => barWidth * i)
+            .attr('x', (d, i) => barWidth * i+(barWidth-barPadding)/4)
             .attr('fill', '#000000');
         
         var greenLight = svg.append('g').attr('id','greenLight');
@@ -192,7 +192,7 @@ function Light(props){
             .enter()
             .append('text')
             .text(d => d)
-            .attr('x', (d, i) => barWidth * i)
+            .attr('x', (d, i) => barWidth * i+(barWidth-barPadding)/4)
             .transition()
             .duration(500)
             .attr('y', (d, i) => height - yScale(d) - 2)
