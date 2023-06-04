@@ -99,6 +99,43 @@ export const HV_NAME_LIST = [
   "speedDown",
   "speedUp",
 ];
+export const HV_NAME_LIST_CN_V2 = {
+  "carCross":"切入切出",
+  "longTime":"长时间停车",
+  "noMotorCross":"非机动车异常",
+  "overSpeeding":"超速",
+  "overSpeeding":"行人异常",
+  "reverse":"逆行",
+  "speedDown":"急减速",
+  "speedUp":"急加速",
+  "出发点":"出发点",
+  "结束点":"结束点"
+};
+
+export const HV_NAME_LIST_CN_COLOR = {
+  "carCross":"#005f73",
+  "longTime":"#001219",
+  "noMotorCross":"#0a9396",
+  "overSpeeding":"#e9d8a6",
+  "overSpeeding":"#ee9b00",
+  "reverse":"#ca6702",
+  "speedDown":"#bb3e03",
+  "speedUp":"#bb3e03",
+  "出发点":"#bbd0ff",
+  "结束点":"#bbd0ff"
+};
+export const HV_NAME_LIST_CN = {
+  "car_cross":"切入切出",
+  "long_time":"长时间停车",
+  "nomotor_cross":"非机动车异常",
+  "overSpeeding":"超速",
+  "people_cross":"行人异常",
+  "reverse":"逆行",
+  "speedDown":"急减速",
+  "speedUp":"急加速",
+};
+
+
 
 export const HV_NAME_EASY_LIST = [
   "CC",

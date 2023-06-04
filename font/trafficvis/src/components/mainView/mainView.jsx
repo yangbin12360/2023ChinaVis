@@ -217,7 +217,7 @@ const MainView = (props) => {
             type: type,
             startTime:parseInt(data[trafficId]["startTime"] / 1000000),
             endTime:parseInt(data[trafficId]["endTime"] / 1000000),
-            isMoving:false
+            isMoving:false,
           };
           const shape = JSON.parse(data[trafficId]["shape"]);
           let typeIndex
@@ -336,9 +336,8 @@ const MainView = (props) => {
   useEffect(() => {
     for (let id in models) {
       const model = models[id];
-      if (id === String(selectId)) {
-        // console.log("model", model.halo);
-        model.halo.visible = true; // 只有被选中的模型的光环才可见
+      if (id === String(selectId) && model.halo) {
+          model.halo.visible = true;
       }
     }
   }, [selectId, models]);
@@ -435,7 +434,12 @@ const destroyModel = (model, scene) => {
         }
       }
     }
+    if (model.halo) {
+      model.halo.geometry.dispose();
+      model.halo.material.dispose();
+    }
   });
+  model = null;
 };
 
 export default MainView; // 导出 Polygon 组件
