@@ -2,25 +2,28 @@ import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_modifiedV4.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV5.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
 import type1 from "../../assets/gltf/type1.gltf";
-import type3 from "../../assets/gltf/type3_1.gltf";
-import type4 from "../../assets/gltf/type4.gltf";
+import type2 from "../../assets/gltf/type2_1.gltf"
+import type3 from "../../assets/gltf/type3_2.gltf";
+import type4 from "../../assets/gltf/type4_1.gltf";
 import type6 from "../../assets/gltf/type6.gltf";
+import type10 from "../../assets/gltf/type10.gltf";
+
 import { GUI } from "dat.gui";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 //import {draco} from "../../assets/draco/gltf/draco_decoder.js"
-// import sky_up from '../../assets/fig/nz.png';
-// import sky_right from '../../assets/fig/px.png';
-// import sky_left from '../../assets/fig/nx.png';
-// import sky_front from '../../assets/fig/ny.png';
-// import sky_back from '../../assets/fig/py.png';
-// import sky_down from '../../assets/fig/pz.png';
+import sky_up from '../../assets/fig/nz.png';
+import sky_right from '../../assets/fig/px.png';
+import sky_left from '../../assets/fig/nx.png';
+import sky_front from '../../assets/fig/ny.png';
+import sky_back from '../../assets/fig/py.png';
+import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
 
@@ -117,7 +120,7 @@ const MainView = (props) => {
     setCamera(camera);
     setRenderer(renderer);
     //创建天空盒
-    // scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
+    scene.background = new THREE.CubeTextureLoader().load([sky_right,sky_left,sky_up,sky_down,sky_back,sky_front]);
     // scene.background = new THREE.CubeTextureLoader().load([
     //   sky_right,
     //   sky_left,
@@ -227,6 +230,12 @@ const MainView = (props) => {
             typeIndex = type3
           }else if(modelsToLoad[trafficId]["type"]===6){
             typeIndex = type6
+          }else if(modelsToLoad[trafficId]["type"]===2)
+          {
+            typeIndex = type2
+          }else if(modelsToLoad[trafficId]["type"]===10)
+          {
+            typeIndex = type10
           }else{
             typeIndex = car
           }

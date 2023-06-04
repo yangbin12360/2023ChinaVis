@@ -60,15 +60,15 @@ function Light(props){
             return 'translate(' + translate + ')'
             })
             .attr('stroke','black')
-            .attr('fill', '#d5dce2');
-    
+            .attr('fill', '#e8e8e4');
+
         var text = Scence.selectAll('text')
             .data(lightData[0])
             .enter()
             .append('text')
             .text(d => d)
             .attr('y', (d, i) => height - yScale(d) - 2)
-            .attr('x', (d, i) => barWidth * i)
+            .attr('x', (d, i) => barWidth * i+(barWidth-barPadding)/4)
             .attr('fill', '#000000');
         
         var greenLight = svg.append('g').attr('id','greenLight');
@@ -86,7 +86,7 @@ function Light(props){
                                     .attr('r',function(d,i){
                                         return GrScale(d);
                                     })
-                                    .attr('fill','#84b791')
+                                    .attr('fill','#e8e8e4')
                                     .on('mouseover',tipy(true))
                                     .on('mouseout',tipy(false));
 
@@ -182,7 +182,7 @@ function Light(props){
             return 'translate(' + translate + ')'
             })
             .attr('stroke','black')
-            .attr('fill', '#d5dce2')
+            .attr('fill', '#e8e8e4')
             .transition()
             .duration(500)
             .attr('height', d => yScale(d));
@@ -192,7 +192,7 @@ function Light(props){
             .enter()
             .append('text')
             .text(d => d)
-            .attr('x', (d, i) => barWidth * i)
+            .attr('x', (d, i) => barWidth * i+(barWidth-barPadding)/4)
             .transition()
             .duration(500)
             .attr('y', (d, i) => height - yScale(d) - 2)

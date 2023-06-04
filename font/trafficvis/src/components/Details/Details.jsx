@@ -20,7 +20,7 @@ function Details (props){
     // const [dataset,setDataTese] = useState([]);
     const{time,carNum,scence,handleDetail} = props;
 
-    var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9'];
+    var name=['车道0','车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
     var typecolor = ['','white','black','red','green','','blue','purple','','','pink'];
@@ -66,12 +66,12 @@ function Details (props){
 
 
   //鼠标事件展示弧形信息
-  function detailtipyinfo(flag){
+  function detailtipyinfo(flag,string){
     if(flag == true){
       return function(g,i){
         setTipyFlag(true);
         var value = g.srcElement.attributes.value.value;
-        setTipyContent("切入切出次数："+value);
+        setTipyContent(string+':'+value);
         setTipyX(g.offsetX+'px');
         setTipyY(g.offsetY+'px');
         }
@@ -200,8 +200,8 @@ function Details (props){
     var svgh = svgS1.getBBox();
     svgS1.style.height = svgh.y+svgh.height+20;
 
-    info.on('mouseover',detailtipyinfo(true))
-        .on('mouseout',detailtipyinfo(false));
+    info.on('mouseover',detailtipyinfo(true,"切入切出次数："))
+        .on('mouseout',detailtipyinfo(false,"切入切出次数："))
 
     velo.on('mouseover',detailtipyvelo(true))
         .on('mouseout',detailtipyvelo(false));
@@ -246,7 +246,7 @@ function Details (props){
                 })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
-              .text('时间段')
+              .text('持续时间')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
@@ -282,8 +282,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"持续时间"))
+          .on('mouseout',detailtipyinfo(false,"持续时间"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -327,7 +327,7 @@ function Details (props){
             })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
-              .text('时间段')
+              .text('持续时间')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4))-40)-50)+")");
         arcsvg.append("text")
@@ -363,8 +363,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"持续时间"))
+          .on('mouseout',detailtipyinfo(false,"持续时间"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -444,8 +444,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,'最大速度'))
+          .on('mouseout',detailtipyinfo(false,'最大速度'));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -489,7 +489,7 @@ function Details (props){
              })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
-              .text('时间段')
+              .text('持续时间')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
@@ -525,8 +525,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"持续时间"))
+          .on('mouseout',detailtipyinfo(false,"持续时间"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -570,7 +570,7 @@ function Details (props){
              })
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
         arcsvg.append("text")
-              .text('特征信息')
+              .text('持续时间')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
@@ -606,8 +606,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"持续时间"))
+          .on('mouseout',detailtipyinfo(false,"持续时间"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -661,7 +661,7 @@ function Details (props){
         arcsvg.append("text")
               .text('id：')
               .attr('font-size','13px')
-              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4)))+")");
+              .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text('开始：')
               .attr('font-size','13px')
@@ -687,8 +687,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"加速度"))
+          .on('mouseout',detailtipyinfo(false,"加速度"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -768,8 +768,8 @@ function Details (props){
       var svgh = svgS1.getBBox();
       svgS1.style.height = svgh.y+svgh.height+20;
   
-      info.on('mouseover',detailtipyinfo(true))
-          .on('mouseout',detailtipyinfo(false));
+      info.on('mouseover',detailtipyinfo(true,"加速度"))
+          .on('mouseout',detailtipyinfo(false,"加速度"));
   
       velo.on('mouseover',detailtipyvelo(true))
           .on('mouseout',detailtipyvelo(false));
@@ -778,9 +778,8 @@ function Details (props){
     }
 
     useEffect(() => {
-        console.log(carNum,time,scence)
+       // console.log(carNum,time,scence)
       detail_item(time,carNum,scence).then(res => {
-        
         var dataDetail = res;
         DrawDetailScence(dataDetail);
       })
@@ -792,9 +791,17 @@ function Details (props){
     return (
       <div style={{position:'relative'}}>
        
-        <div className = 'detail' style={{height:'400px',width:'100%',position:'absolute'}}> 
+        <div className = 'detail' style={{height:'420px',width:'100%',position:'absolute'}}> 
         <div style={{height:'20%' ,background:'#edede8',borderRadius:'20px',border:'5px solid #cccccc'}}>
-        <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在{converTimestampall(time)}所在5分钟内,车道{carNum+1}的{label[scence]}场景详细信息如下：</p>
+        <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>车道{carNum}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
+        <div style={{textAlign:'center'}}>
+        <text style={{color:'white'}}><b>小型车辆</b>&nbsp;&nbsp;&nbsp;</text>
+        <text style={{color:'black'}}><b>行人</b> &nbsp;&nbsp;&nbsp;</text>
+        <text style={{color:'red'}}><b>非机动车</b>&nbsp;&nbsp;&nbsp;</text>
+        <text style={{color:'green'}}><b>卡车</b>&nbsp;&nbsp;&nbsp;</text>
+        <text style={{color:'blue'}}><b>客车</b>&nbsp;&nbsp;&nbsp;</text>
+        <text style={{color:'pink'}}><b>手推车、三轮车</b> </text>
+        </div>
         </div>
 
         <div id = 'detailInformation' style={{height:'80%',width:'100%',overflowY:'auto',position:'relative'}}>

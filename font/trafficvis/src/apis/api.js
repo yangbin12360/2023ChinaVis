@@ -115,3 +115,22 @@ export const getCrossWalkData= (startTime) => {
     startTime:startTime
   });
 };
+
+
+
+/**
+ * 
+ * @param {时间戳} startTime
+ * @returns 
+ */
+//获取相似度数据
+export const getSimilarity= (timeStamp) => {
+  return post("/getSimilarity",{
+    timeStamp:timeStamp
+  });
+};
+
+//获取道路健康数据
+export const getRoadHealth= () => {
+  return post("/getRoadHealth");
+};

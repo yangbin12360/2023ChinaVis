@@ -124,7 +124,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][item['road']][i]+=1
+                    all_count[index][str(item['road'])][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -207,20 +207,17 @@ def getIdHighValue():
 
     # 获取车道号
 # 获取车道号
-    def find_keys(laneDict, values):
+    def find_set_in_dict(input_set, input_dict):
+    # Convert the input set to a set of strings
+        input_set = set(str(i) for i in input_set)
         keys = []
-        for key in laneDict:
-        # 将字典中的元素转换为字符串
-            str_values = []
-            for value in laneDict[key]:
-                tempStr =str(value)
-                if tempStr.find('.')!=-1:
-                    tempStr=tempStr.split('.')[0]
-                str_values.append(tempStr)
-            for value in values:
-                if value in str_values and key not in keys:
-                    keys.append(key)
+        for key, value in input_dict.items():
+            # Convert the list of strings to a set
+            value_set = set(value)
+            if input_set.intersection(value_set):
+                keys.append(key)
         return keys
+
     tfPath = "../back/static/data/DataProcess/trafficFlow/little_road_flow.json"
     with open(tfPath,"r") as f:
         tfData = json.load(f)
@@ -299,10 +296,10 @@ def getIdHighValue():
         data = pd.read_csv(f)
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
     # print(data.iloc[0:]["lineFid"].to_list())
-    laneRoadList = list(set(data.iloc[0:]["lineFid"].to_list())) #所在车道列表，对应轨迹
-    print("laneRoadList",laneRoadList)
+    laneRoadList = list(set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())) #所在车道列表，对应轨迹
+    print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
     # 获取中车道的键名
-    keys = find_keys(laneDict, laneRoadList)
+    keys = find_set_in_dict(laneRoadList,laneDict)
     print("keys",keys)
     #获取到了flow文件中的车道号值了
     values = [value for key in keys for value in lanNumber[key]]
@@ -441,13 +438,19 @@ def getCluster():
             tempDict['type'] = row['type']
             tempDict['cluster'] = row['cluster']
             res["scatter"].append(tempDict)
-    
+    cluster0 = dfCluster[dfCluster['cluster'] == 0].shape[0]
+    cluster1 = dfCluster[dfCluster['cluster'] == 1].shape[0]
+    cluster2 = dfCluster[dfCluster['cluster'] == 2].shape[0]
     tempDict = {}
     res["radar"]=[]
     tempDict["0"] =  cluster_avg_values["0"]
     tempDict["1"] = cluster_avg_values["1"]
     tempDict["2"] = cluster_avg_values["2"]
     res["radar"].append(tempDict)
+    res["count"] =[]
+    res["count"].append(cluster0)
+    res["count"].append(cluster1)
+    res["count"].append(cluster2)
     return res  
 
 
@@ -620,6 +623,69 @@ def getCrossWalkData():
     # print(resultData[segment_index])
     return resultData[segment_index]       
 
+# 获取相似度矩阵数据
+@app.route('/getSimilarity',methods=["POST"])
+def getSimilarity():
+    start_time = 1681315196
+    nowTime = request.get_json().get('timeStamp')
+    span = math.ceil(((nowTime-start_time)/300))
+    realTime = span*300
+    file_path = './static/data/DataProcess/5m/testS/'+ str(realTime) +'s.csv'
+    res ={}
+    df = pd.read_csv(file_path)
+    df = df.iloc[:, 1:]
+    data = df.values.tolist()
+    # print(data)
+    res["data"] =data
+    return res 
+
+# 获取道路健康度数据
+@app.route('/getRoadHealth',methods=["POST"])
+def getRoadHealth():
+    file_path1 = './static/data/Result/little_road_flow_health.json'
+    file_path2 = './static/data/Result/little_road_velocity_health.json'
+    file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    restemp =[]
+    with open(file_path1, "r", encoding="utf-8") as f1:
+        road_flow = json.load(f1)
+    with open(file_path2, "r", encoding="utf-8") as f2:
+        road_velocity = json.load(f2)    
+    with open(file_path3, "r", encoding="utf-8") as f3:
+        road_bus = json.load(f3)
+
+    for n in range(0,34,1):
+        for t in range(0,24,1):
+            temp = []
+            temp.append(t)
+            temp.append(road_flow[n][t])
+            temp.append(road_velocity[n][t])
+            temp.append(road_bus[n][t])
+            temp.append(n)
+            print(temp)
+            restemp.append(temp)
+    restotal = [[],[],[],[],[],[],[],[],[]]
+    for i in restemp:
+        if i[4]<=3:
+            restotal[0].append(i)
+        elif i[4]<=7:
+            restotal[1].append(i)
+        elif i[4]<=11:
+            restotal[2].append(i)
+        elif i[4]<=15:
+            restotal[3].append(i)
+        elif i[4]<=20:
+            restotal[4].append(i)
+        elif i[4]<=24:
+            restotal[5].append(i)
+        elif i[4]<=27:
+            restotal[6].append(i)
+        elif i[4]<=31:
+            restotal[7].append(i)
+        elif i[4]<=33:
+            restotal[8].append(i)
+          
+    #print(restotal)
+    return restotal
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

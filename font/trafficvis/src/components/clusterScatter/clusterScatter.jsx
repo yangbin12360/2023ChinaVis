@@ -6,7 +6,7 @@ import "./clusterScatter.css";
 import { getCluster } from "../../apis/api";
 import { CLUSTER_LABEL_LIST, CLUSTER_TYPE_LIST } from "../utils/constant";
 const ClusterScatter = (props) => {
-  const { timeStamp } = props;
+  const { timeStamp, handleClusterNum } = props;
   const clusterRef = useRef(null);
   const radarRef = useRef(null);
 
@@ -24,6 +24,7 @@ const ClusterScatter = (props) => {
       let radarData = res["radar"];
       drawCluster(clusterData);
       drawRadar(radarData);
+      handleClusterNum(res["count"]);
     });
   }, [timeStamp]);
 

@@ -17,6 +17,7 @@ import NowList from "../components/nowList/nowList";
 import Light from "../components/light/light";
 import InfoList from "../components/infoList/infoList";
 import Details from "../components/Details/Details";
+import SimlarityMatrix from "../components/simlarityMatrix/simlarityMatrix";
 const style = {
   background: "#0092ff",
   padding: "8px 0",
@@ -35,6 +36,7 @@ const Layout = () => {
   const [controlCamra, setControlCamra] = useState(1);
   const [selectType, setSelectType] = useState(null); //主面板选中id展示
   const [flowTime, setFlowTime] = useState(1681372078);
+  const [clusterArray,setClusterArray] = useState([]); //聚类散点图数据
   //细节图的参数
   const [time, setTime] = useState(1681315196);
   const [carNum, setcarNum] = useState(0);
@@ -63,7 +65,10 @@ const Layout = () => {
   const handleControlCamra = (index) => {
     setControlCamra(index);
   };
-
+//获取散点图中每个cluster的个数
+const handleClusterNum =(array)=>{
+  setClusterArray(array);
+}
   //细节图的参数
   const handleDetail = (time, carnumber, scencenumber) => {
     setTime(time);
@@ -260,7 +265,7 @@ const Layout = () => {
       <Row style={{ width: "100%", height: "100%" }}>
         <Col span={14} id="left">
           <Row style={{ width: "100%", height: "2%" }}>title </Row>
-          <Row style={{ width: "100%", height: "68%" }}>
+          <Row style={{ width: "100%", height: "63%" }}>
             <Col span={24} id="left_top">
               <div style={{ height: "100%" }}>
                 <Box
@@ -276,12 +281,16 @@ const Layout = () => {
               </div>
             </Col>
           </Row>
-          <Row style={{ width: "100%", height: "30%" }}>
+          <Row style={{ width: "100%", height: "35%" }}>
             <Col span={15} id="left_bottom_left">
               <div style={{ height: "100%" }}>
                 <Box
                   title={"relationshipScene"}
-                  component={<RelationshipScene></RelationshipScene>}
+                  component={<RelationshipScene                      
+                  time={time}
+                  carNum={carNum}
+                  scence={scence}
+                  handleDetail={handleDetail}></RelationshipScene>}
                 ></Box>
               </div>
             </Col>
@@ -322,13 +331,13 @@ const Layout = () => {
                 <Box
                   title={"DrivingBehaviorAnalysis"}
                   component={
-                    <ClusterScatter timeStamp={timeStamp}></ClusterScatter>
+                    <ClusterScatter timeStamp={timeStamp}  handleClusterNum={handleClusterNum}></ClusterScatter>
                   }
                 ></Box>
               </div>
             </Col>
             <Col span={9}>
-              <Box title={"相似度矩阵"}></Box>
+              <Box title={"相似度矩阵"} component={<SimlarityMatrix timeStamp={timeStamp} clusterArray={clusterArray}></SimlarityMatrix>}></Box>
             </Col>
           </Row>
           <Row style={{ height: "14%", width: "100%" }}>
@@ -347,7 +356,7 @@ const Layout = () => {
               ></Box>
             </div>
           </Row>
-          <Row style={{ height: "22%", width: "100%" }}>
+          <Row style={{ height: "20%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
                 title={"SingleTrace"}
@@ -361,9 +370,9 @@ const Layout = () => {
               ></Box>
             </div>
           </Row>
-          <Row style={{ height: "36%", width: "100%" }}>
+          <Row style={{ height: "38%", width: "100%" }}>
             <Col span={15} id="right_bottom_left">
-              <Row style={{ height: "55%", width: "100%" }}>
+              <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>
                   <Box
                     title={"Light"}
@@ -379,7 +388,7 @@ const Layout = () => {
                   ></Box>
                 </div>
               </Row>
-              <Row style={{ height: "45%", width: "100%" }}>
+              <Row style={{ height: "60%", width: "100%" }}>
                 <Box
                   title={"RoadHealth"}
                   component={<RoadHealth></RoadHealth>}
@@ -400,7 +409,7 @@ const Layout = () => {
       <div
         style={{
           left: "0%",
-          top: "2%",
+          top: "5%",
           width: 200,
           height: 200,
           position: "absolute",
@@ -413,8 +422,8 @@ const Layout = () => {
       </div>
       <div
         style={{
-          left: "44.2%",
-          top: "3.3%",
+          left: "42.6%",
+          top: "5.4%",
           width: 400,
           height: 200,
           position: "absolute",
@@ -429,8 +438,8 @@ const Layout = () => {
       </div>
       <div
         style={{
-          left: "44.2%",
-          top: "1.9%",
+          left: "42.62%",
+          top: "4.01%",
           width: 199,
           height: 20,
           position: "absolute",

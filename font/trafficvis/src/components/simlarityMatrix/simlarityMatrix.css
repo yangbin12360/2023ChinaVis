@@ -1,5 +1,26 @@
-#similarity {
+.container {
     width: 100%;
     height: 100%;
+    position: relative;
+}
+
+.radio-box {
+    width: 100%;
+    background-color: #Fff;
+    height: 36px;
+}
+
+.apply {
+    width: 100%;
+    height: 5px;
+    background-color: #cacaca;
+}
+
+#similarity {
+    width: 320px;
+    height: 320px;
+    position: absolute;
     overflow: hidden;
+    left: 12%;
+    top: 18%;
 }

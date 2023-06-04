@@ -213,7 +213,7 @@ function RelationshipScene(props){
     const [tipyY,setTipyY] = useState('0px');
     const{time,carNum,scence,handleDetail} = props;
     // const [dataset,setDataTese] = useState([]);
-    var name=['车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8','车道9'];
+    var name=['车道0','车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
 
@@ -403,6 +403,7 @@ function RelationshipScene(props){
     useEffect(() => {
         getActionAndRoadCount().then(res => {
          let dataset = res;
+         console.log(dataset);
          drawRelationPlot(dataset);
         })
     },[])
@@ -1122,7 +1123,7 @@ function RelationshipScene(props){
 
     return (
       <div style={{position:'relative', background:'#efefef'}}>
-        <div style={{height:'400px',width:'100%',overflowY:'auto'}}>
+        <div style={{height:'420px',width:'100%',overflowY:'auto'}}>
              <div className="group-lines-bar">
           {/* <Radio.Group
             value={isZoomForAll}
