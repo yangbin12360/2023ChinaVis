@@ -403,6 +403,7 @@ function RelationshipScene(props){
     useEffect(() => {
         getActionAndRoadCount().then(res => {
          let dataset = res;
+         console.log(dataset);
          drawRelationPlot(dataset);
         })
     },[])

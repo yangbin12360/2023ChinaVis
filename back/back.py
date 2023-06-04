@@ -123,7 +123,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][pair_dict[item['road']]][i]+=1
+                    all_count[index][pair_dict[str(item['road'])]][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -132,7 +132,7 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                all_count[index][pair_dict[item['road']]][segment_index]+=1
+                all_count[index][pair_dict[str(item['road'])]][segment_index]+=1
                 
                 
     # print(all_count)
