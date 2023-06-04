@@ -24,8 +24,8 @@ const ForecastHeat = (props) => {
       width: divWidth,
       height: divHeight,
       margin: {
-        top: 30,
-        right: 50,
+        top: 20,
+        right: 20,
         bottom: 30,
         left: 50,
       },

@@ -7,9 +7,12 @@ import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
 import type1 from "../../assets/gltf/type1.gltf";
-import type3 from "../../assets/gltf/type3_1.gltf";
-import type4 from "../../assets/gltf/type4.gltf";
+import type2 from "../../assets/gltf/type2_1.gltf"
+import type3 from "../../assets/gltf/type3_2.gltf";
+import type4 from "../../assets/gltf/type4_1.gltf";
 import type6 from "../../assets/gltf/type6.gltf";
+import type10 from "../../assets/gltf/type10.gltf";
+
 import { GUI } from "dat.gui";
 // 引入gltf模型加载库GLTFLoader.js
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -227,6 +230,12 @@ const MainView = (props) => {
             typeIndex = type3
           }else if(modelsToLoad[trafficId]["type"]===6){
             typeIndex = type6
+          }else if(modelsToLoad[trafficId]["type"]===2)
+          {
+            typeIndex = type2
+          }else if(modelsToLoad[trafficId]["type"]===10)
+          {
+            typeIndex = type10
           }else{
             typeIndex = car
           }

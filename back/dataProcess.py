@@ -3184,24 +3184,24 @@ def getDriveReserve():
 # 获取样本之间的相似度
 def getSimilarity():
     # 获取文件夹下所有的csv文件
-    folder_path = './static/data/DataProcess/5m/merge'  # 请替换为你的文件夹路径
+    folder_path = './static/data/DataProcess/5m/mergeHV'  
     csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
-    new_path  = './static/data/DataProcess/5m/similaryity'
+    new_path  = './static/data/DataProcess/5m/similaryityHv'
     with alive_bar(len(csv_files), title='Processing files') as bar:
         for file in csv_files:
             file_path = os.path.join(folder_path, file)
             df = pd.read_csv(file_path)        
         # 检查是否包含所需的列
-            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']
+            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']
             if not all(column in df.columns for column in required_columns):
                 print(f"Skipping file {file} as it does not contain all required columns.")
                 bar()
                 continue
         # Z-Score归一化
             scaler = StandardScaler()
-            df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']] = scaler.fit_transform(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
+            df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']] = scaler.fit_transform(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']])
         # 计算余弦相似度
-            similarity = cosine_similarity(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
+            similarity = cosine_similarity(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']])
         # 创建一个新的DataFrame来存储相似度，id和cluster
             similarity_df = pd.DataFrame(similarity)
             similarity_df.columns = df['id'].tolist()
@@ -3228,6 +3228,99 @@ def getReverseData():
                 new_filename = filename.rsplit('.', 1)[0] + '_non_empty.json' 
                 with open(os.path.join(output_directory, new_filename), 'w') as nf: 
                     json.dump(non_empty_data, nf)  
+
+# 获取高价值场景次数
+def getHighSceneCount():
+    # 初始化一个空的DataFrame来存储结果
+    result_df = pd.DataFrame(columns=['id', 'type', 'hvCount'])
+# 遍历文件夹下的所有csv文件
+    for filename in os.listdir('./static/data/DataProcess/highSceneCsv'):
+        if filename.endswith('.csv'):
+        # 读取csv文件
+            df = pd.read_csv('./static/data/DataProcess/highSceneCsv/'+filename)
+        # 只保留type为1, 4, 6的行
+            df = df[df['type'].isin([1, 4, 6])]
+        # 计算每个id的出现次数
+            df['hvCount'] = df.groupby('id')['id'].transform('count')
+                    # 只保留'id', 'type', 'hvCount'三列
+            df = df[['id', 'type', 'hvCount']]
+        # 将结果添加到总的结果DataFrame中
+            result_df = pd.concat([result_df, df])
+# 删除重复的行
+    result_df = result_df.drop_duplicates()
+# 将结果写入新的csv文件
+    result_df.to_csv('./static/data/DataProcess/5m/hvCount.csv', index=False)
+
+# 对逆行数据进行清洗，删除type为-1的
+def cleanReverseData():
+    folder_path = './static/data/DataProcess/newReverse'  
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.json'):
+            file_path = os.path.join(folder_path, filename)     
+            with open(file_path, 'r') as file:
+                data = json.load(file) 
+            for key in list(data.keys()):
+                for subkey in list(data[key].keys()):
+                    if data[key][subkey]['type'] == -1:
+                        del data[key][subkey]
+            with open(file_path, 'w') as file:
+                json.dump(data, file, indent=4)
+
+#合并高价值场景次数和聚类结果
+def mergeHV():
+    folder_path = './static/data/DataProcess/5m/mergeHV'
+    merge_file_path = './static/data/DataProcess/5m/hvCount.csv'
+    merge_df = pd.read_csv(merge_file_path)
+# 遍历文件夹下的所有csv文件
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.csv'):
+            file_path = os.path.join(folder_path, filename)
+            df = pd.read_csv(file_path)
+        # 检查是否包含所有必要的列
+            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']
+            if not all(column in df.columns for column in required_columns):
+                continue
+        # 合并csv文件
+            df = pd.merge(df, merge_df, on=['id', 'type'], how='left')
+        # 检查hvCount列，若为空值则补充为0
+            df['hvCount'] = df['hvCount'].fillna(0)
+        # 保存合并后的csv文件
+            df.to_csv(file_path, index=False)
+# 合并hvCount中的相同id
+def mergeHVCount():
+    df = pd.read_csv('./static/data/DataProcess/5m/hvCount.csv')
+    df = df.groupby(['id', 'type'], as_index=False)['hvCount'].sum()  
+    duplicate_ids = df[df.duplicated('id')]['id']
+    if not duplicate_ids.empty:
+        print('以下id在不同的type中存在：')
+        print(duplicate_ids.unique())
+    else:
+        print('没有发现在不同type中存在的相同id。')
+    df.to_csv('./static/data/DataProcess/5m/hvCount.csv', index=False)
+
+# 对相似度数据进行排序：
+def sortSimilarity():
+    file_path='./static/data/DataProcess/5m/similaryity'
+    for filename in os.listdir(file_path):
+        path = os.path.join(file_path, filename)
+        df = pd.read_csv(path)# 先按照'id1'列排序，然后按照'cluster1'列排序
+        df_sorted = df.sort_values(by=['id1', 'cluster1'], ascending=[True, True])
+        df_sorted.to_csv(path, index=False)
+
+#将相似度数据处理为对称的形式：
+def proSim():
+    file_path='./static/data/DataProcess/5m/similaryity'
+    new_path='./static/data/DataProcess/5m/testS/'
+    with alive_bar(len(os.listdir(file_path)), title='Processing files') as bar:
+        for filename in os.listdir(file_path):
+            path = os.path.join(file_path,filename)
+            df = pd.read_csv(path)
+            unique_ids = np.unique(np.concatenate([df['id1'].unique(), df['id2'].unique()]))
+            matrix_df = pd.DataFrame(index=unique_ids, columns=unique_ids)
+            for index, row in df.iterrows():
+                matrix_df.loc[row['id1'], row['id2']] = row['similarity']
+            matrix_df.to_csv(new_path+filename, index=True)
+            bar()
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3246,4 +3339,10 @@ if __name__ == '__main__':
     # forecastToInt()
     # getDriveReserve()
     # getSimilarity()
-    getReverseData()
+    # getReverseData()
+    # cleanReverseData()
+    # getHighSceneCount()
+    # mergeHV()
+    # mergeHVCount()
+    # sortSimilarity()
+    proSim()
