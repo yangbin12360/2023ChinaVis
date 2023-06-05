@@ -546,7 +546,16 @@ def detail_item():
     for item in decomposition[actionName]:
         # 寻找对应的中道路
         if item['road']==roadNumber:
-            if actionName in [1,2,3,4,5]:
+            if actionName==0:
+                dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                time_diff1 = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  #计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
+                # 判断是否在该五分钟内
+                if segment_index==segment_index1:
+                    car_data.append(item)
+            elif actionName in [1,2,3,4,5]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
