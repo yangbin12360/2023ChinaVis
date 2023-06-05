@@ -66,7 +66,7 @@ const ForecastHeat = (props) => {
       .padding(0.01);
 
     const colorScale = d3.scaleSequential()
-    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/4)])
+    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/8)])
     .interpolator(t => d3.interpolateRgb(
       d3.rgb(255, 215, 0),  // 黄色
       t < 0.5

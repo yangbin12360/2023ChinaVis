@@ -1,6 +1,6 @@
 .boxWrapper {
     box-sizing: border-box;
-    padding: 0px 2px 10px 2px;
+    padding: 0px 2px 5px 2px;
 }
 
 .boxTitle {
@@ -20,7 +20,7 @@
 .boxContent {
     box-sizing: border-box;
     background: #ebebeb;
-    height: calc(100% - 20px);
+    height: calc(100% - 25px);
     width: 100%;
     padding: 2px 0 0 1px;
     overflow-y: hidden;

@@ -18,6 +18,7 @@ import Light from "../components/light/light";
 import InfoList from "../components/infoList/infoList";
 import Details from "../components/Details/Details";
 import SimlarityMatrix from "../components/simlarityMatrix/simlarityMatrix";
+import Radar from "../components/radar/radar";
 const style = {
   background: "#0092ff",
   padding: "8px 0",
@@ -42,8 +43,14 @@ const Layout = () => {
   const [time, setTime] = useState(1681315196);
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
-  const [simCount,SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
+  const [simCount, SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
+  const [allCluster, setAllCluster] = useState([]); //用来控制时间切换时候散点图的数组
   // ----------------------- 状态改变--------------------------
+
+  //控制allCluster
+  const handleAllCluster = (cluter) => {
+    setAllCluster(cluter);
+  };
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
     console.log("timeStamp", timeStamp);
@@ -87,7 +94,7 @@ const Layout = () => {
   //改变相似度矩阵中各个类别的个数
   const handleSimCount = (count) => {
     SetSimCount(count);
-  }
+  };
   // ----------------------- 布局--------------------------
   return (
     // <div
@@ -328,9 +335,9 @@ const Layout = () => {
           </Row>
         </Col>
         <Col span={10} id="right">
-          <Row style={{ height: "28%", width: "100%" }}>
+          <Row style={{ height: "24%", width: "100%" }}>
             <Col span={15} id="right_top_left_">
-              <div style={{ height: "16%" }} className="box">
+              <Row tyle={{ height: "16%", width: "100%" }}>
                 <Box
                   title={"控制台"}
                   component={
@@ -342,19 +349,30 @@ const Layout = () => {
                     ></ControlPanel>
                   }
                 ></Box>
-              </div>
-              <div style={{ height: "84%" }}>
-                <Box
-                  title={"聚类散点及雷达图"}
-                  component={
-                    <ClusterScatter
-                      timeStamp={timeStamp}
-                      handleClusterNum={handleClusterNum}
-                      handleSimCount={handleSimCount}
-                    ></ClusterScatter>
-                  }
-                ></Box>
-              </div>
+              </Row>
+              <Row style={{ height: "82%", width: "100%" }}>
+                <div style={{ height: "100%", width: "50%" }}>
+                  <Box
+                    title={"群体驾驶聚类散点图"}
+                    component={
+                      <ClusterScatter
+                        timeStamp={timeStamp}
+                        handleClusterNum={handleClusterNum}
+                        handleSimCount={handleSimCount}
+                        selectDir={selectDir}
+                        allCluster={allCluster}
+                        handleAllCluster={handleAllCluster}
+                      ></ClusterScatter>
+                    }
+                  ></Box>
+                </div>
+                <div style={{ height: "100%", width: "50%" }}>
+                  <Box
+                    title={"指标雷达图"}
+                    component={<Radar timeStamp={timeStamp}></Radar>}
+                  ></Box>
+                </div>
+              </Row>
             </Col>
             <Col span={9}>
               <Box
@@ -366,12 +384,13 @@ const Layout = () => {
                     handleSelectDir={handleSelectDir}
                     selectDir={selectDir}
                     simCount={simCount}
+                    allCluster={allCluster}
                   ></SimlarityMatrix>
                 }
               ></Box>
             </Col>
           </Row>
-          <Row style={{ height: "17%", width: "100%" }}>
+          <Row style={{ height: "14%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
                 title={"高价值场景列表"}
@@ -387,7 +406,7 @@ const Layout = () => {
               ></Box>
             </div>
           </Row>
-          <Row style={{ height: "20%", width: "100%" }}>
+          <Row style={{ height: "27%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
                 title={"交通参与者个人轨迹图"}

@@ -3,7 +3,6 @@ import { DatePicker } from "rsuite";
 import { hourList, sixtyList } from "../utils/constant";
 import { useState } from "react";
 import "./controlPanel.css";
-
 const ControlPanel = (props) => {
   const { handleChangeTime, handleSelectId, handleControlCamra } = props;
   const [yearStr, setYearStr] = useState("2023/4/");
@@ -23,78 +22,15 @@ const ControlPanel = (props) => {
   const changeId = () => {
     handleSelectId(269548444);
   };
-
+  const styles = { width: 200, marginBottom: 10 };
   return (
-    <div className="container" style={{background:'#efefef'}}>
-      <span>时间选择：</span>
-      <DatePicker format="yyyy-MM-dd HH:mm:ss" onChange={timeSelect}  />
-      {/* <div className="control">
-      <div className="controlDay">
-        日：
-        <Select
-          defaultValue="12"
-          style={{
-            width: 120,
-          }}
-          options={[
-            {
-              value: "12",
-              label: "12",
-            },
-            {
-              value: "13",
-              label: "13",
-            },
-          ]}
-          value={dayStr}
-          onChange={(e) => {
-            setDayStr(e);
-          }}
-        />
-      </div>
-      <div className="controlHour">
-        时：
-        <Select
-          defaultValue="8"
-          style={{
-            width: 120,
-          }}
-          options={hourList}
-          value={hourStr}
-          onChange={(e) => setHourStr(e)}
-        />
-      </div>
-      <div className="controlMinute">
-        分：
-        <Select
-          defaultValue="13"
-          style={{
-            width: 120,
-          }}
-          options={sixtyList}
-          value={minuteStr}
-            onChange={(e) => setMinuteStr(e)}
-        />
-      </div>
-      <div className="controlSecond">
-        秒：
-        <Select
-          defaultValue="13"
-          style={{
-            width: 120,
-          }}
-          options={sixtyList}
-            value={secondStr}
-            onChange={(e) => setSecondStr(e)}
-        />
-      </div>
-      <div className="controlButton">
-        <Button onClick={timeSelect}>TimeChange</Button>
-      </div>
-      <div className="controlButton">
-        <Button onClick={changeId}>Default Button</Button>
-      </div>
-      </div> */}
+    <div className="container" style={{ background: "#efefef" }}>
+      <span style={{ lineHeight: "5px" }}>时间选择：</span>
+      <DatePicker
+      size="xs" placeholder="时间选择" style={styles}
+        format="yyyy-MM-dd HH:mm:ss"
+        onChange={timeSelect}
+      />
     </div>
   );
 };

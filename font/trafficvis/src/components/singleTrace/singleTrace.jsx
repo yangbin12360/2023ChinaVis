@@ -12,15 +12,15 @@ const SingleTrace = (props) => {
   const { isTraceVisible, selectTraceId, singleType,handleChangeTime,handleSelectId  } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
+  const legendRef = useRef(null);
   const changeNowTime =(timeStamp)=>{
-    console.log("触发",timeStamp);
     handleChangeTime(timeStamp);
   }
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
         const lanNumber = res["flowSe"].length;
-        drawBar(res["hvCount"]);
+        // drawBar(res["hvCount"]);
         drawSingleTrace(
           res["hvPositionList"],
           lanNumber,
@@ -28,17 +28,19 @@ const SingleTrace = (props) => {
           res["flowSe"],
           res["flowList"]
         );
+        // drawTest()
       });
     }
   }, [isTraceVisible, selectTraceId, singleType]);
-
-  const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
+const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const divHeight = singleTraceRef.current.offsetWidth;
     const divWidth = singleTraceRef.current.offsetHeight;
+    // const divHeight = 100
+
     const dimensions = {
       width: divHeight,
-      height: 250,
-      margin: { top: 10, right: 30, bottom: 40, left: 50 },
+      height: divWidth ,
+      margin: { top: 10, right: 30, bottom: 30, left: 50 },
     };
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
@@ -49,11 +51,11 @@ const SingleTrace = (props) => {
     const svg = d3
       .select("#singleTrace")
       .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
+      .attr("width", divHeight)
+      .attr("height", divWidth)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
-      .style("background", "#fff");
+      .style("background", "#fff")
 
     const bounds = svg
       .append("g")
@@ -286,6 +288,31 @@ let tooltip = d3.select("body").append("div")
       bounds.selectAll("circle").attr("cx", (d) => new_xScale(d.x));
     }
   };
+  const drawTest=()=>{
+    const divHeight = singleTraceRef.current.offsetWidth;
+    const divWidth = singleTraceRef.current.offsetHeight;
+    // const divHeight = 100
+
+    const dimensions = {
+      width: divHeight,
+      height: divWidth ,
+      margin: { top: 10, right: 30, bottom: 30, left: 50 },
+    };
+    const boundedWidth =
+      dimensions.width - dimensions.margin.left - dimensions.margin.right;
+    const boundedHeight =
+      dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+
+    d3.selectAll("div#singleTrace svg").remove();
+    const svg = d3
+      .select("#singleTrace")
+      .append("svg")
+      .attr("width", divHeight)
+      .attr("height", divWidth)
+      .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
+      .style("max-width", "100%")
+      .style("background", "#fff")
+  }
 //16位时间戳转换
 const converTimestamp = (timestamp) => {
   const date = new Date(timestamp * 1000);
@@ -300,116 +327,109 @@ const converTimestamp = (timestamp) => {
 };
 
   //绘制柱状图
-  const drawBar = (data) => {
-    // 获取div元素的高度和宽度
-    const divHeight = barRef.current.offsetHeight;
-    const divWidth = barRef.current.offsetWidth;
-    const dimensions = {
-      width: divWidth,
-      height: 215,
-      margin: { top: 10, right: 10, bottom: 50, left: 10 },
-    };
-    const boundedWidth =
-      dimensions.width - dimensions.margin.left - dimensions.margin.right;
-    const boundedHeight =
-      dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+  // const drawBar = (data) => {
+  //   // 获取div元素的高度和宽度
+  //   const divHeight = barRef.current.offsetHeight;
+  //   const divWidth = barRef.current.offsetWidth;
+  //   const dimensions = {
+  //     width: divWidth,
+  //     height: 215,
+  //     margin: { top: 10, right: 10, bottom: 50, left: 10 },
+  //   };
+  //   const boundedWidth =
+  //     dimensions.width - dimensions.margin.left - dimensions.margin.right;
+  //   const boundedHeight =
+  //     dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+  //   d3.selectAll("div#bar svg").remove();
+  //   const svg = d3
+  //     .select("#bar")
+  //     .append("svg")
+  //     .attr("width", dimensions.width)
+  //     .attr("height", dimensions.height)
+  //     .attr("videBox", [0, 0, dimensions.width, dimensions.height])
+  //     .style("max-width", "100%")
+  //     .style("background", "#fff");
 
-    d3.selectAll("div#bar svg").remove();
+  //   const bounds = svg
+  //     .append("g")
+  //     .style(
+  //       "transform",
+  //       `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
+  //     );
 
-    const svg = d3
-      .select("#bar")
-      .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
-      .attr("videBox", [0, 0, dimensions.width, dimensions.height])
-      .style("max-width", "100%")
-      .style("background", "#fff");
+  //   let xScale = d3
+  //     .scaleBand()
+  //     .domain(d3.range(data.length))
+  //     .range([0, boundedWidth])
+  //     .padding(0.05);
+  //   let yScale = d3
+  //     .scaleLinear()
+  //     .domain([0, d3.max(data, (d) => d.count)])
+  //     .range([0, boundedHeight - dimensions.margin.bottom]);
 
-    const bounds = svg
-      .append("g")
-      .style(
-        "transform",
-        `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
-      );
+  //   //绘制柱状图背景
+  //   bounds
+  //     .append("g")
+  //     .selectAll("rect")
+  //     .data(data)
+  //     .join("rect")
+  //     .attr("x", (d, i) => {
+  //       return xScale(i);
+  //     })
+  //     .attr("y", 0)
+  //     .attr("width", xScale.bandwidth())
+  //     .attr("height", boundedHeight)
+  //     .attr("fill", "#eeeeee");
 
-    let xScale = d3
-      .scaleBand()
-      .domain(d3.range(data.length))
-      .range([0, boundedWidth])
-      .padding(0.05);
-    let yScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.count)])
-      .range([0, boundedHeight - dimensions.margin.bottom]);
+  //   // 绘制柱状图
+  //   bounds
+  //     .append("g")
+  //     .selectAll("rect")
+  //     .data(data)
+  //     .join("rect")
+  //     .attr("x", (d, i) => {
+  //       return xScale(i);
+  //     })
+  //     .attr("y", (d) => boundedHeight - yScale(d.count))
+  //     .attr("width", xScale.bandwidth() - 1)
+  //     .attr("height", (d) => yScale(d.count));
 
-    //绘制柱状图背景
-    bounds
-      .append("g")
-      .selectAll("rect")
-      .data(data)
-      .join("rect")
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", 0)
-      .attr("width", xScale.bandwidth())
-      .attr("height", boundedHeight)
-      .attr("fill", "#eeeeee");
-
-    // 绘制柱状图
-    bounds
-      .append("g")
-      .selectAll("rect")
-      .data(data)
-      .join("rect")
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", (d) => boundedHeight - yScale(d.count))
-      .attr("width", xScale.bandwidth() - 1)
-      .attr("height", (d) => yScale(d.count));
-
-    //绘制状图x轴名称
-    bounds
-      .append("g")
-      .selectAll("text")
-      .data(data)
-      .join("text")
-      .text((d) => d.sceneType)
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", boundedHeight + 20)
-      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
-    //添加数量文字
-    bounds
-      .append("g")
-      .selectAll("text")
-      .data(data)
-      .join("text")
-      .text((d) => d.count)
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", (d) => boundedHeight - yScale(d.count) - 10)
-      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
-  };
+  //   //绘制状图x轴名称
+  //   bounds
+  //     .append("g")
+  //     .selectAll("text")
+  //     .data(data)
+  //     .join("text")
+  //     .text((d) => d.sceneType)
+  //     .attr("x", (d, i) => {
+  //       return xScale(i);
+  //     })
+  //     .attr("y", boundedHeight + 20)
+  //     .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
+  //   //添加数量文字
+  //   bounds
+  //     .append("g")
+  //     .selectAll("text")
+  //     .data(data)
+  //     .join("text")
+  //     .text((d) => d.count)
+  //     .attr("x", (d, i) => {
+  //       return xScale(i);
+  //     })
+  //     .attr("y", (d) => boundedHeight - yScale(d.count) - 10)
+  //     .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
+  // };
 
   return (
     <div className="box">
-      <div className="barBox">
         <div className="infoList">
           <InfoList
             selectTraceId={selectTraceId}
             singleType={singleType}
           ></InfoList>
         </div>
-        <div className="bar" ref={barRef} id="bar"></div>
-      </div>
-      <div className="container">
-        <div className="legend">123</div>
+        {/* <div className="bar" ref={barRef} id="bar"></div> */}
         <div className="picBox" ref={singleTraceRef} id="singleTrace"></div>
-      </div>
     </div>
   );
 };

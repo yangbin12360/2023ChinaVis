@@ -331,7 +331,7 @@ def getIdHighValue():
     vPositionList = []
     startTime = int(data.iloc[0]["time_meas"]/1000000) #起始时间
     endTime = int(data.iloc[-1]["time_meas"]/1000000)  #结束时间 
-    print("endtime",endTime)
+    # print("endtime",endTime)
     vListTime = startTime
     for vNum in newVelocityList:
         tempDict = {}
@@ -381,7 +381,7 @@ def getIdHighValue():
             flowList.append(flow)
     newRes["flowList"] = flowList #车道流量
     newRes["flowSe"] = values
-    print("newRes",newRes["flowSe"])
+    # print("newRes",newRes["flowSe"])
     # 设置坐高价值场景坐标点的变化
     for i in newRes["hvPositionList"]:
         if i["y"] == 0:
@@ -661,7 +661,7 @@ def getPartSimilarity():
     nowTime = request.get_json().get('timeStamp')
     selectDir = request.get_json().get('selectDir')
     clusterList = request.get_json().get('clusterArray')
-    print(clusterList)
+    # print(clusterList)
     def get_sorted_indices(list1, list2):
         indices = [index for index, value in enumerate(list2) if value in list1]
         indices.sort(key=lambda x: list1.index(list2[x]))
