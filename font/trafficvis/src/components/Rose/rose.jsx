@@ -2,7 +2,8 @@ import React from 'react';
 import echarts from 'echarts';
 import { useEffect } from 'react';
 
-function RoseComponent() {
+function RoseComponent(props) {
+    const {handleFlowtimeStamp} = props;
     function drawRose() {
         var chartDom = document.getElementById('main');
         var myChart = echarts.init(chartDom);
@@ -121,7 +122,7 @@ function RoseComponent() {
                     axisLabel: {
                         show: true, // 显示刻度标签
                         rotate: 90, // 设置刻度标签旋转角度
-                        fontSize: 14
+                        fontSize: 10
                     },
                     axisLine: {
                         show: false // 隐藏角度轴线
@@ -231,14 +232,15 @@ function RoseComponent() {
                 }
             ],
             visualMap: {
-                show: false,
+                show: true,
                 min: 0,
                 max: 2000,
                 seriesIndex: 2,
-                left: '0%',
-                bottom: '0%',
+                left: '7%',
+                itemWidth:10,
+                itemHeight:90,
                 inRange: {
-                    color: ['#32cd32', '#ffa500', '#ff0000']
+                    color: ['#00ff00', '#f0e68c', '#ff8c00', '#ff7f50','#ff0000', '#8b0000']
                 }
             },
             series: [
@@ -486,6 +488,15 @@ function RoseComponent() {
             if (params.seriesIndex === 2 && params.seriesType === 'pie') {
                // 获取点击的花瓣索引
               var dataIndex = params.dataIndex;
+              var timeString=params.data.name;
+              const [hours, minutes] = timeString.split(':');
+              const date = new Date(); // 创建一个新的 Date 对象
+              date.setHours(hours); // 设置小时数
+              date.setMinutes(minutes); // 设置分钟数
+              date.setSeconds(0); // 设置秒数为 0（可选，根据需求决定是否需要设置）
+              // 获取对应的 Unix 时间戳（单位为毫秒）
+              const unixTimestamp = date.getTime();
+              handleFlowtimeStamp(unixTimestamp);
               // 获取当前 echarts 实例的配置项
               var option = myChart.getOption();
               // 获取玫瑰图的系列配置
