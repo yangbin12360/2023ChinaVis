@@ -122,7 +122,7 @@ function RoseComponent(props) {
                     axisLabel: {
                         show: true, // 显示刻度标签
                         rotate: 90, // 设置刻度标签旋转角度
-                        fontSize: 14
+                        fontSize: 10
                     },
                     axisLine: {
                         show: false // 隐藏角度轴线
