@@ -3300,7 +3300,7 @@ def mergeHVCount():
 
 # 对相似度数据进行排序：
 def sortSimilarity():
-    file_path='./static/data/DataProcess/5m/similaryity/'
+    file_path='./static/data/DataProcess/5m/similaryityHv/'
     with alive_bar(len(os.listdir(file_path)), title='Processing files') as bar:
         for filename in os.listdir(file_path):
             path = os.path.join(file_path, filename)
@@ -3322,8 +3322,7 @@ def sortSimilarity():
                             similarity_list[i][j] = similarity_value.values[0]
                         else:
                             similarity_list[i][j] = 0  # 如果没有找到similarity值，则设为0
-            print("处理",filename,"******************************")
-            with open('./static/data/DataProcess/5m/similarytiJson/'+ filename.split('.')[0] +'.json', 'w') as f:
+            with open('./static/data/DataProcess/5m/similaryityHvJson/'+ filename.split('.')[0] +'.json', 'w') as f:
                 json.dump({"idSort": id_sort, "similarityList": similarity_list}, f)
             bar()
 #将相似度数据处理为对称的形式：

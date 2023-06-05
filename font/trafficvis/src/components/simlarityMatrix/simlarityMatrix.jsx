@@ -1,13 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef ,useState} from "react";
 import * as d3 from "d3";
 import { Radio, RadioGroup, Form } from "rsuite";
 import "./simlarityMatrix.css";
-import { getSimilarity } from "../../apis/api";
+import { getSimilarity,getPartSimilarity} from "../../apis/api";
 
 const SimlarityMatrix = (props) => {
-  const { timeStamp, clusterArray } = props;
+  const { timeStamp, clusterArray, handleSelectDir, selectDir,simCount} = props;
   const matrixRef = useRef(null);
   const barRef = useRef(null);
+  const [partFlag,setPartFlag]=useState(false)
+  const [renderCount, setRenderCount] = useState(0);
   const roundRect = (ctx, x, y, width, height, radius) => {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -81,30 +83,8 @@ const SimlarityMatrix = (props) => {
     }
   };
 
-  // 在绘制相似度矩阵之前，先绘制两个长方形
-  const drawRectangles = (ctx, w, h, data) => {
-    // 计算每个类别的占比
-    let ratios = data.map((d) => d / data.reduce((a, b) => a + b, 0));
-
-    // 绘制上方的长方形
-    let x = 0;
-    for (let i = 0; i < ratios.length; i++) {
-      ctx.fillStyle = d3.interpolateGnBu(ratios[i]);
-      ctx.fillRect(x, 0, ratios[i] * w, 20);
-      x += ratios[i] * w;
-    }
-
-    // 绘制左方的长方形
-    let y = 0;
-    for (let i = 0; i < ratios.length; i++) {
-      ctx.fillStyle = d3.interpolateGnBu(ratios[i]);
-      ctx.fillRect(0, y, 20, ratios[i] * h);
-      y += ratios[i] * h;
-    }
-  };
-
-  const drawProgressBar = () => {
-    const ratio = [67, 69, 23];
+  const drawProgressBar = (ratio) => {
+    // const ratio = [67, 69, 23];
     const divWidth = barRef.current.offsetWidth;
     const divHeight = barRef.current.offsetHeight;
     const dimensions = {
@@ -174,27 +154,42 @@ const SimlarityMatrix = (props) => {
             .attr("fill", (d, i) => colorScale(i));
   };
   const changeRadio = (value, event) => {
-    console.log(value);
+    handleSelectDir(value)
   };
   useEffect(() => {
     const { width, height } = matrixRef.current.getBoundingClientRect();
-    getSimilarity(timeStamp).then((res) => {
-      drawMatrix(res["data"], width, height);
-      drawProgressBar();
+    getSimilarity(timeStamp,selectDir).then((res) => {
+      drawMatrix(res["data"]["similarityList"], width, height);
+      setRenderCount(1)
+      // setPartFlag(true)
     });
     //能够获取到各个类的数量，明天再来画
-    console.log(clusterArray);
-  }, [matrixRef.current, timeStamp]);
+  }, [matrixRef.current, timeStamp,selectDir]);
 
+  useEffect(() => {
+    console.log("执行了几次。。。。");
+    setRenderCount(renderCount + 1);
+    if(renderCount>1){
+      const { width, height } = matrixRef.current.getBoundingClientRect();
+      getPartSimilarity(timeStamp,selectDir,clusterArray).then((res) => {
+        console.log("获取部分数据",res);
+        drawMatrix(res["similarityList"], width, height);
+      });
+    }
+  },[clusterArray])
+
+  useEffect(()=>{
+    drawProgressBar(simCount);
+  },[simCount])
   return (
     <div className="container">
       <div id="progressBar" ref={barRef}></div>
       <div className="radio-box">
         {" "}
         <Form.Group controlId="radioList">
-          <RadioGroup name="radioList" onChange={changeRadio} defaultValue="A" inline>
-            <Radio value="A">原始维度</Radio>
-            <Radio value="B">高价场景维度</Radio>
+          <RadioGroup name="radioList" onChange={changeRadio} defaultValue="similarytiJson" inline>
+            <Radio value="similarytiJson">原始维度</Radio>
+            <Radio value="similaryityHvJson">高价场景维度</Radio>
           </RadioGroup>
         </Form.Group>
       </div>

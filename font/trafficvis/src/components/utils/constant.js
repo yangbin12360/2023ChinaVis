@@ -148,9 +148,11 @@ export const HV_NAME_EASY_LIST = [
   "SU",
 ];
 
-export const CLUSTER_LABEL_LIST = ["red", "blue", "green"];
+// export const CLUSTER_LABEL_LIST = ["red", "blue", "green"];
 
-export const CLUSTER_TYPE_LIST = ["#89fc00", "#d0f4ea", "#64dfdf"];
+export const CLUSTER_LABEL_LIST = ["#ef233c", "#5fa8d3", "#90a955"];
+// export const CLUSTER_TYPE_LIST = ["#89fc00", "#d0f4ea", "#64dfdf"];
+export const CLUSTER_TYPE_LIST = ["black", "black", "black"];
 export const LANE_ID_LIST = [
   "1912", "1910", "1910_2", '1910_1',
   "1898_1", "1898_2", "1900", "1901",

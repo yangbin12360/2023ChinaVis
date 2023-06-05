@@ -124,7 +124,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][str(item['road'])][i]+=1
+                    all_count[index][item['road']][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -297,13 +297,13 @@ def getIdHighValue():
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
     # print(data.iloc[0:]["lineFid"].to_list())
     laneRoadList = list(set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())) #所在车道列表，对应轨迹
-    print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
+    # print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
-    print("keys",keys)
+    # print("keys",keys)
     #获取到了flow文件中的车道号值了
     values = [value for key in keys for value in lanNumber[key]]
-    print("values",values)
+    # print("values",values)
     testList = []
     for index, row in data.iterrows():
         velocityList.append(row['velocity'])
@@ -416,7 +416,7 @@ def getCluster():
     time = request.json.get('startTime')
     start_time = 1681315196
     clusterTime = math.ceil(((time-start_time)/300))
-    print(clusterTime)
+    # print(clusterTime)
     file_path = "../back/static/data/DataProcess/5m/merge/" 
     res ={}
     cluster_avg_values = {}
@@ -445,7 +445,7 @@ def getCluster():
     cluster0 = dfCluster[dfCluster['cluster'] == 0].shape[0]
     cluster1 = dfCluster[dfCluster['cluster'] == 1].shape[0]
     cluster2 = dfCluster[dfCluster['cluster'] == 2].shape[0]
-    print("cluster0",cluster0)
+    # print("cluster0",cluster0)
     tempDict = {}
     res["radar"]=[]
     tempDict["0"] =  cluster_avg_values["0"]
@@ -463,7 +463,7 @@ def getCluster():
 @app.route('/getFlow',methods=["POST"])
 def getFlow():
     timeStamp = request.json.get('timeStamp')
-    print("timeStamp",timeStamp)
+    # print("timeStamp",timeStamp)
     def timeHour(time):
         # 将时间戳转换为 datetime 对象
         dt = datetime.datetime.fromtimestamp(time)
@@ -642,15 +642,47 @@ def getCrossWalkData():
 def getSimilarity():
     start_time = 1681315196
     nowTime = request.get_json().get('timeStamp')
+    selectDir = request.get_json().get('selectDir')
     span = math.ceil(((nowTime-start_time)/300))
     realTime = span*300
-    file_path = './static/data/DataProcess/5m/testS/'+ str(realTime) +'s.csv'
+    file_path = './static/data/DataProcess/5m/'+ selectDir+'/'+ str(realTime) +'s.json'
     res ={}
-    df = pd.read_csv(file_path)
-    df = df.iloc[:, 1:]
-    data = df.values.tolist()
+    data = json.load(open(file_path, 'r'))
+    # df = pd.read_csv(file_path)
+    # df = df.iloc[:, 1:]
+    # data = df.values.tolist()
     # print(data)
     res["data"] =data
+    return res 
+
+@app.route('/getPartSimilarity',methods=["POST"])
+def getPartSimilarity():
+    start_time = 1681315196
+    nowTime = request.get_json().get('timeStamp')
+    selectDir = request.get_json().get('selectDir')
+    clusterList = request.get_json().get('clusterArray')
+    print(clusterList)
+    def get_sorted_indices(list1, list2):
+        indices = [index for index, value in enumerate(list2) if value in list1]
+        indices.sort(key=lambda x: list1.index(list2[x]))
+        return indices
+    span = math.ceil(((nowTime-start_time)/300))
+    realTime = span*300
+    file_path = './static/data/DataProcess/5m/'+ selectDir+'/'+ str(realTime) +'s.json'
+    res ={}
+    data = json.load(open(file_path, 'r'))
+    newList = sorted(get_sorted_indices(clusterList,data["idSort"]))
+    res["similarityList"] = []
+    for i in range(0,len(newList)):
+        tempList = []
+        for j in newList:
+            tempList.append(data["similarityList"][newList[i]][j])
+        res["similarityList"].append(tempList)
+    # df = pd.read_csv(file_path)
+    # df = df.iloc[:, 1:]
+    # data = df.values.tolist()
+    # print(data)
+    # res["data"] =data
     return res 
 
 # 获取道路健康度数据
@@ -675,7 +707,6 @@ def getRoadHealth():
             temp.append(road_velocity[n][t])
             temp.append(road_bus[n][t])
             temp.append(n)
-            print(temp)
             restemp.append(temp)
     restotal = [[],[],[],[],[],[],[],[],[]]
     for i in restemp:
@@ -700,6 +731,73 @@ def getRoadHealth():
           
     #print(restotal)
     return restotal
+
+# 获取中车道健康数据
+@app.route('/getBigRoadHealth',methods=["POST"])
+def getBigRoadHealth():
+    file_path1 = './static/data/Result/little_road_flow_health.json'
+    file_path2 = './static/data/Result/little_road_velocity_health.json'
+    file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    restemp =[]
+    with open(file_path1, "r", encoding="utf-8") as f1:
+        road_flow = json.load(f1)
+    with open(file_path2, "r", encoding="utf-8") as f2:
+        road_velocity = json.load(f2)    
+    with open(file_path3, "r", encoding="utf-8") as f3:
+        road_bus = json.load(f3)
+
+    for n in range(0,34,1):
+        for t in range(0,24,1):
+            temp = []
+            temp.append(t)
+            temp.append(road_flow[n][t])
+            temp.append(road_velocity[n][t])
+            temp.append(road_bus[n][t])
+            temp.append(n)
+            restemp.append(temp)
+    restotal = [[],[],[],[],[],[],[],[],[]]
+    resbig = []
+    for i in restemp:
+        if i[4]<=3:
+            restotal[0].append(i)
+        elif i[4]<=7:
+            restotal[1].append(i)
+        elif i[4]<=11:
+            restotal[2].append(i)
+        elif i[4]<=15:
+            restotal[3].append(i)
+        elif i[4]<=20:
+            restotal[4].append(i)
+        elif i[4]<=24:
+            restotal[5].append(i)
+        elif i[4]<=27:
+            restotal[6].append(i)
+        elif i[4]<=31:
+            restotal[7].append(i)
+        elif i[4]<=33:
+            restotal[8].append(i)
+
+    for item in restotal:
+        resbigtemp = []
+        for hour in range(0,24,1):
+            count=0
+            flow=0
+            velocity_total=0
+            bus=0
+            restotaltemp=[]
+            for d in item:
+                if d[0] == hour:
+                    count = count+1
+                    flow = flow+d[1]
+                    velocity_total = velocity_total+d[2]
+                    bus=bus+d[3]
+            restotaltemp.append(hour)
+            restotaltemp.append(flow)
+            restotaltemp.append(velocity_total/count)
+            restotaltemp.append(bus/count)
+            resbigtemp.append(restotaltemp)
+        resbig.append(resbigtemp)
+    return resbig
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启
