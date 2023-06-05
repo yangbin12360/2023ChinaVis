@@ -570,7 +570,7 @@ def detail_item():
     if car_data:
         sorted_data = sorted(car_data, key=itemgetter('id'))
         grouped_data = groupby(sorted_data, key=itemgetter('id'))
-        print(grouped_data)
+        # print(grouped_data)
         for key, group in grouped_data:
             group=list(group)
             start_time=group[0]['start_time']
