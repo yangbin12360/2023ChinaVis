@@ -121,12 +121,30 @@ export const getCrossWalkData= (startTime) => {
 /**
  * 
  * @param {时间戳} startTime
+ * @param {选择文件目录} selectDir
  * @returns 
  */
 //获取相似度数据
-export const getSimilarity= (timeStamp) => {
+export const getSimilarity= (timeStamp,selectDir) => {
   return post("/getSimilarity",{
-    timeStamp:timeStamp
+    timeStamp:timeStamp,
+    selectDir:selectDir
+  });
+};
+
+/**
+ * 
+ * @param {时间戳} startTime
+ * @param {选择文件目录} selectDir
+ * @param {选中散点数据} clusterArray
+ * @returns 
+ */
+//获取相似度数据
+export const getPartSimilarity= (timeStamp,selectDir,clusterArray) => {
+  return post("/getPartSimilarity",{
+    timeStamp:timeStamp,
+    selectDir:selectDir,
+    clusterArray:clusterArray
   });
 };
 

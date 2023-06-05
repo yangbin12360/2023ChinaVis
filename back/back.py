@@ -297,13 +297,13 @@ def getIdHighValue():
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
     # print(data.iloc[0:]["lineFid"].to_list())
     laneRoadList = list(set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())) #所在车道列表，对应轨迹
-    print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
+    # print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
-    print("keys",keys)
+    # print("keys",keys)
     #获取到了flow文件中的车道号值了
     values = [value for key in keys for value in lanNumber[key]]
-    print("values",values)
+    # print("values",values)
     testList = []
     for index, row in data.iterrows():
         velocityList.append(row['velocity'])
@@ -416,7 +416,7 @@ def getCluster():
     time = request.json.get('startTime')
     start_time = 1681315196
     clusterTime = math.ceil(((time-start_time)/300))
-    print(clusterTime)
+    # print(clusterTime)
     file_path = "../back/static/data/DataProcess/5m/merge/" 
     res ={}
     cluster_avg_values = {}
@@ -445,7 +445,7 @@ def getCluster():
     cluster0 = dfCluster[dfCluster['cluster'] == 0].shape[0]
     cluster1 = dfCluster[dfCluster['cluster'] == 1].shape[0]
     cluster2 = dfCluster[dfCluster['cluster'] == 2].shape[0]
-    print("cluster0",cluster0)
+    # print("cluster0",cluster0)
     tempDict = {}
     res["radar"]=[]
     tempDict["0"] =  cluster_avg_values["0"]
@@ -463,7 +463,7 @@ def getCluster():
 @app.route('/getFlow',methods=["POST"])
 def getFlow():
     timeStamp = request.json.get('timeStamp')
-    print("timeStamp",timeStamp)
+    # print("timeStamp",timeStamp)
     def timeHour(time):
         # 将时间戳转换为 datetime 对象
         dt = datetime.datetime.fromtimestamp(time)
@@ -633,15 +633,47 @@ def getCrossWalkData():
 def getSimilarity():
     start_time = 1681315196
     nowTime = request.get_json().get('timeStamp')
+    selectDir = request.get_json().get('selectDir')
     span = math.ceil(((nowTime-start_time)/300))
     realTime = span*300
-    file_path = './static/data/DataProcess/5m/testS/'+ str(realTime) +'s.csv'
+    file_path = './static/data/DataProcess/5m/'+ selectDir+'/'+ str(realTime) +'s.json'
     res ={}
-    df = pd.read_csv(file_path)
-    df = df.iloc[:, 1:]
-    data = df.values.tolist()
+    data = json.load(open(file_path, 'r'))
+    # df = pd.read_csv(file_path)
+    # df = df.iloc[:, 1:]
+    # data = df.values.tolist()
     # print(data)
     res["data"] =data
+    return res 
+
+@app.route('/getPartSimilarity',methods=["POST"])
+def getPartSimilarity():
+    start_time = 1681315196
+    nowTime = request.get_json().get('timeStamp')
+    selectDir = request.get_json().get('selectDir')
+    clusterList = request.get_json().get('clusterArray')
+    print(clusterList)
+    def get_sorted_indices(list1, list2):
+        indices = [index for index, value in enumerate(list2) if value in list1]
+        indices.sort(key=lambda x: list1.index(list2[x]))
+        return indices
+    span = math.ceil(((nowTime-start_time)/300))
+    realTime = span*300
+    file_path = './static/data/DataProcess/5m/'+ selectDir+'/'+ str(realTime) +'s.json'
+    res ={}
+    data = json.load(open(file_path, 'r'))
+    newList = sorted(get_sorted_indices(clusterList,data["idSort"]))
+    res["similarityList"] = []
+    for i in range(0,len(newList)):
+        tempList = []
+        for j in newList:
+            tempList.append(data["similarityList"][newList[i]][j])
+        res["similarityList"].append(tempList)
+    # df = pd.read_csv(file_path)
+    # df = df.iloc[:, 1:]
+    # data = df.values.tolist()
+    # print(data)
+    # res["data"] =data
     return res 
 
 # 获取道路健康度数据
@@ -666,7 +698,7 @@ def getRoadHealth():
             temp.append(road_velocity[n][t])
             temp.append(road_bus[n][t])
             temp.append(n)
-            print(temp)
+            # print(temp)
             restemp.append(temp)
     restotal = [[],[],[],[],[],[],[],[],[]]
     for i in restemp:

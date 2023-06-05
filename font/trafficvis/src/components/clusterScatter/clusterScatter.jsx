@@ -6,10 +6,9 @@ import "./clusterScatter.css";
 import { getCluster } from "../../apis/api";
 import { CLUSTER_LABEL_LIST, CLUSTER_TYPE_LIST } from "../utils/constant";
 const ClusterScatter = (props) => {
-  const { timeStamp, handleClusterNum } = props;
+  const { timeStamp, handleClusterNum, handleSimCount} = props;
   const clusterRef = useRef(null);
   const radarRef = useRef(null);
-
 
   useEffect(() => {
     getCluster(timeStamp).then((res) => {
@@ -18,6 +17,7 @@ const ClusterScatter = (props) => {
       drawCluster(clusterData);
       drawRadar(radarData);
       handleClusterNum(res["count"]);
+      handleSimCount(res["count"]);
     });
   }, [timeStamp]);
 
@@ -43,8 +43,8 @@ const ClusterScatter = (props) => {
     const svg = d3
       .select("#cluster")
       .append("svg")
-      .attr("width", dimensions.width -2)
-      .attr("height", dimensions.height -2)
+      .attr("width", dimensions.width - 2)
+      .attr("height", dimensions.height - 2)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
       .style("background", "#fff");
@@ -98,47 +98,54 @@ const ClusterScatter = (props) => {
 
     const yAxis = d3.axisLeft(yScale).ticks(5);
     bounds.append("g").attr("class", "yAxis").call(yAxis);
-// 创建一个tooltip div在body中
-const tooltip = d3.select("body").append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
-
-// 更新circle的定义
-const circleGroup = bounds
-  .selectAll("circle")
-  .data(clusterData)
-  .enter()
-  .append("circle")
-  .attr("id", (d) => d.id)
-  .attr("cx", (d) => xScale(d.position.x))
-  .attr("cy", (d) => yScale(d.position.y))
-  .attr("r", 6) // 设置圆点半径
-  .style("fill", (d) => colorScale(d.cluster))
-  .attr("stroke", (d) => typeScale(d.type)) // 设置圆点边框颜色
-  .attr("stroke-width", 1)
-  .on("mouseover", function (event, d) {
-    tooltip.transition()
-      .duration(200)
-      .style("opacity", .9);
-    tooltip.html("ID: " + d.id +"\nType:"+d.type);
-    
-    var svgContainer = d3.select("#cluster").node();
-    var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
-    var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-  
-    tooltip.style("left", xOffset + "px")
-      .style("top", yOffset + "px");
-  })
-  .on("mouseout", function (d) { // 添加鼠标移出事件
-    tooltip.transition()
-      .duration(500)
+    // 创建一个tooltip div在body中
+    const tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "tooltip")
       .style("opacity", 0);
-  });
-  // 创建zoom行为
-// 创建zoom行为
-const zoom = d3.zoom()
-    .scaleExtent([0.5, 5]) // 缩放的最小和最大比例
-    .on("zoom", function (event) {
+
+    // 更新circle的定义
+    const circleGroup = bounds
+      .selectAll("circle")
+      .data(clusterData)
+      .enter()
+      .append("circle")
+      .attr("id", (d) => d.id)
+      .attr("cx", (d) => xScale(d.position.x))
+      .attr("cy", (d) => yScale(d.position.y))
+      .attr("r", 6) // 设置圆点半径
+      .style("fill", (d) => colorScale(d.cluster))
+      .attr("stroke", (d) => typeScale(d.type)) // 设置圆点边框颜色
+      .attr("stroke-width", 1)
+      .on("mouseover", function (event, d) {
+        tooltip.transition().duration(200).style("opacity", 0.9);
+        tooltip.html("ID: " + d.id + "\nType:" + d.type);
+
+        var svgContainer = d3.select("#cluster").node();
+        var xOffset =
+          window.scrollX +
+          svgContainer.getBoundingClientRect().left +
+          d3.pointer(event, svgContainer)[0] +
+          10;
+        var yOffset =
+          window.scrollY +
+          svgContainer.getBoundingClientRect().top +
+          d3.pointer(event, svgContainer)[1] +
+          10;
+
+        tooltip.style("left", xOffset + "px").style("top", yOffset + "px");
+      })
+      .on("mouseout", function (d) {
+        // 添加鼠标移出事件
+        tooltip.transition().duration(500).style("opacity", 0);
+      });
+    // 创建zoom行为
+    // 创建zoom行为
+    const zoom = d3
+      .zoom()
+      .scaleExtent([0.5, 5]) // 缩放的最小和最大比例
+      .on("zoom", function (event) {
         // 获取缩放和平移变换
         const transform = event.transform;
 
@@ -152,12 +159,12 @@ const zoom = d3.zoom()
 
         // 更新数据点的位置
         circleGroup
-            .attr("cx", (d) => updatedXScale(d.position.x))
-            .attr("cy", (d) => updatedYScale(d.position.y));
-    });
+          .attr("cx", (d) => updatedXScale(d.position.x))
+          .attr("cy", (d) => updatedYScale(d.position.y));
+      });
 
-// 将zoom行为应用到svg上
-svg.call(zoom);
+    // 将zoom行为应用到svg上
+    svg.call(zoom);
 
     // 设置圆点边框大小
     // 设置填充颜色
@@ -192,6 +199,7 @@ svg.call(zoom);
         return [parseInt(item.getAttribute("id")), item.__data__];
       });
       console.log("selected: ", selectedData);
+      selectClusterData(selectedData);
       // .attr("r", 7);
     };
 
@@ -205,7 +213,22 @@ svg.call(zoom);
       .on("end", lasso_end);
     svg.call(my_lasso);
   };
-
+  const selectClusterData = (clusterData) => {
+    let clusterId = [];
+    let clusterCount = [0, 0, 0];
+    clusterData.forEach((item) => {
+      clusterId.push(item[0]);
+      if (item[1].cluster === 0) {
+        clusterCount[0] += 1;
+      } else if (item[1].cluster === 1) {
+        clusterCount[1] += 1;
+      } else {
+        clusterCount[2] += 1;
+      }
+    });
+    handleClusterNum(clusterId);
+    handleSimCount(clusterCount);
+  };
   const drawRadar = (radarData) => {
     let existInstance = echarts.getInstanceByDom(radarRef.current);
     if (existInstance !== undefined) {
@@ -223,12 +246,12 @@ svg.call(zoom);
       radar: {
         radius: "70%",
         shape: "circle",
-        center: ['50%', '54%'],
+        center: ["50%", "54%"],
         indicator: [
           { name: "a_std", max: 1 },
           { name: "o_std", max: 2 },
           { name: "distance_mean", max: 100 },
-          { name: "v_pca",min:-10, max: 5 },
+          { name: "v_pca", min: -10, max: 5 },
         ],
       },
       series: [
@@ -239,21 +262,21 @@ svg.call(zoom);
               value: radarData[0][0],
               name: "cluster1",
               itemStyle: {
-                color: CLUSTER_LABEL_LIST[0],  
+                color: CLUSTER_LABEL_LIST[0],
               },
             },
             {
               value: radarData[0][1],
               name: "cluster2",
               itemStyle: {
-                color: CLUSTER_LABEL_LIST[1],  
+                color: CLUSTER_LABEL_LIST[1],
               },
             },
             {
               value: radarData[0][2],
               name: "cluster3",
               itemStyle: {
-                color: CLUSTER_LABEL_LIST[2],  
+                color: CLUSTER_LABEL_LIST[2],
               },
             },
           ],
@@ -265,11 +288,8 @@ svg.call(zoom);
   };
   return (
     <div className="container">
-      <div className="cluster" ref={clusterRef} id="cluster">
-      </div>
-      <div className="radar" ref={radarRef}>
-        
-      </div>
+      <div className="cluster" ref={clusterRef} id="cluster"></div>
+      <div className="radar" ref={radarRef}></div>
     </div>
   );
 };

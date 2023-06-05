@@ -36,11 +36,13 @@ const Layout = () => {
   const [controlCamra, setControlCamra] = useState(1);
   const [selectType, setSelectType] = useState(null); //主面板选中id展示
   const [flowTime, setFlowTime] = useState(1681372078);
-  const [clusterArray,setClusterArray] = useState([]); //聚类散点图数据
+  const [clusterArray, setClusterArray] = useState([]); //聚类散点图数据
+  const [selectDir, setSelectDir] = useState("similarytiJson"); //相似度文件夹选择
   //细节图的参数
   const [time, setTime] = useState(1681315196);
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
+  const [simCount,SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
@@ -67,16 +69,25 @@ const Layout = () => {
   const handleControlCamra = (index) => {
     setControlCamra(index);
   };
-//获取散点图中每个cluster的个数
-const handleClusterNum =(array)=>{
-  setClusterArray(array);
-}
+  //获取散点图中选取的散点id
+  const handleClusterNum = (array) => {
+    console.log("获取到的array", array);
+    setClusterArray(array);
+  };
   //细节图的参数
   const handleDetail = (time, carnumber, scencenumber) => {
     setTime(time);
     setcarNum(carnumber);
     setScence(scencenumber);
   };
+  //改变相似度文件夹选择
+  const handleSelectDir = (dir) => {
+    setSelectDir(dir);
+  };
+  //改变相似度矩阵中各个类别的个数
+  const handleSimCount = (count) => {
+    SetSimCount(count);
+  }
   // ----------------------- 布局--------------------------
   return (
     // <div
@@ -210,49 +221,49 @@ const handleClusterNum =(array)=>{
     //       </div>
     //     </Col>
     //   </Row>
-      // <div
-      //   style={{
-      //     left: "17%",
-      //     top: "2%",
-      //     width: 200,
-      //     height: 200,
-      //     position: "absolute",
-      //     opacity: 0.5,
-      //     background: "white",
-      //     borderRadius: "50%",
-      //   }}
-      // >
-      //   <ChordFlow timeStamp={timeStamp}></ChordFlow>
-      // </div>
-      // <div
-      //   style={{
-      //     left: "56.8%",
-      //     top: "3.3%",
-      //     width: 400,
-      //     height: 200,
-      //     position: "absolute",
-      //     opacity: 0.7,
-      //     background: "white",
-      //   }}
-      // >
-      //   <NowList
-      //     nowTimeData={nowTimeData}
-      //     handleSelectId={handleSelectId}
-      //   ></NowList>
-      // </div>
-      // <div
-      //   style={{
-      //     left: "56.8%",
-      //     top: "1.9%",
-      //     width: 199,
-      //     height: 20,
-      //     position: "absolute",
-      //     opacity: 0.7,
-      //     background: "white",
-      //   }}
-      // >
-      //   选中id:{selectId},type:{selectType}
-      // </div>
+    // <div
+    //   style={{
+    //     left: "17%",
+    //     top: "2%",
+    //     width: 200,
+    //     height: 200,
+    //     position: "absolute",
+    //     opacity: 0.5,
+    //     background: "white",
+    //     borderRadius: "50%",
+    //   }}
+    // >
+    //   <ChordFlow timeStamp={timeStamp}></ChordFlow>
+    // </div>
+    // <div
+    //   style={{
+    //     left: "56.8%",
+    //     top: "3.3%",
+    //     width: 400,
+    //     height: 200,
+    //     position: "absolute",
+    //     opacity: 0.7,
+    //     background: "white",
+    //   }}
+    // >
+    //   <NowList
+    //     nowTimeData={nowTimeData}
+    //     handleSelectId={handleSelectId}
+    //   ></NowList>
+    // </div>
+    // <div
+    //   style={{
+    //     left: "56.8%",
+    //     top: "1.9%",
+    //     width: 199,
+    //     height: 20,
+    //     position: "absolute",
+    //     opacity: 0.7,
+    //     background: "white",
+    //   }}
+    // >
+    //   选中id:{selectId},type:{selectType}
+    // </div>
     // </div>
 
     <div
@@ -288,11 +299,14 @@ const handleClusterNum =(array)=>{
               <div style={{ height: "100%" }}>
                 <Box
                   title={"高价值场景分组折线概览图"}
-                  component={<RelationshipScene                      
-                  time={time}
-                  carNum={carNum}
-                  scence={scence}
-                  handleDetail={handleDetail}></RelationshipScene>}
+                  component={
+                    <RelationshipScene
+                      time={time}
+                      carNum={carNum}
+                      scence={scence}
+                      handleDetail={handleDetail}
+                    ></RelationshipScene>
+                  }
                 ></Box>
               </div>
             </Col>
@@ -316,30 +330,45 @@ const handleClusterNum =(array)=>{
         <Col span={10} id="right">
           <Row style={{ height: "28%", width: "100%" }}>
             <Col span={15} id="right_top_left_">
-                <div style={{ height: "16%" }} className="box">
-             <Box
-              title={"控制台"}
-              component={
-                <ControlPanel
-                  timeStamp={timeStamp}
-                  handleChangeTime={handleChangeTime}
-                  handleSelectId={handleSelectId}
-                  handleControlCamra={handleControlCamra}
-                ></ControlPanel>
-              }
-            ></Box>
-          </div>
+              <div style={{ height: "16%" }} className="box">
+                <Box
+                  title={"控制台"}
+                  component={
+                    <ControlPanel
+                      timeStamp={timeStamp}
+                      handleChangeTime={handleChangeTime}
+                      handleSelectId={handleSelectId}
+                      handleControlCamra={handleControlCamra}
+                    ></ControlPanel>
+                  }
+                ></Box>
+              </div>
               <div style={{ height: "84%" }}>
                 <Box
                   title={"聚类散点及雷达图"}
                   component={
-                    <ClusterScatter timeStamp={timeStamp}  handleClusterNum={handleClusterNum}></ClusterScatter>
+                    <ClusterScatter
+                      timeStamp={timeStamp}
+                      handleClusterNum={handleClusterNum}
+                      handleSimCount={handleSimCount}
+                    ></ClusterScatter>
                   }
                 ></Box>
               </div>
             </Col>
             <Col span={9}>
-              <Box title={"相似度矩阵"} component={<SimlarityMatrix timeStamp={timeStamp} clusterArray={clusterArray}></SimlarityMatrix>}></Box>
+              <Box
+                title={"相似度矩阵"}
+                component={
+                  <SimlarityMatrix
+                    timeStamp={timeStamp}
+                    clusterArray={clusterArray}
+                    handleSelectDir={handleSelectDir}
+                    selectDir={selectDir}
+                    simCount={simCount}
+                  ></SimlarityMatrix>
+                }
+              ></Box>
             </Col>
           </Row>
           <Row style={{ height: "14%", width: "100%" }}>
@@ -368,7 +397,7 @@ const handleClusterNum =(array)=>{
                     selectTraceId={selectTraceId}
                     singleType={singleType}
                     handleChangeTime={handleChangeTime}
-                    handleSelectId = {handleSelectId}
+                    handleSelectId={handleSelectId}
                   ></SingleTrace>
                 }
               ></Box>
