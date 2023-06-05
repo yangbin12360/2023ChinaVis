@@ -236,10 +236,12 @@ function RoseComponent(props) {
                 min: 0,
                 max: 2000,
                 seriesIndex: 2,
-                left: '0%',
-                bottom: '0%',
+                left: '12%',
+                bottom: '10%',
+                itemWidth:10,
+                itemHeight:90,
                 inRange: {
-                    color: ['#32cd32', '#ffa500', '#ff0000']
+                    color: ['#00ff00', '#f0e68c', '#ff8c00', '#ff7f50','#ff0000', '#8b0000']
                 }
             },
             series: [
