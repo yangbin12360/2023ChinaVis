@@ -271,8 +271,8 @@ svg.call(zoom);
     window.onresize = radarChart.resize;
   };
   return (
-    <div className="container">
-      <div className="cluster" ref={clusterRef} id="cluster">
+    <div className="container" >
+      <div className="cluster" ref={clusterRef} id="cluster" >
       </div>
       <div className="radar" ref={radarRef}>
         

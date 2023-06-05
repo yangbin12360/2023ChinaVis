@@ -356,7 +356,7 @@ function ChordFlow(props){
     return (
         <div id ='flowContainer' style={{width:'100%',height:'100%'}}>
 
-        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],opacity:1.5}}>
+        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],opacity:1.5,background:'white',borderRadius:'50%'}}>
                    {/* 提示框 */}
          {tipyFlag ? <div className ="tip" id="flow_tip" 
         style={{width:"150px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center',transform:[`rotateZ(-90deg) rotateY(-180deg)`]}}>

@@ -640,7 +640,6 @@ def getRoadHealth():
             temp.append(road_velocity[n][t])
             temp.append(road_bus[n][t])
             temp.append(n)
-            print(temp)
             restemp.append(temp)
     restotal = [[],[],[],[],[],[],[],[],[]]
     for i in restemp:
@@ -665,6 +664,73 @@ def getRoadHealth():
           
     #print(restotal)
     return restotal
+
+# 获取中车道健康数据
+@app.route('/getBigRoadHealth',methods=["POST"])
+def getBigRoadHealth():
+    file_path1 = './static/data/Result/little_road_flow_health.json'
+    file_path2 = './static/data/Result/little_road_velocity_health.json'
+    file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    restemp =[]
+    with open(file_path1, "r", encoding="utf-8") as f1:
+        road_flow = json.load(f1)
+    with open(file_path2, "r", encoding="utf-8") as f2:
+        road_velocity = json.load(f2)    
+    with open(file_path3, "r", encoding="utf-8") as f3:
+        road_bus = json.load(f3)
+
+    for n in range(0,34,1):
+        for t in range(0,24,1):
+            temp = []
+            temp.append(t)
+            temp.append(road_flow[n][t])
+            temp.append(road_velocity[n][t])
+            temp.append(road_bus[n][t])
+            temp.append(n)
+            restemp.append(temp)
+    restotal = [[],[],[],[],[],[],[],[],[]]
+    resbig = []
+    for i in restemp:
+        if i[4]<=3:
+            restotal[0].append(i)
+        elif i[4]<=7:
+            restotal[1].append(i)
+        elif i[4]<=11:
+            restotal[2].append(i)
+        elif i[4]<=15:
+            restotal[3].append(i)
+        elif i[4]<=20:
+            restotal[4].append(i)
+        elif i[4]<=24:
+            restotal[5].append(i)
+        elif i[4]<=27:
+            restotal[6].append(i)
+        elif i[4]<=31:
+            restotal[7].append(i)
+        elif i[4]<=33:
+            restotal[8].append(i)
+
+    for item in restotal:
+        resbigtemp = []
+        for hour in range(0,24,1):
+            count=0
+            flow=0
+            velocity_total=0
+            bus=0
+            restotaltemp=[]
+            for d in item:
+                if d[0] == hour:
+                    count = count+1
+                    flow = flow+d[1]
+                    velocity_total = velocity_total+d[2]
+                    bus=bus+d[3]
+            restotaltemp.append(hour)
+            restotaltemp.append(flow)
+            restotaltemp.append(velocity_total/count)
+            restotaltemp.append(bus/count)
+            resbigtemp.append(restotaltemp)
+        resbig.append(resbigtemp)
+    return resbig
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

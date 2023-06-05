@@ -340,7 +340,7 @@ const handleClusterNum =(array)=>{
               <Box title={"相似度矩阵"} component={<SimlarityMatrix timeStamp={timeStamp} clusterArray={clusterArray}></SimlarityMatrix>}></Box>
             </Col>
           </Row>
-          <Row style={{ height: "14%", width: "100%" }}>
+          <Row style={{ height: "17%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
                 title={"SceneList"}
@@ -370,7 +370,7 @@ const handleClusterNum =(array)=>{
               ></Box>
             </div>
           </Row>
-          <Row style={{ height: "38%", width: "100%" }}>
+          <Row style={{ height: "35%", width: "100%" }}>
             <Col span={15} id="right_bottom_left">
               <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>

@@ -3323,8 +3323,6 @@ def proSim():
             bar()
 
 
-    # res["data"] =data
-    # return res 
 
 if __name__ == '__main__':
     # 驾驶行为
@@ -3350,4 +3348,4 @@ if __name__ == '__main__':
     # mergeHV()
     # mergeHVCount()
     # sortSimilarity()
-    # proSim()
+    proSim()

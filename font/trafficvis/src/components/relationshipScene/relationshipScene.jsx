@@ -253,7 +253,7 @@ function RelationshipScene(props){
     console.log(time);
 
     console.log(dataset);
-    var color=['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(24, 78, 119)'];
+    var color=['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'];
     const title = [];
     const xAxis = [];
     const yAxis = [];
@@ -321,7 +321,7 @@ function RelationshipScene(props){
       });
       //console.log(series);
       const option = {
-        color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(24, 78, 119)'],
+        color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'],
         title: title,
         tooltip: {
           trigger: "axis",
@@ -1123,7 +1123,7 @@ function RelationshipScene(props){
 
     return (
       <div style={{position:'relative', background:'#efefef'}}>
-        <div style={{height:'420px',width:'100%',overflowY:'auto'}}>
+        <div style={{height:'470px',width:'100%',overflowY:'auto'}}>
              <div className="group-lines-bar">
           {/* <Radio.Group
             value={isZoomForAll}
