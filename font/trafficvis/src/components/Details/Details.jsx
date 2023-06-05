@@ -172,11 +172,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                          info.transition()
+                               .duration(200)
+                              .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                          .duration(200)
+                         .attr("stroke-width","1px");
             });
       arcsvg.append("path")
             .attr("d",arcPathSmall(arcdata))	
@@ -200,11 +206,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                          .duration(200)
+                         .attr("stroke-width","1px");
             });
       arcsvg.append("path")
             .attr("d", triangle)
@@ -284,11 +296,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                          .duration(200)
+                         .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -312,11 +330,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -389,11 +413,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -417,11 +447,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                        .duration(200)
+                         .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -494,11 +530,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                   info.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -522,11 +564,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -600,11 +648,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -628,11 +682,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -705,11 +765,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -733,11 +799,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -810,11 +882,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                        .duration(200)
+                        .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -838,11 +916,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
@@ -915,11 +999,18 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  info.transition()
+                          .duration(200)
+                          .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  info.transition()
+                          .duration(200)
+                          .attr("stroke-width","1px");
+
             });
         arcsvg.append("path")
               .attr("d",arcPathSmall(arcdata))	
@@ -943,11 +1034,17 @@ function Details (props){
                           .transition()
                           .duration(200)
                           .style('opacity',0.9);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","2px");
               })
             .on('mouseout',function(){
                   tipytool.transition()
                           .duration(200)
                           .style('opacity',0);
+                  velo.transition()
+                      .duration(200)
+                      .attr("stroke-width","1px");
             });
         arcsvg.append("path")
               .attr("d", triangle)
