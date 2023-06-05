@@ -420,7 +420,7 @@ const Layout = () => {
                   <Box
                     title={"交通流量预测热力图"}
                     component={
-                      <ForecastHeat flowTime={flowTime}></ForecastHeat>
+                      <ForecastHeat flowTime={flowTime} flowtimeStamp={flowtimeStamp}></ForecastHeat>
                     }
                   ></Box>
                 </div>
