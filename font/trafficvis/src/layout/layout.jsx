@@ -44,10 +44,12 @@ const Layout = () => {
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
+    console.log("timeStamp", timeStamp);
     setTimeStamp(timeStamp);
   };
   //控制台id高亮选中主视图中的交通参与者
   const handleSelectId = (id, type) => {
+    console.log("11111111111");
     setSelectId(id);
     setSelectType(type);
   };
@@ -269,7 +271,7 @@ const handleClusterNum =(array)=>{
             <Col span={24} id="left_top">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"MainView"}
+                  title={"3D实时场景还原"}
                   component={
                     <MainView
                       timeStamp={timeStamp}
@@ -285,7 +287,7 @@ const handleClusterNum =(array)=>{
             <Col span={15} id="left_bottom_left">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"relationshipScene"}
+                  title={"高价值场景分组折线概览图"}
                   component={<RelationshipScene                      
                   time={time}
                   carNum={carNum}
@@ -316,7 +318,7 @@ const handleClusterNum =(array)=>{
             <Col span={15} id="right_top_left_">
                 <div style={{ height: "16%" }} className="box">
              <Box
-              title={"ControlPanel"}
+              title={"控制台"}
               component={
                 <ControlPanel
                   timeStamp={timeStamp}
@@ -329,7 +331,7 @@ const handleClusterNum =(array)=>{
           </div>
               <div style={{ height: "84%" }}>
                 <Box
-                  title={"DrivingBehaviorAnalysis"}
+                  title={"聚类散点及雷达图"}
                   component={
                     <ClusterScatter timeStamp={timeStamp}  handleClusterNum={handleClusterNum}></ClusterScatter>
                   }
@@ -343,7 +345,7 @@ const handleClusterNum =(array)=>{
           <Row style={{ height: "14%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"SceneList"}
+                title={"高价值场景列表"}
                 component={
                   <SceneList
                     timeStamp={timeStamp}
@@ -359,12 +361,14 @@ const handleClusterNum =(array)=>{
           <Row style={{ height: "20%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"SingleTrace"}
+                title={"交通参与者个人轨迹图"}
                 component={
                   <SingleTrace
                     isTraceVisible={isTraceVisible}
                     selectTraceId={selectTraceId}
                     singleType={singleType}
+                    handleChangeTime={handleChangeTime}
+                    handleSelectId = {handleSelectId}
                   ></SingleTrace>
                 }
               ></Box>
@@ -381,7 +385,7 @@ const handleClusterNum =(array)=>{
                 </div>
                 <div style={{ height: "100%", width: "60%" }}>
                   <Box
-                    title={"TrafficForecast"}
+                    title={"交通流量预测热力图"}
                     component={
                       <ForecastHeat flowTime={flowTime}></ForecastHeat>
                     }
@@ -390,7 +394,7 @@ const handleClusterNum =(array)=>{
               </Row>
               <Row style={{ height: "60%", width: "100%" }}>
                 <Box
-                  title={"RoadHealth"}
+                  title={"道路健康平行坐标图"}
                   component={<RoadHealth></RoadHealth>}
                 ></Box>
               </Row>

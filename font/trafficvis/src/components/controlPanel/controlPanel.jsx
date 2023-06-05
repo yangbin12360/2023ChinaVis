@@ -27,7 +27,7 @@ const ControlPanel = (props) => {
   return (
     <div className="container">
       <span>时间选择：</span>
-      <DatePicker format="yyyy-MM-dd HH:mm:ss" onChange={timeSelect} />
+      <DatePicker format="yyyy-MM-dd HH:mm:ss" onChange={timeSelect}  />
       {/* <div className="control">
       <div className="controlDay">
         日：

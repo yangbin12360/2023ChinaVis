@@ -3184,24 +3184,24 @@ def getDriveReserve():
 # 获取样本之间的相似度
 def getSimilarity():
     # 获取文件夹下所有的csv文件
-    folder_path = './static/data/DataProcess/5m/mergeHV'  
+    folder_path = './static/data/DataProcess/5m/merge'  
     csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
-    new_path  = './static/data/DataProcess/5m/similaryityHv'
+    new_path  = './static/data/DataProcess/5m/similaryity'
     with alive_bar(len(csv_files), title='Processing files') as bar:
         for file in csv_files:
             file_path = os.path.join(folder_path, file)
             df = pd.read_csv(file_path)        
         # 检查是否包含所需的列
-            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']
+            required_columns = ['x', 'y', 'cluster', 'type', 'id', 'v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']
             if not all(column in df.columns for column in required_columns):
                 print(f"Skipping file {file} as it does not contain all required columns.")
                 bar()
                 continue
         # Z-Score归一化
             scaler = StandardScaler()
-            df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']] = scaler.fit_transform(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']])
+            df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']] = scaler.fit_transform(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
         # 计算余弦相似度
-            similarity = cosine_similarity(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca','hvCount']])
+            similarity = cosine_similarity(df[['v_std', 'a_std', 'o_std', 'distance_mean', 'v_pca']])
         # 创建一个新的DataFrame来存储相似度，id和cluster
             similarity_df = pd.DataFrame(similarity)
             similarity_df.columns = df['id'].tolist()
@@ -3300,13 +3300,32 @@ def mergeHVCount():
 
 # 对相似度数据进行排序：
 def sortSimilarity():
-    file_path='./static/data/DataProcess/5m/similaryity'
-    for filename in os.listdir(file_path):
-        path = os.path.join(file_path, filename)
-        df = pd.read_csv(path)# 先按照'id1'列排序，然后按照'cluster1'列排序
-        df_sorted = df.sort_values(by=['id1', 'cluster1'], ascending=[True, True])
-        df_sorted.to_csv(path, index=False)
-
+    file_path='./static/data/DataProcess/5m/similaryity/'
+    with alive_bar(len(os.listdir(file_path)), title='Processing files') as bar:
+        for filename in os.listdir(file_path):
+            path = os.path.join(file_path, filename)
+            df = pd.read_csv(path,error_bad_lines=False)
+        # 创建一个空的DataFrame用于存储结果
+     # 获取所有不同的id1并根据cluster1排序
+            id_sort = df.sort_values('cluster1')['id1'].unique().tolist()
+# 创建一个空的二维列表来存储similarity值
+            similarity_list = [[0]*len(id_sort) for _ in range(len(id_sort))]
+# 遍历排序后的id列表，计算每个id与列表中每个id的similarity值
+            for i in range(len(id_sort)):
+                for j in range(len(id_sort)):
+                    if i == j:
+                        similarity_list[i][j] = 1  # 一个id与自己的similarity值为1
+                    else:
+            # 查找两个id的similarity值
+                        similarity_value = df[(df['id1'] == id_sort[i]) & (df['id2'] == id_sort[j])]['similarity']
+                        if not similarity_value.empty:
+                            similarity_list[i][j] = similarity_value.values[0]
+                        else:
+                            similarity_list[i][j] = 0  # 如果没有找到similarity值，则设为0
+            print("处理",filename,"******************************")
+            with open('./static/data/DataProcess/5m/similarytiJson/'+ filename.split('.')[0] +'.json', 'w') as f:
+                json.dump({"idSort": id_sort, "similarityList": similarity_list}, f)
+            bar()
 #将相似度数据处理为对称的形式：
 def proSim():
     file_path='./static/data/DataProcess/5m/similaryity'
@@ -3321,6 +3340,7 @@ def proSim():
                 matrix_df.loc[row['id1'], row['id2']] = row['similarity']
             matrix_df.to_csv(new_path+filename, index=True)
             bar()
+
 
 
     # res["data"] =data
@@ -3342,12 +3362,12 @@ if __name__ == '__main__':
     # mergeCluster()
     # processFid() #  1 2 已经修改
     # forecastToInt()
-    # getDriveReserve()
+    # # getDriveReserve()
     # getSimilarity()
     # getReverseData()
     # cleanReverseData()
     # getHighSceneCount()
     # mergeHV()
     # mergeHVCount()
-    # sortSimilarity()
-    # proSim()
+    sortSimilarity()
+    # # proSim()
