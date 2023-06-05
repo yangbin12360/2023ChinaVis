@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import "./sceneList.css";
 import { getHighValue } from "../../apis/api";
-import { HV_NAME_LIST, HV_NAME_EASY_LIST,TYPE_NAME_LIST } from "../utils/constant";
+import { HV_NAME_LIST,HV_NAME_LIST_CN, HV_NAME_EASY_LIST,TYPE_NAME_LIST } from "../utils/constant";
 
 const SceneList = (props) => {
   const { timeStamp,isTraceVisible, selectTraceId,handleSelectTraceId } = props;
@@ -215,7 +215,7 @@ const SceneList = (props) => {
                     </td>
                     <td className="cText">{row.id}</td>
                     <td>{TYPE_NAME_LIST[row.type]}</td>
-                    <td>{row.hv_type}</td>
+                    <td>{HV_NAME_LIST_CN[row.hv_type]}</td>
                     <td>{row.start_time}</td>
                   </tr>
                 ))}

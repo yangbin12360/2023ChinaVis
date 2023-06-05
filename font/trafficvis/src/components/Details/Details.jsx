@@ -101,12 +101,17 @@ function Details (props){
 }
 //所有事件的细节模板
     function DrawDetailScence(dataset){
+
+      console.log(dataset);
+
       var scale = d3.scaleLinear()
                     .domain([0,4])
-      .range([-0.3,0.3]);
+                    .range([-0.3,0.3]);
       
       var vscale = d3.scaleLinear()
-                     .domain([0,4])
+                     .domain([0,d3.max(dataset.map(item => {
+                        return item.velocity
+                     }))])
                      .range([-0.3,0.3]);
         //将数据转换为弧度点的形式
       function transformDataInfo(data){
@@ -150,7 +155,7 @@ function Details (props){
             .attr("stroke-width","1px")
             .attr("fill","white");
       var velo = arcsvg.append("path")
-            .attr("d",arcPathSmall(transformDataVelo(1)))	
+            .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
             .attr('value',1)
             .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
             .attr("stroke","black")
@@ -232,7 +237,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -313,7 +318,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -394,7 +399,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -475,7 +480,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -556,7 +561,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -637,7 +642,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")
@@ -718,7 +723,7 @@ function Details (props){
               .attr("stroke-width","1px")
               .attr("fill","white");
         var velo = arcsvg.append("path")
-              .attr("d",arcPathSmall(transformDataVelo(1)))	
+              .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
               .attr('value',1)
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
               .attr("stroke","black")

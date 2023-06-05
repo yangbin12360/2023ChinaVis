@@ -10,13 +10,6 @@ const ClusterScatter = (props) => {
   const clusterRef = useRef(null);
   const radarRef = useRef(null);
 
-  // 数据
-  const data = [
-    { x: 10, y: 20 },
-    { x: 40, y: 90 },
-    { x: 80, y: 50 },
-    { x: 50, y: 30 },
-  ];
 
   useEffect(() => {
     getCluster(timeStamp).then((res) => {

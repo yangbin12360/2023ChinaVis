@@ -1,17 +1,21 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
 import { getIdHighValue } from "../../apis/api";
-import { LANE_ID_LIST } from "../utils/constant";
-import { Table} from 'rsuite';
+import { LANE_ID_LIST ,HV_NAME_LIST_CN_V2,HV_NAME_LIST_CN_COLOR } from "../utils/constant";
+import { Table } from "rsuite";
 import "./singleTrace.css";
 import InfoList from "../infoList/infoList";
 
 const { Column, HeaderCell, Cell } = Table;
 
 const SingleTrace = (props) => {
-  const { isTraceVisible, selectTraceId, singleType } = props;
+  const { isTraceVisible, selectTraceId, singleType,handleChangeTime,handleSelectId  } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
+  const changeNowTime =(timeStamp)=>{
+    console.log("触发",timeStamp);
+    handleChangeTime(timeStamp);
+  }
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
@@ -33,7 +37,7 @@ const SingleTrace = (props) => {
     const divWidth = singleTraceRef.current.offsetHeight;
     const dimensions = {
       width: divHeight,
-      height: 294,
+      height: 250,
       margin: { top: 10, right: 30, bottom: 40, left: 50 },
     };
     const boundedWidth =
@@ -62,7 +66,7 @@ const SingleTrace = (props) => {
     });
     bounds
       .append("rect")
-      .attr("id","containerRect")
+      .attr("id", "containerRect")
       .attr("width", boundedWidth)
       .attr("height", boundedHeight)
       .style("fill", "#fff")
@@ -206,6 +210,10 @@ const SingleTrace = (props) => {
     });
 
     // 画点
+let tooltip = d3.select("body").append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+    // 画点
     bounds
       .append("g")
       .selectAll("circle")
@@ -213,8 +221,44 @@ const SingleTrace = (props) => {
       .join("circle")
       .attr("cx", (d) => xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
-      .attr("r", 2) // 设置点的大小
-      .attr("fill", "red"); // 设置点的颜色
+      .attr("r", 3) // 设置点的大小
+      .attr("fill", (d,i)=>{
+        return HV_NAME_LIST_CN_COLOR[d.type] 
+      })
+      .style("cursor", "pointer")
+      .on("mouseover", (event, d) => {
+        d3.select(event.currentTarget)
+        .transition()
+        .duration(50)
+        .attr("r", 3 * 1.5)
+          .attr("fill", "yellow"); // 改变高亮颜色
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        tooltip.html("时间: " + converTimestamp(d.nowTime) + "<br/>" + "事件类型: " + HV_NAME_LIST_CN_V2[d.type]) 
+          .style("left", (event.pageX-250) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", (event, d) => {
+        d3.select(event.currentTarget)
+        .transition()
+        .duration(50)
+        .attr("r", 3 )
+          .attr("fill", d=>HV_NAME_LIST_CN_COLOR[d.type] ); // 恢复原颜色
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      })
+      .on("click",(e)=>{
+        // changeNowTime(d.nowTime)
+        let clickedElement =e.currentTarget;
+        let boundData = d3.select(clickedElement).datum();
+        changeNowTime(boundData.nowTime)
+        handleSelectId(selectTraceId,singleType)
+      })
+      
+      ;
+       // 设置点的颜色
     const zoom = d3
       .zoom()
       .scaleExtent([1, Infinity]) // 设置缩放的最小和最大比例
@@ -242,6 +286,18 @@ const SingleTrace = (props) => {
       bounds.selectAll("circle").attr("cx", (d) => new_xScale(d.x));
     }
   };
+//16位时间戳转换
+const converTimestamp = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
   //绘制柱状图
   const drawBar = (data) => {
@@ -339,16 +395,22 @@ const SingleTrace = (props) => {
       .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
   };
 
-
   return (
-
-<div className="box">
-        <div className=".barBox">
-          <div className="infoList"><InfoList selectTraceId={selectTraceId} singleType={singleType}></InfoList></div>
-        <div className="bar" ref={barRef} id="bar"></div>
+    <div className="box">
+      <div className="barBox">
+        <div className="infoList">
+          <InfoList
+            selectTraceId={selectTraceId}
+            singleType={singleType}
+          ></InfoList>
         </div>
-        <div className="container" ref={singleTraceRef} id="singleTrace"></div>
-</div>
+        <div className="bar" ref={barRef} id="bar"></div>
+      </div>
+      <div className="container">
+        <div className="legend">123</div>
+        <div className="picBox" ref={singleTraceRef} id="singleTrace"></div>
+      </div>
+    </div>
   );
 };
 export default SingleTrace;

@@ -4,6 +4,8 @@ import json
 import numpy as np
 import os
 import datetime
+from itertools import groupby
+from operator import itemgetter
 import pandas as pd
 import math
 app = Flask(__name__)
@@ -102,8 +104,7 @@ def getActionAndRoadCount():
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
     all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
-    pair_dict={'2':0,'3':1,'0':2,'1':3,'7':4,'6':5,'5':6,'4':7,'8':8}
-    file_path = './static/data/Result/decomposition_data.json'
+    file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
@@ -123,7 +124,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][pair_dict[str(item['road'])]][i]+=1
+                    all_count[index][item['road']][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -132,13 +133,8 @@ def getActionAndRoadCount():
                 dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
                 segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                all_count[index][pair_dict[str(item['road'])]][segment_index]+=1
-                
-                
-    # print(all_count)
-    # list_path = './static/data/Result/all_list.json'
-    # with open(list_path, 'w') as f:
-    #     json.dump(all_count, f)                  
+                all_count[index][item['road']][segment_index]+=1
+                                 
     return all_count
 
 # def getActionAndRoadCount():
@@ -228,24 +224,24 @@ def getIdHighValue():
     # tfData[车道号number][时间]
     hvName = ['CC','LT','NC','OS','PC','REV','SD','SU']
     laneDict = {
-  "left_l":["1912", "1911", "1910_2", "1910_1"],
-  "left_r":["1898_1", "1898_2", "1900", "1901"],
-  "bottom_l":["1957_4", "1957_3", "1956", "1955"],
-  "bottom_r":["1934", "1935", "1936_3", "1936_4"],
+  "left_l":["1912", "1911", "19102", "19101"],
+  "left_r":["18981", "18982", "1900", "1901"],
+  "bottom_l":["19574", "19573", "1956", "1955"],
+  "bottom_r":["1934", "1935", "19363", "19364"],
   "right_l":["1450", "1449", "1448", "1447", "1446"],
   "right_r":["1442", "1443", "1444", "1445"],
   "top_l":["1974", "1973", "1972"],
-  "top_r":["1975_1", "1975_2", "1977", "1978"],
+  "top_r":["19751", "19752", "1977", "1978"],
 }
     laneYList = [
-  "1912", "1911", "1910_2", '1910_1',
-  "1898_1", "1898_2", "1900", "1901",
-  "1957_4", "1957_3", "1956", "1955",
-  "1934", "1935", "1936_3", "1936_4",
+  "1912", "1911", "19102", '19101',
+  "18981", "18982", "1900", "1901",
+  "19574", "19573", "1956", "1955",
+  "1934", "1935", "19363", "19364",
   "1450", "1449", "1448", "1447", "1446",
   "1442", "1443", "1444", "1445",
   "1974", "1973", "1972",
-  "1975_1", "1975_2", "1977", "1978"
+  "19751", "19752", "1977", "1978"
 ];
     lanNumber= {
     "left_l":[0,1,2,3],
@@ -356,9 +352,13 @@ def getIdHighValue():
         if i==0:
             tempDict["x"] = startTime
             tempDict["y"] = 0
+            tempDict["type"] ="出发点"
+            tempDict["nowTime"] = startTime
         if i==len(newRes["highValue"])+1:
             tempDict["x"] = endTime
             tempDict["y"] = hvPositionList[-1]["y"]
+            tempDict["type"] ="结束点"
+            tempDict["nowTime"] = endTime
         if i>0 and i<len(newRes["highValue"])+1:
             tempDict["x"] = newRes["highValue"][i-1]["start_time"]
             selectRow  = data[data['time_meas'] // 1000000 == tempDict["x"]] # data是该id的所有数据
@@ -386,7 +386,7 @@ def getIdHighValue():
     for i in newRes["hvPositionList"]:
         if i["y"] == 0:
             continue;
-        tempStr =str(i["y"])
+        tempStr =str(int(i["y"]))
         if tempStr.find('.')!=-1:
             tempStr=tempStr.split('.')[0]
         newY = laneYList.index(tempStr)
@@ -445,6 +445,7 @@ def getCluster():
     cluster0 = dfCluster[dfCluster['cluster'] == 0].shape[0]
     cluster1 = dfCluster[dfCluster['cluster'] == 1].shape[0]
     cluster2 = dfCluster[dfCluster['cluster'] == 2].shape[0]
+    print("cluster0",cluster0)
     tempDict = {}
     res["radar"]=[]
     tempDict["0"] =  cluster_avg_values["0"]
@@ -503,7 +504,7 @@ def getFlow():
         # print(initTime)
         initTime = 1681315200
         for j in range(0,forTiems):
-            print("iniTime",initTime)
+            # print("iniTime",initTime)
             tempDf = df[(df['timestamp'] == initTime) & (df['roadid'].astype(str) == i)]
             res[i]=res[i]+tempDf['TRUE'].tolist()
             initTime+=3600
@@ -536,15 +537,16 @@ def detail_item():
     segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
     if segment_index>287:
         segment_index=287
+    car_data=[]
     # 获取所有高价值数据
-    file_path = './static/data/Result/decomposition_data.json'
+    file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition = json.load(f)
     #遍历对应的高价值数组 
     for item in decomposition[actionName]:
         # 寻找对应的中道路
         if item['road']==roadNumber:
-            if actionName in [1,2,3,4]:
+            if actionName in [1,2,3,4,5]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
@@ -570,7 +572,31 @@ def detail_item():
                 # 判断是否在该五分钟内
                 if segment_index==segment_index1:
                     item_data.append(item)
-    
+    if car_data:
+        sorted_data = sorted(car_data, key=itemgetter('id'))
+        grouped_data = groupby(sorted_data, key=itemgetter('id'))
+        # print(grouped_data)
+        for key, group in grouped_data:
+            group=list(group)
+            start_time=group[0]['start_time']
+            end_time=group[0]['start_time']
+            speed=[]
+            for item in group:
+                if item['start_time']<start_time:
+                    start_time=item['start_time']
+                if item['start_time']>end_time:
+                    end_time=item['start_time']
+                if item['velocity']!=0:
+                    speed.append(item['velocity'])
+            item_data.append({
+                'id':group[0]['id'],
+                'type':group[0]['type'],
+                'count':len(group),
+                'start_time':start_time,
+                'end_time':end_time,
+                'road':group[0]['road'],
+                'velocity':sum(speed)/len(speed)
+            })
     # print(item_data)                     
     return item_data
     
