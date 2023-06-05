@@ -6,21 +6,30 @@ import "./clusterScatter.css";
 import { getCluster } from "../../apis/api";
 import { CLUSTER_LABEL_LIST, CLUSTER_TYPE_LIST } from "../utils/constant";
 const ClusterScatter = (props) => {
-  const { timeStamp, handleClusterNum, handleSimCount} = props;
+  const { timeStamp, handleClusterNum, handleSimCount,selectDir,handleAllCluster} = props;
   const clusterRef = useRef(null);
   const radarRef = useRef(null);
+  const [allNum,setAllNum]=useState(0)
+  const [flagCount,setFlagCount] = useState(0)
 
   useEffect(() => {
     getCluster(timeStamp).then((res) => {
       let clusterData = res["scatter"];
-      let radarData = res["radar"];
+      // let radarData = res["radar"];
       drawCluster(clusterData);
-      drawRadar(radarData);
+      // handleAllCluster(clusterData)
+      // drawRadar(radarData);
       handleClusterNum(res["count"]);
       handleSimCount(res["count"]);
+      setAllNum(res["count"])
     });
   }, [timeStamp]);
-
+  useEffect(()=>{
+    setFlagCount(flagCount+1)
+    if(flagCount>1){
+      handleSimCount(allNum)
+    }
+  },[selectDir])
   const drawCluster = (clusterData) => {
     const divWidth = clusterRef.current.offsetWidth;
     const divHeight = clusterRef.current.offsetHeight;
@@ -37,17 +46,18 @@ const ClusterScatter = (props) => {
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
     const boundedHeight =
-      dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+      dimensions.height- dimensions.margin.top - dimensions.margin.bottom
+      ;
 
     d3.select("#cluster svg").remove();
     const svg = d3
       .select("#cluster")
       .append("svg")
-      .attr("width", dimensions.width - 2)
-      .attr("height", dimensions.height - 2)
+      .attr("width", dimensions.width )
+      .attr("height", dimensions.height )
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
-      .style("background", "#fff");
+      .style("background", "#efefef");
     const bounds = svg
       .append("g")
       .attr(
@@ -226,70 +236,70 @@ const ClusterScatter = (props) => {
         clusterCount[2] += 1;
       }
     });
-    handleClusterNum(clusterId);
+    handleAllCluster(clusterId);
     handleSimCount(clusterCount);
   };
-  const drawRadar = (radarData) => {
-    let existInstance = echarts.getInstanceByDom(radarRef.current);
-    if (existInstance !== undefined) {
-      echarts.dispose(existInstance);
-    }
-    const radarChart = echarts.init(radarRef.current);
-    const option = {
-      legend: {
-        data: ["cluster1", "cluster2", "cluster3"],
-        textStyle: {
-          fontSize: 10, // 将图例字体大小设置为20
-        },
-      },
+  // const drawRadar = (radarData) => {
+  //   let existInstance = echarts.getInstanceByDom(radarRef.current);
+  //   if (existInstance !== undefined) {
+  //     echarts.dispose(existInstance);
+  //   }
+  //   const radarChart = echarts.init(radarRef.current);
+  //   const option = {
+  //     legend: {
+  //       data: ["cluster1", "cluster2", "cluster3"],
+  //       textStyle: {
+  //         fontSize: 10, // 将图例字体大小设置为20
+  //       },
+  //     },
 
-      radar: {
-        radius: "70%",
-        shape: "circle",
-        center: ["50%", "54%"],
-        indicator: [
-          { name: "a_std", max: 1 },
-          { name: "o_std", max: 2 },
-          { name: "distance_mean", max: 100 },
-          { name: "v_pca", min: -10, max: 5 },
-        ],
-      },
-      series: [
-        {
-          type: "radar",
-          data: [
-            {
-              value: radarData[0][0],
-              name: "cluster1",
-              itemStyle: {
-                color: CLUSTER_LABEL_LIST[0],
-              },
-            },
-            {
-              value: radarData[0][1],
-              name: "cluster2",
-              itemStyle: {
-                color: CLUSTER_LABEL_LIST[1],
-              },
-            },
-            {
-              value: radarData[0][2],
-              name: "cluster3",
-              itemStyle: {
-                color: CLUSTER_LABEL_LIST[2],
-              },
-            },
-          ],
-        },
-      ],
-    };
-    radarChart.setOption(option);
-    window.onresize = radarChart.resize;
-  };
+  //     radar: {
+  //       radius: "70%",
+  //       shape: "circle",
+  //       center: ["50%", "54%"],
+  //       indicator: [
+  //         { name: "a_std", max: 1 },
+  //         { name: "o_std", max: 2 },
+  //         { name: "distance_mean", max: 100 },
+  //         { name: "v_pca", min: -10, max: 5 },
+  //       ],
+  //     },
+  //     series: [
+  //       {
+  //         type: "radar",
+  //         data: [
+  //           {
+  //             value: radarData[0][0],
+  //             name: "cluster1",
+  //             itemStyle: {
+  //               color: CLUSTER_LABEL_LIST[0],
+  //             },
+  //           },
+  //           {
+  //             value: radarData[0][1],
+  //             name: "cluster2",
+  //             itemStyle: {
+  //               color: CLUSTER_LABEL_LIST[1],
+  //             },
+  //           },
+  //           {
+  //             value: radarData[0][2],
+  //             name: "cluster3",
+  //             itemStyle: {
+  //               color: CLUSTER_LABEL_LIST[2],
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   };
+  //   radarChart.setOption(option);
+  //   window.onresize = radarChart.resize;
+  // };
   return (
     <div className="container">
       <div className="cluster" ref={clusterRef} id="cluster"></div>
-      <div className="radar" ref={radarRef}></div>
+      {/* <div className="radar" ref={radarRef}></div> */}
     </div>
   );
 };

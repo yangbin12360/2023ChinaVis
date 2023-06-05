@@ -5,7 +5,7 @@ import "./simlarityMatrix.css";
 import { getSimilarity,getPartSimilarity} from "../../apis/api";
 
 const SimlarityMatrix = (props) => {
-  const { timeStamp, clusterArray, handleSelectDir, selectDir,simCount} = props;
+  const { timeStamp, clusterArray, handleSelectDir, selectDir,simCount,allCluster} = props;
   const matrixRef = useRef(null);
   const barRef = useRef(null);
   const [partFlag,setPartFlag]=useState(false)
@@ -24,7 +24,6 @@ const SimlarityMatrix = (props) => {
     ctx.closePath();
     ctx.fill();
   };
-
   const drawMatrix = (data, w, h) => {
     console.log("data", data);
     document.getElementById("similarity-canvas").remove();
@@ -125,14 +124,14 @@ const SimlarityMatrix = (props) => {
       .enter()
       .append("rect")
       .attr("width", (d, i) => {
-        const width = (d * 320) / total;
+        const width = (d * 260) / total;
         return width;
       })
       .attr("height", 10)
       .attr("x", (d, i) => {
         return i === 0
           ? 0
-          : (ratio.slice(0, i).reduce((a, b) => a + b) * 320) / total;
+          : (ratio.slice(0, i).reduce((a, b) => a + b) * 260) / total;
       })
       .attr("y", 35)
       .attr("fill", (d, i) => colorScale(i));
@@ -141,14 +140,14 @@ const SimlarityMatrix = (props) => {
             .enter()
             .append("rect")
             .attr("height", (d, i) => {
-              const width = (d * 320) / total;
+              const width = (d * 260) / total;
               return width;
             })
             .attr("width", 10)
             .attr("y", (d, i) => {
               return i === 0
                 ? 50
-                : (ratio.slice(0, i).reduce((a, b) => a + b) * 320) / total+50;
+                : (ratio.slice(0, i).reduce((a, b) => a + b) * 260) / total+50;
             })
             .attr("x", -20)
             .attr("fill", (d, i) => colorScale(i));
@@ -160,24 +159,22 @@ const SimlarityMatrix = (props) => {
     const { width, height } = matrixRef.current.getBoundingClientRect();
     getSimilarity(timeStamp,selectDir).then((res) => {
       drawMatrix(res["data"]["similarityList"], width, height);
-      setRenderCount(1)
-      // setPartFlag(true)
+
     });
     //能够获取到各个类的数量，明天再来画
   }, [matrixRef.current, timeStamp,selectDir]);
 
   useEffect(() => {
-    console.log("执行了几次。。。。");
+    console.log("执行了几次。。。。",renderCount);
     setRenderCount(renderCount + 1);
     if(renderCount>1){
       const { width, height } = matrixRef.current.getBoundingClientRect();
-      getPartSimilarity(timeStamp,selectDir,clusterArray).then((res) => {
+      getPartSimilarity(timeStamp,selectDir,allCluster).then((res) => {
         console.log("获取部分数据",res);
         drawMatrix(res["similarityList"], width, height);
       });
     }
-  },[clusterArray])
-
+  },[allCluster])
   useEffect(()=>{
     drawProgressBar(simCount);
   },[simCount])

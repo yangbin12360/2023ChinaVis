@@ -181,18 +181,18 @@ const SceneList = (props) => {
     <div className="container">
       <div className="topBox">
         <div className="numChart" ref={sceneBarRef} id="sceneBar"></div>
-        <div className="line"></div>
+        {/* <div className="line"></div> */}
         <div className="sceneList">
           <div className="tableContainer">
             <table>
               <thead className="tableH">
                 <tr className="thr">
                   <th className="thone">
-                    <div onClick={toggleListVisibility}>生成</div>
+                    <div onClick={toggleListVisibility} style={{cursor: "pointer"}}>生成</div>
                   </th>
-                  <th>Id</th>
-                  <th>类型</th>
-                  <th>高价值场景类型</th>
+                  <th style={{ paddingLeft: "23px" }}>Id</th>
+                  <th style={{width: "20%" }}>类型</th>
+                  <th style={{ width: "25%" }}>高价值场景类型</th>
                   <th>开始时间</th>
                 </tr>
               </thead>
@@ -224,7 +224,7 @@ const SceneList = (props) => {
           </div>
         </div>
       </div>
-      <div className="mid"></div>
+      {/* <div className="mid"></div> */}
     </div>
   );
 };
