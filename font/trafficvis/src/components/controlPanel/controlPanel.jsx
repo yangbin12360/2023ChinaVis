@@ -25,7 +25,7 @@ const ControlPanel = (props) => {
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{background:'#efefef'}}>
       <span>时间选择：</span>
       <DatePicker format="yyyy-MM-dd HH:mm:ss" onChange={timeSelect}  />
       {/* <div className="control">

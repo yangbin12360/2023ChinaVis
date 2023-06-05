@@ -371,7 +371,7 @@ const Layout = () => {
               ></Box>
             </Col>
           </Row>
-          <Row style={{ height: "14%", width: "100%" }}>
+          <Row style={{ height: "17%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
                 title={"高价值场景列表"}
@@ -403,7 +403,7 @@ const Layout = () => {
               ></Box>
             </div>
           </Row>
-          <Row style={{ height: "38%", width: "100%" }}>
+          <Row style={{ height: "35%", width: "100%" }}>
             <Col span={15} id="right_bottom_left">
               <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>

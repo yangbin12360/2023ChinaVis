@@ -152,3 +152,8 @@ export const getPartSimilarity= (timeStamp,selectDir,clusterArray) => {
 export const getRoadHealth= () => {
   return post("/getRoadHealth");
 };
+
+//获取中道路健康数据
+export const getBigRoadHealth= () => {
+  return post("/getBigRoadHealth");
+};

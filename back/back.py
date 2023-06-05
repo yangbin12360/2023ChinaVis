@@ -124,7 +124,7 @@ def getActionAndRoadCount():
                 if segment_index2>287:
                     segment_index2=287
                 for i in range(segment_index1,segment_index2+1):
-                    all_count[index][str(item['road'])][i]+=1
+                    all_count[index][item['road']][i]+=1
         else:
             for item in d_data:
                 if item['road']==-1:
@@ -546,7 +546,16 @@ def detail_item():
     for item in decomposition[actionName]:
         # 寻找对应的中道路
         if item['road']==roadNumber:
-            if actionName in [1,2,3,4,5]:
+            if actionName==0:
+                dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+                time_diff1 = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  #计算时间段索引
+                if segment_index1>287:
+                    segment_index1=287
+                # 判断是否在该五分钟内
+                if segment_index==segment_index1:
+                    car_data.append(item)
+            elif actionName in [1,2,3,4,5]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
@@ -575,7 +584,7 @@ def detail_item():
     if car_data:
         sorted_data = sorted(car_data, key=itemgetter('id'))
         grouped_data = groupby(sorted_data, key=itemgetter('id'))
-        print(grouped_data)
+        # print(grouped_data)
         for key, group in grouped_data:
             group=list(group)
             start_time=group[0]['start_time']
@@ -698,7 +707,6 @@ def getRoadHealth():
             temp.append(road_velocity[n][t])
             temp.append(road_bus[n][t])
             temp.append(n)
-            # print(temp)
             restemp.append(temp)
     restotal = [[],[],[],[],[],[],[],[],[]]
     for i in restemp:
@@ -723,6 +731,73 @@ def getRoadHealth():
           
     #print(restotal)
     return restotal
+
+# 获取中车道健康数据
+@app.route('/getBigRoadHealth',methods=["POST"])
+def getBigRoadHealth():
+    file_path1 = './static/data/Result/little_road_flow_health.json'
+    file_path2 = './static/data/Result/little_road_velocity_health.json'
+    file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    restemp =[]
+    with open(file_path1, "r", encoding="utf-8") as f1:
+        road_flow = json.load(f1)
+    with open(file_path2, "r", encoding="utf-8") as f2:
+        road_velocity = json.load(f2)    
+    with open(file_path3, "r", encoding="utf-8") as f3:
+        road_bus = json.load(f3)
+
+    for n in range(0,34,1):
+        for t in range(0,24,1):
+            temp = []
+            temp.append(t)
+            temp.append(road_flow[n][t])
+            temp.append(road_velocity[n][t])
+            temp.append(road_bus[n][t])
+            temp.append(n)
+            restemp.append(temp)
+    restotal = [[],[],[],[],[],[],[],[],[]]
+    resbig = []
+    for i in restemp:
+        if i[4]<=3:
+            restotal[0].append(i)
+        elif i[4]<=7:
+            restotal[1].append(i)
+        elif i[4]<=11:
+            restotal[2].append(i)
+        elif i[4]<=15:
+            restotal[3].append(i)
+        elif i[4]<=20:
+            restotal[4].append(i)
+        elif i[4]<=24:
+            restotal[5].append(i)
+        elif i[4]<=27:
+            restotal[6].append(i)
+        elif i[4]<=31:
+            restotal[7].append(i)
+        elif i[4]<=33:
+            restotal[8].append(i)
+
+    for item in restotal:
+        resbigtemp = []
+        for hour in range(0,24,1):
+            count=0
+            flow=0
+            velocity_total=0
+            bus=0
+            restotaltemp=[]
+            for d in item:
+                if d[0] == hour:
+                    count = count+1
+                    flow = flow+d[1]
+                    velocity_total = velocity_total+d[2]
+                    bus=bus+d[3]
+            restotaltemp.append(hour)
+            restotaltemp.append(flow)
+            restotaltemp.append(velocity_total/count)
+            restotaltemp.append(bus/count)
+            resbigtemp.append(restotaltemp)
+        resbig.append(resbigtemp)
+    return resbig
 
 if __name__ == '__main__':
     # app.debug = True   # 开启调试模式, 代码修改后服务器自动重新载入，无需手动重启

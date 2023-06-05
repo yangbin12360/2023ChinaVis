@@ -22,6 +22,12 @@ function Light(props){
         //     [3,30,25,23,30,13,14]//行人过马路流量——红（人流量越大，红灯越大）
 
         // ];
+        const tipytool = d3.select('body')
+                     .append('div')
+                     .attr('background','white')
+                     .style('position','absolute')
+                     .style('opacity',0);
+
         var barWidth = ( (width-(2*left))/ lightData[0].length);
         console.log(width,barWidth);
         var svg = d3.select('#lightContainer')
@@ -87,8 +93,21 @@ function Light(props){
                                         return GrScale(d);
                                     })
                                     .attr('fill','#e8e8e4')
-                                    .on('mouseover',tipy(true))
-                                    .on('mouseout',tipy(false));
+                                    .on('mouseover',function(event,d){
+                                        var svgContainer = d3.select("#lightContainer").node();
+                                        var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                                        var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                                        tipytool.html(d.toFixed(2));
+                                        tipytool.style("left", xOffset+ "px")
+                                                .style("top", yOffset + "px")
+                                                .transition()
+                                                .duration(200)
+                                                .style('opacity',0.9);
+                                    })
+                                    .on('mouseout',function(){
+                                        tipytool.transition()
+                                        .duration(200)
+                                        .style('opacity',0);});
 
                                     
         var redLight = svg.append('g').attr('id','redLight');
@@ -107,37 +126,31 @@ function Light(props){
                                     return RrScale(d);
                                 })
                                 .attr('fill','#de7266')
-                                .on('mouseover',tipy(true))
-                                .on('mouseout',tipy(false));
-
-
-        function tipy(flag){
-            return function(g,i){
-                if(flag == true){
-                    setTipyFlag(true);
-                    console.log(g,i);
-                    setTipyContent(i.toFixed(2));
-                    setTipyX(g.offsetX+10+'px');
-                    setTipyY(g.offsetY+10+'px');
-                }
-                else {
-                    setTipyFlag(false);
-                }
-
-            }
-
-        }
-
-        // greenCircle.on('mouseover',tipy(true))
-        //            .on('mouseout',tipy(false));
-
-        // redCircle.on('mouseover',tipy(true))
-        //          .on('mouseout',tipy(false));
+                                .on('mouseover',function(event,d){
+                                    var svgContainer = d3.select("#lightContainer").node();
+                                    var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                                    var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                                    tipytool.html(d.toFixed(2));
+                                    tipytool.style("left", xOffset+ "px")
+                                            .style("top", yOffset + "px")
+                                            .transition()
+                                            .duration(200)
+                                            .style('opacity',0.9);
+                                })
+                                .on('mouseout',function(){
+                                    tipytool.transition()
+                                    .duration(200)
+                                    .style('opacity',0);});
 
 
     }
 
     function updateLight(lightData){
+        const tipytool = d3.select('body')
+                            .append('div')
+                            .attr('background','white')
+                            .style('position','absolute')
+                            .style('opacity',0);
         var left = 20;
         var top = 20;
         var width = document.getElementById('lightContainer').clientWidth;
@@ -210,8 +223,24 @@ function Light(props){
                                     .attr('cx',function(d,i){
                                         return barWidth*i+barWidth/2-2.5;
                                     })
-                                    .on('mouseover',tipy(true))
-                                    .on('mouseout',tipy(false))
+                                    .on('mouseover',function(event,d){
+                                        var svgContainer = d3.select("#lightContainer").node();
+                                        var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                                        var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                                        tipytool.html(d.toFixed(2));
+                                        tipytool.style("left", xOffset+ "px")
+                                                .style("top", yOffset + "px")
+                                                .transition()
+                                                .duration(200)
+                                                .style('opacity',0.9);
+
+
+                                    })
+                                    .on('mouseout',function(){
+                                        tipytool.transition()
+                                        .duration(200)
+                                        .style('opacity',0);
+                                    })
                                     .transition()
                                     .duration(500)
                                     .attr('r',function(d,i){
@@ -231,8 +260,21 @@ function Light(props){
                                 .attr('cx',function(d,i){
                                     return barWidth*i+barWidth/2-2.5;
                                 })
-                                .on('mouseover',tipy(true))
-                                .on('mouseout',tipy(false))
+                                .on('mouseover',function(event,d){
+                                    var svgContainer = d3.select("#lightContainer").node();
+                                    var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                                    var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                                    tipytool.html(d.toFixed(2));
+                                    tipytool.style("left", xOffset+ "px")
+                                            .style("top", yOffset + "px")
+                                            .transition()
+                                            .duration(200)
+                                            .style('opacity',0.9);
+                                })
+                                .on('mouseout',function(){
+                                    tipytool.transition()
+                                    .duration(200)
+                                    .style('opacity',0);})
                                 .transition()
                                 .duration(500)
                                 .attr('r',function(d,i){
@@ -240,26 +282,7 @@ function Light(props){
                                 })
                                 .attr('fill','#de7266');
 
-        function tipy(flag){
-            return function(g,i){
-                if(flag == true){
-                    setTipyFlag(true);
-                    console.log(g,i);
-                    setTipyContent( i.toFixed(2));
-                    setTipyX(g.offsetX+10+'px');
-                    setTipyY(g.offsetY+10+'px');
-                }
-                else {
-                    setTipyFlag(false);
-                }
-            }
-        }
-
-        greenCircle.on('mouseover',tipy(true))
-                   .on('mouseout',tipy(false));
-
-        redCircle.on('mouseover',tipy(true))
-                 .on('mouseout',tipy(false));
+ 
     }
 
     useEffect(() => {
@@ -280,12 +303,12 @@ function Light(props){
 
     return(
         <div style={{height:'100%',width:'100%',position:'relative'}}>
-        <div id = 'lightContainer' style={{height:'100%',width:'100%' }} >
-                {/* 提示框 */}
+        <div id = 'lightContainer' style={{height:'100%',width:'100%'} } >
+                {/* 提示框
          {tipyFlag ? <div className ="tip" id="flow_tip" 
         style={{width:"30px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center'}}>
             {tipyContent}
-            </div> : null }
+            </div> : null } */}
 
         </div>
         </div>
