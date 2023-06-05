@@ -232,12 +232,11 @@ function RoseComponent(props) {
                 }
             ],
             visualMap: {
-                show: false,
+                show: true,
                 min: 0,
                 max: 2000,
                 seriesIndex: 2,
-                left: '12%',
-                bottom: '10%',
+                left: '7%',
                 itemWidth:10,
                 itemHeight:90,
                 inRange: {
