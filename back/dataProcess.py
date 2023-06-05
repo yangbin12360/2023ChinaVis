@@ -2485,49 +2485,32 @@ def crosswalkroad_high_value():
     num_segments = 288  # 时间段数量
     segment_data = [[0 for _ in range(7)] for _ in range(num_segments)]
     # 获取所有高价值数据
-    file_path = './static/data/Result/decomposition_data.json'
+    file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition = json.load(f)
     #遍历对应的高价值数组 
-    for index,highValueData in enumerate(decomposition):
-        for item in highValueData:
-            if index in [1,2,3,4]:
-                # 将时间戳转换为日期时间
-                dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
-                dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
-                time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
-                segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index1>287:
-                    segment_index1=287
-                time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
-                segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index2>287:
-                    segment_index2=287
-                for i in range(segment_index1,segment_index2+1):
-                    # 只计算路口的人行道对应的高价值场景数据
-                    if item['road'] in [0,1]:
-                        segment_data[i][1]+=1
-                    if item['road'] in [2,3]:
-                        segment_data[i][0]+=1
-                    if item['road'] in [4,5]:
-                        segment_data[i][3]+=1
-                    if item['road'] in [6,7]:
-                        segment_data[i][2]+=1
-            else:
-                dt = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
-                time_diff = dt - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
-                segment_index = int(time_diff.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
-                if segment_index>287:
-                    segment_index=287
-                # 只计算路口的人行道对应的高价值场景数据
-                if item['road'] in [0,1]:
-                    segment_data[segment_index][1]+=1
-                if item['road'] in [2,3]:
-                    segment_data[segment_index][0]+=1
-                if item['road'] in [4,5]:
-                    segment_data[segment_index][3]+=1
-                if item['road'] in [6,7]:
-                    segment_data[segment_index][2]+=1
+    for item in decomposition[4]:
+        # 将时间戳转换为日期时间
+        dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
+        dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
+        time_diff1 = dt1 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+        segment_index1 = int(time_diff1.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+        if segment_index1>287:
+            segment_index1=287
+        time_diff2 = dt2 - datetime.datetime(2023,4,12,23,59,56)  # 计算时间戳与当天零点之间的时间差
+        segment_index2 = int(time_diff2.total_seconds() // (segment_duration.total_seconds()))  # 计算时间段索引
+        if segment_index2>287:
+            segment_index2=287
+        for i in range(segment_index1,segment_index2+1):
+            # 只计算路口的人行道对应的高价值场景数据
+            if item['road'] in [0,1]:
+                segment_data[i][0]+=1
+            if item['road'] in [2,3]:
+                segment_data[i][1]+=1
+            if item['road'] in [4,5]:
+                segment_data[i][2]+=1
+            if item['road'] in [6,7]:
+                segment_data[i][3]+=1
     with open('./static/data/Result/crosswalkroad_high_value.json', 'w') as f:
         json.dump(segment_data, f)
 
