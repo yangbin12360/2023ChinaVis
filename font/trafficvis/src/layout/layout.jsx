@@ -41,6 +41,7 @@ const Layout = () => {
   const [time, setTime] = useState(1681315196);
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
+  const [flowtimeStamp,setFlowtimeStamp]=useState(1681372078);
   // ----------------------- 状态改变--------------------------
   //控制板改变时间戳
   const handleChangeTime = (timeStamp) => {
@@ -62,6 +63,9 @@ const Layout = () => {
   //主视图实时场景获取
   const handleNowTimeData = (newData) => {
     setNowTimeData(newData);
+  };
+  const handleFlowtimeStamp = (newData) => {
+    setFlowtimeStamp(newData);
   };
   //相机控制
   const handleControlCamra = (index) => {
@@ -403,7 +407,7 @@ const handleClusterNum =(array)=>{
               <div style={{ height: "100%" }}>
                 <Box
                   title={"Rose"}
-                  component={<RoseComponent></RoseComponent>}
+                  component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp}></RoseComponent>}
                 ></Box>
               </div>
             </Col>
