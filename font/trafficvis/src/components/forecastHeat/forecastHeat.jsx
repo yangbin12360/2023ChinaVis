@@ -67,7 +67,7 @@ const ForecastHeat = (props) => {
       .padding(0.01);
 
     const colorScale = d3.scaleSequential()
-    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/4)])
+    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d))])
     .interpolator(t => d3.interpolateRgb(
       d3.rgb(61, 106, 79,0.7),  // 黄色
       t < 0.5
@@ -116,7 +116,7 @@ gradient
 gradient
   .append("stop")
   .attr("offset", "100%")
-  .attr("stop-color", colorScale(d3.max(colordata, (d) => d3.max(d)/4)))
+  .attr("stop-color", colorScale(d3.max(colordata, (d) => d3.max(d))))
   .attr("stop-opacity", 1);
     const tooltip = d3
       .select("body")

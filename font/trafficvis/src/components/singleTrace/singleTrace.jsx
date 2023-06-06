@@ -215,7 +215,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       lineGroup
         .append("path")
         .datum(segment)
-        .attr("stroke", "#6c757d")
+        .attr("stroke", "#303842")
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .attr("stroke-linejoin", "round")
@@ -240,6 +240,8 @@ let tooltip = d3.select("body").append("div")
         return HV_NAME_LIST_CN_COLOR[d.type] 
       })
       .style("cursor", "pointer")
+      .style("stroke","black")
+      .style("stroke-width",1)
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget)
         .transition()

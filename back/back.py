@@ -49,16 +49,16 @@ def getTimeJson():
     startTime = request.json.get('startTime')
     pathList = []
     # startTime = 1681315196
-    for i in range(0,300):
+    for i in range(0,600):
         fileName = str(i+startTime)+'.0.json'
         pathList.append(fileName)
     res = {}
     for path in pathList:
-        with open('../back/static/data\DataProcess/time_meas/'+path)as f:
+        with open('../back/static/data\DataProcess/newtime_meas/'+path)as f:
             data = json.load(f)
             # 遍历数据，根据id进行分组
             for item in data:
-                if item['type'] != -1 :  
+                if item['type'] != -1  and item['type']!= 7 :  
                     id = item.get('id')  
                     if id not in res:
                         res[id] = []
@@ -79,6 +79,7 @@ def getTimeJson():
         oList = []
         vList = []
         hList = [] 
+        fList = []
         newRes[id]={}
         for item in res[id]:
             pList.append(item["position"])
@@ -87,11 +88,14 @@ def getTimeJson():
             hList.append(item["heading"])
             newRes[id]["shape"] = item["shape"]
             newRes[id]["type"] = item["type"]
+            if "lineFid" in item:
+                fList.append(item["lineFid"])
         v_meas = calculate_average(vList)
         newRes[id]["trace"] = pList
         newRes[id]["orientation"] = oList
         newRes[id]["velocity"] = v_meas
         newRes[id]["heading"] = hList
+        print("fList",fList)
     for id in res:
         newRes[id]["startTime"] = res[id][0]["time_meas"]
         newRes[id]["endTime"] = res[id][-1]["time_meas"]

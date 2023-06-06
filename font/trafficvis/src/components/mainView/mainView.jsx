@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_modifiedV5.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV6.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
@@ -26,6 +26,7 @@ import sky_back from '../../assets/fig/py.png';
 import sky_down from '../../assets/fig/pz.png';
 import * as TWEEN from "@tweenjs/tween.js";
 import "./mainView.css";
+import {TYPE_NAME_LIST} from '../utils/constant.js'
 
 const mapName = ["boundary", "crosswalk", "lane", "signal", "stopline"];
 
@@ -44,7 +45,7 @@ const updateCamera = (camera, model, scene) => {
   position.z += 20; // Increase the z-coordinate to place the camera above the model
 
   const tween = new TWEEN.Tween(camera.position)
-    .to(position, 2000)
+    .to(position, 3000)
     .onUpdate(() => {
       camera.lookAt(model.position);
     })
@@ -211,22 +212,24 @@ const MainView = (props) => {
           };
           const shape = JSON.parse(data[trafficId]["shape"]);
           let typeIndex
-          if (modelsToLoad[trafficId]["type"]===1){
+          if (modelsToLoad[trafficId]["type"]===1 || modelsToLoad[trafficId]["type"]==="1"){
             typeIndex = type1
-          } else if(modelsToLoad[trafficId]["type"]===4){
+          } else if(modelsToLoad[trafficId]["type"]===4 ||modelsToLoad[trafficId]["type"]==="4"){
             typeIndex = type4
           }
-          else if(modelsToLoad[trafficId]["type"]===3){
+          else if(modelsToLoad[trafficId]["type"]===3 || modelsToLoad[trafficId]["type"]==="3"){
             typeIndex = type3
-          }else if(modelsToLoad[trafficId]["type"]===6){
+          }else if(modelsToLoad[trafficId]["type"]===6 || modelsToLoad[trafficId]["type"]==="6"){
             typeIndex = type6
-          }else if(modelsToLoad[trafficId]["type"]===2)
+          }else if(modelsToLoad[trafficId]["type"]===2 || modelsToLoad[trafficId]["type"]==="2")
           {
             typeIndex = type2
-          }else if(modelsToLoad[trafficId]["type"]===10)
+          }else if(modelsToLoad[trafficId]["type"]===10 || modelsToLoad[trafficId]["type"]==="10")
           {
             typeIndex = type10
           }else{
+            console.log("type",modelsToLoad[trafficId]["type"]);
+            console.log("type",modelsToLoad[trafficId]);
             typeIndex = car
           }
           loader.load(typeIndex, (gltf) => {
@@ -306,12 +309,13 @@ const MainView = (props) => {
                 rotation: modelsToLoad[modelId].instance.rotation,
                 scale: modelsToLoad[modelId].instance.scale,
                 velocity:(modelsToLoad[modelId].velocity*3.6).toFixed(2),
-                type:modelsToLoad[modelId].type,
+                type:TYPE_NAME_LIST[modelsToLoad[modelId].type],
                 startTime:modelsToLoad[modelId].startTime,
                 endTime:modelsToLoad[modelId].endTime
               };
               modelsData.push(modelInfo);
             }
+
           }
           handleNowTimeData(modelsData)
           // 更新所有活动的 tween 对象
@@ -324,12 +328,14 @@ const MainView = (props) => {
   }, [timeStamp, scene]);
   /**********************光圈选中及销毁 */
   useEffect(() => {
+  const interval = setInterval(() => {
     for (let id in models) {
       const model = models[id];
       if (id === String(selectId) && model.halo) {
           model.halo.visible = true;
       }
-    }
+    }},3000)
+    return () => clearInterval(interval);
   }, [selectId, models]);
   /**********************静态信息展示*/
   useEffect(() => {

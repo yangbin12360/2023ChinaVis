@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Table } from 'rsuite';
 import * as d3 from 'd3';
+import './nowList.css';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -33,7 +34,6 @@ const NowList = (props) => {
   };
 
   const handleRowClick = (rowData) => {
-    console.log(rowData.type);
     handleSelectId(rowData.id,rowData.type)
 
     setSelectedRow(rowData);
@@ -46,15 +46,19 @@ const NowList = (props) => {
           <HeaderCell>ID</HeaderCell>
           <Cell dataKey="id" />
         </Column>
-        <Column width={45} align="center" fixed>
+        <Column width={85} align="center" fixed>
           <HeaderCell>类型</HeaderCell>
           <Cell dataKey="type" />
         </Column>
         <Column width={90} align="center" fixed>
           <HeaderCell>速度(km/h)</HeaderCell>
-          <Cell dataKey="velocity" />
+          <Cell dataKey="velocity">
+      {(rowData) => (
+        <div className={parseFloat(rowData.velocity) > 60 ? 'highlight' : ''}>{rowData.velocity}</div>
+      )}
+    </Cell>
         </Column>
-        <Column width={80}  align="center"fixed>
+        <Column width={125}  align="center"fixed>
           <HeaderCell>出现时间</HeaderCell>
           <Cell>
             {(rowData, rowIndex) => {
@@ -62,14 +66,14 @@ const NowList = (props) => {
             }}
           </Cell>
         </Column>
-        <Column width={85} align="center" fixed>
+        {/* <Column width={85} align="center" fixed>
           <HeaderCell>消失时间</HeaderCell>
           <Cell>
             {(rowData, rowIndex) => {
               return converTimeStamp(rowData.endTime);
             }}
           </Cell>
-        </Column>
+        </Column> */}
       </Table>
     </div>
   );

@@ -119,6 +119,8 @@ const InfoList = (props) => {
       .attr("cy", (d, i) => Math.floor(i / 4) * 15+20 ) 
       .attr("r", 5) 
       .style("fill", (d) => d)
+      .style("stroke", "black")
+      .style("stroke-width", 1)
 
     const texts = svg
       .selectAll("text")

@@ -22,17 +22,31 @@ const SceneList = (props) => {
   const [detailScene, setDetailScene] = useState([]); //详情数据
   const [selectedType, setSelectedType] = useState(""); //存储筛选数据
   const [selectedTypeIndex, setSelectedTypeIndex] = useState(null);
-  
+  const [selectedHvType, setSelectedHvType] = useState(""); //存储筛选的高价值场景类型
+
+  const handleSelectHvType = (e) => {
+    const selectedHvType = e.target.value;
+    setSelectedHvType(selectedHvType);
+  };
+
   const handleSelectType = (e) => {
     const selectedType = e.target.value;
     setSelectedType(selectedType);
-    if (selectedType === '') {
+    if (selectedType === "") {
       setSelectedTypeIndex(null);
     } else {
-      const typeIndex = TYPE_NAME_LIST.findIndex((item) => item === selectedType);
+      const typeIndex = TYPE_NAME_LIST.findIndex(
+        (item) => item === selectedType
+      );
       setSelectedTypeIndex(typeIndex);
     }
   };
+  const HV_TYPE_OPTIONS = Object.entries(HV_NAME_LIST_CN).map(
+    ([key, value]) => ({
+      key,
+      value,
+    })
+  );
 
   //对高价值场景列表利用hvData进行渲染
   useEffect(() => {
@@ -135,7 +149,7 @@ const SceneList = (props) => {
       .attr("y", (d) => boundedHeight - yScale(d.count) + 10)
       .attr("width", xScale.bandwidth() - 1)
       .attr("height", (d) => yScale(d.count))
-      .attr('fill','#86bbd8');
+      .attr("fill", "#86bbd8");
 
     //绘制状图x轴名称
     bounds
@@ -219,7 +233,15 @@ const SceneList = (props) => {
                   <th style={{ paddingLeft: "45px" }}>Id</th>
                   <th style={{ width: "20%", paddingLeft: "20px" }}>
                     {" "}
-                    <select value={selectedType} style={{textAlign: "center", textAlignLast: "center",width:"65px"}} onChange={handleSelectType}>
+                    <select
+                      value={selectedType}
+                      style={{
+                        textAlign: "center",
+                        textAlignLast: "center",
+                        width: "65px",
+                      }}
+                      onChange={handleSelectType}
+                    >
                       <option value="">全部</option>
                       {TYPE_NAME_LIST.map((value, index) => (
                         <option value={value} key={index}>
@@ -228,8 +250,23 @@ const SceneList = (props) => {
                       ))}
                     </select>
                   </th>
-                  <th style={{ width: "25%", paddingLeft: "40px" }}>
-                    高价值场景类型
+                  <th style={{ width: "25%", paddingLeft: "45px" }}>
+                    <select
+                      value={selectedHvType}
+                      onChange={handleSelectHvType}
+                      style={{
+                        textAlign: "center",
+                        textAlignLast: "center",
+                        width: "80px",
+                      }}
+                    >
+                      <option value="">全部</option>
+                      {HV_TYPE_OPTIONS.map((option) => (
+                        <option value={option.key} key={option.key}>
+                          {option.value}
+                        </option>
+                      ))}
+                    </select>
                   </th>
                   <th style={{ paddingLeft: "40px" }}>开始时间</th>
                 </tr>
@@ -238,8 +275,9 @@ const SceneList = (props) => {
                 {hvData
                   .filter(
                     (row) =>
-                      selectedTypeIndex === null ||
-                      row.type === selectedTypeIndex
+                      (selectedTypeIndex === null ||
+                        row.type === selectedTypeIndex) &&
+                      (selectedHvType === "" || row.hv_type === selectedHvType)
                   )
                   .map((row) => (
                     <tr
