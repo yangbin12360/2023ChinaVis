@@ -3,7 +3,7 @@ import echarts from 'echarts';
 import { useEffect } from 'react';
 
 function RoseComponent(props) {
-    const {handleFlowtimeStamp} = props;
+    const {handleFlowtimeStamp,handleHourIndex} = props;
     function drawRose() {
         var chartDom = document.getElementById('main');
         var myChart = echarts.init(chartDom);
@@ -243,6 +243,10 @@ function RoseComponent(props) {
                 orient: 'horizontal',
                 inRange: {
                     color: ['#a6da6a', '#d8e98a', '#dde0a0', '#ffc455','#f48043', '#f46d43']
+                },
+                text: ['2000', '0'], // 定义图例的范围
+                textStyle: {
+                color: '#333' // 图例文本颜色
                 }
             },
             series: [
@@ -500,6 +504,7 @@ function RoseComponent(props) {
               const unixTimestamp = date.getTime();
             //   console.log(unixTimestamp);
               handleFlowtimeStamp(unixTimestamp);
+              handleHourIndex(dataIndex);
               // 获取当前 echarts 实例的配置项
               var option = myChart.getOption();
               // 获取玫瑰图的系列配置

@@ -8,7 +8,7 @@ const ForecastHeat = (props) => {
   const heatRef = useRef(null);
 
   useEffect(() => {
-    console.log("flowtimeStamp",flowtimeStamp);
+    // console.log("flowtimeStamp",flowtimeStamp);
     getFlow(1681376400).then((res)=>{
       const flowData = Object.values(res["all"]);
   
