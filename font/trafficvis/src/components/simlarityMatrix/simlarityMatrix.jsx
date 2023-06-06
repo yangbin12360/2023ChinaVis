@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import { Radio, RadioGroup, Form } from "rsuite";
 import "./simlarityMatrix.css";
 import { getSimilarity,getPartSimilarity} from "../../apis/api";
+import {CLUSTER_LABEL_LIST} from "../utils/constant"
 
 const SimlarityMatrix = (props) => {
   const { timeStamp, clusterArray, handleSelectDir, selectDir,simCount,allCluster} = props;
@@ -114,7 +115,7 @@ const SimlarityMatrix = (props) => {
     const colorScale = d3
       .scaleOrdinal()
       .domain([0, 1, 2]) // input
-      .range(["red", "blue", "green"]); // output
+      .range(CLUSTER_LABEL_LIST); // output
     const total = d3.sum(ratio);
     const topRect = bounds.append("g").attr("id", "topRect");
     const leftRect = bounds.append("g").attr("id", "leftRect");
@@ -124,14 +125,14 @@ const SimlarityMatrix = (props) => {
       .enter()
       .append("rect")
       .attr("width", (d, i) => {
-        const width = (d * 260) / total;
+        const width = (d * 240) / total;
         return width;
       })
       .attr("height", 10)
       .attr("x", (d, i) => {
         return i === 0
           ? 0
-          : (ratio.slice(0, i).reduce((a, b) => a + b) * 260) / total;
+          : (ratio.slice(0, i).reduce((a, b) => a + b) * 240) / total;
       })
       .attr("y", 35)
       .attr("fill", (d, i) => colorScale(i));
@@ -140,16 +141,16 @@ const SimlarityMatrix = (props) => {
             .enter()
             .append("rect")
             .attr("height", (d, i) => {
-              const width = (d * 260) / total;
+              const width = (d * 240) / total;
               return width;
             })
             .attr("width", 10)
             .attr("y", (d, i) => {
               return i === 0
                 ? 50
-                : (ratio.slice(0, i).reduce((a, b) => a + b) * 260) / total+50;
+                : (ratio.slice(0, i).reduce((a, b) => a + b) * 240) / total+50;
             })
-            .attr("x", -20)
+            .attr("x", -15)
             .attr("fill", (d, i) => colorScale(i));
   };
   const changeRadio = (value, event) => {
@@ -165,7 +166,6 @@ const SimlarityMatrix = (props) => {
   }, [matrixRef.current, timeStamp,selectDir]);
 
   useEffect(() => {
-    console.log("执行了几次。。。。",renderCount);
     setRenderCount(renderCount + 1);
     if(renderCount>1){
       const { width, height } = matrixRef.current.getBoundingClientRect();

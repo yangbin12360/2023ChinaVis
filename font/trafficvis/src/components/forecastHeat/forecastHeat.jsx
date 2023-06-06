@@ -5,18 +5,18 @@ import { getFlow } from "../../apis/api";
 
 const ForecastHeat = (props) => {
   const { flowTime,flowtimeStamp } = props;
-  console.log(flowtimeStamp)
   const heatRef = useRef(null);
 
   useEffect(() => {
-    getFlow(flowTime).then((res)=>{
+    console.log("flowtimeStamp",flowtimeStamp);
+    getFlow(1681376400).then((res)=>{
       const flowData = Object.values(res["all"]);
-      
+  
       console.log("flowData",typeof(flowData));
       drawHeat(flowData);
     })
     // drawHeat();
-  }, [flowTime]);
+  }, [flowtimeStamp]);
 
   const drawHeat = (colordata) => {
     const divHeight = heatRef.current.offsetHeight;
@@ -46,33 +46,33 @@ const ForecastHeat = (props) => {
       .attr("height", dimensions.height)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
-      .style("background", "#fff");
+      .style("background", "#efefef");
 
     const bounds = svg
       .append("g")
       .style(
         "transform",
-        `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
+        `translate(${0}px, ${dimensions.margin.top}px)`
       );
       const xScale = d3
       .scaleBand()
-      .range([0, boundedWidth])
+      .range([0, dimensions.width-5])
       .domain(d3.range(colordata[0].length)) 
       .padding(0.01);
 
     const yScale = d3
       .scaleBand()
-      .range([0, boundedHeight])
+      .range([0, dimensions.height-50])
       .domain(d3.range(colordata.length)) 
       .padding(0.01);
 
     const colorScale = d3.scaleSequential()
-    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/8)])
+    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/4)])
     .interpolator(t => d3.interpolateRgb(
-      d3.rgb(255, 215, 0),  // 黄色
+      d3.rgb(61, 106, 79,0.7),  // 黄色
       t < 0.5
-        ? d3.rgb(255, 165, 0)  // 橙色
-        : d3.rgb(238, 63,17)   // 红色
+        ? d3.rgb(255, 224, 139)  // 橙色
+        : d3.rgb(180, 32,13,0.9)   // 红色
     )(t * 2));
 
     const tooltip = d3
@@ -124,9 +124,9 @@ const ForecastHeat = (props) => {
       .tickValues(d3.range(colordata[0].length))
       .tickFormat((d) =>
         d === colordata[0].length - 2
-          ? "Predicted"
+          ? "预测"
           : d === colordata[0].length - 1
-          ? "Actual"
+          ? "真实"
           : `${d}`
       )
       .tickSize(0);
@@ -135,7 +135,7 @@ const ForecastHeat = (props) => {
       .append("g")
       .attr(
         "transform",
-        `translate(${dimensions.margin.left}, ${
+        `translate(${0}, ${
           dimensions.height - dimensions.margin.bottom
         })`
       )
@@ -143,22 +143,22 @@ const ForecastHeat = (props) => {
       .select(".domain")
       .remove();
 
-    const legend = svg
-      .selectAll(".legend")
-      .data(colorScale.ticks(6).slice(1).reverse())
-      .enter()
-      .append("g")
-      .attr("class", "legend")
-      .attr(
-        "transform",
-        (d, i) => `translate(${10}, ${40 + i * 20})`
-      );
+    // const legend = svg
+    //   .selectAll(".legend")
+    //   .data(colorScale.ticks(6).slice(1).reverse())
+    //   .enter()
+    //   .append("g")
+    //   .attr("class", "legend")
+    //   .attr(
+    //     "transform",
+    //     (d, i) => `translate(${10}, ${40 + i * 20})`
+    //   );
 
-    legend
-      .append("rect")
-      .attr("width", 20)
-      .attr("height", 20)
-      .style("fill", colorScale);
+    // legend
+    //   .append("rect")
+    //   .attr("width", 20)
+    //   .attr("height", 20)
+    //   .style("fill", colorScale);
 
     // legend
     //   .append("text")

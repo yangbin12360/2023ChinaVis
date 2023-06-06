@@ -21,7 +21,7 @@ const Radar = (props) =>{
         const radarChart = echarts.init(radarRef.current);
         const option = {
           legend: {
-            data: ["cluster1", "cluster2", "cluster3"],
+            data: ["怠惰型", "激进型", "稳定型"],
             textStyle: {
               fontSize: 10, // 将图例字体大小设置为20
             },
@@ -44,21 +44,21 @@ const Radar = (props) =>{
               data: [
                 {
                   value: radarData[0][0],
-                  name: "cluster1",
+                  name: "怠惰型",
                   itemStyle: {
                     color: CLUSTER_LABEL_LIST[0],
                   },
                 },
                 {
                   value: radarData[0][1],
-                  name: "cluster2",
+                  name: "激进型",
                   itemStyle: {
                     color: CLUSTER_LABEL_LIST[1],
                   },
                 },
                 {
                   value: radarData[0][2],
-                  name: "cluster3",
+                  name: "稳定型",
                   itemStyle: {
                     color: CLUSTER_LABEL_LIST[2],
                   },

@@ -236,11 +236,13 @@ function RoseComponent(props) {
                 min: 0,
                 max: 2000,
                 seriesIndex: 2,
-                left: '7%',
+                left: '3%',
+                top:"5%",
                 itemWidth:10,
                 itemHeight:90,
+                orient: 'horizontal',
                 inRange: {
-                    color: ['#00ff00', '#f0e68c', '#ff8c00', '#ff7f50','#ff0000', '#8b0000']
+                    color: ['#a6da6a', '#d8e98a', '#dde0a0', '#ffc455','#f48043', '#f46d43']
                 }
             },
             series: [
@@ -350,11 +352,11 @@ function RoseComponent(props) {
                     ], // 数据
                     itemStyle: {
                         // color: '#ff9c47' // 柱子颜色
-                        color: '#87c1fa' // 柱子颜色
+                        color: '#99cae1' // 柱子颜色
                     },
                     emphasis: {
                         itemStyle: {
-                            color: '#4b0082' // 柱子高亮颜色
+                            color: '#83a4c5' // 柱子高亮颜色
                         }
                     }
                 },
@@ -496,6 +498,7 @@ function RoseComponent(props) {
               date.setSeconds(0); // 设置秒数为 0（可选，根据需求决定是否需要设置）
               // 获取对应的 Unix 时间戳（单位为毫秒）
               const unixTimestamp = date.getTime();
+            //   console.log(unixTimestamp);
               handleFlowtimeStamp(unixTimestamp);
               // 获取当前 echarts 实例的配置项
               var option = myChart.getOption();

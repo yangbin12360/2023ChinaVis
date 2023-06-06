@@ -7,14 +7,14 @@
 .radio-box {
     width: 100%;
     background-color: #Fff;
-    height: 27px;
+    height: 34px;
 }
 
 #progressBar {
     width: 340px;
     height: 340px;
-    left: 5%;
-    top: -3.5%;
+    left: 10%;
+    top: -0.5%;
     /* background-color: pink; */
     position: absolute;
 }
@@ -26,10 +26,10 @@
 }
 
 #similarity {
-    width: 260px;
-    height: 260px;
+    width: 240px;
+    height: 240px;
     position: absolute;
     overflow: hidden;
-    left: 18%;
-    top: 18.5%;
+    left: 23%;
+    top: 21.5%;
 }
