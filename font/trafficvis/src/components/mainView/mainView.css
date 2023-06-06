@@ -10,8 +10,9 @@
     width: 200px;
     height: 20px;
     position: absolute;
-    background-color: pink;
-    left: 50.3%;
+    background-color: #dcdfd2;
+    left: 50.27%;
+    top: 0.5%;
 }
 
 .mainView .activaTable {

@@ -331,7 +331,7 @@ def getIdHighValue():
     vPositionList = []
     startTime = int(data.iloc[0]["time_meas"]/1000000) #起始时间
     endTime = int(data.iloc[-1]["time_meas"]/1000000)  #结束时间 
-    print("endtime",endTime)
+    # print("endtime",endTime)
     vListTime = startTime
     for vNum in newVelocityList:
         tempDict = {}
@@ -381,7 +381,7 @@ def getIdHighValue():
             flowList.append(flow)
     newRes["flowList"] = flowList #车道流量
     newRes["flowSe"] = values
-    print("newRes",newRes["flowSe"])
+    # print("newRes",newRes["flowSe"])
     # 设置坐高价值场景坐标点的变化
     for i in newRes["hvPositionList"]:
         if i["y"] == 0:
@@ -661,7 +661,7 @@ def getPartSimilarity():
     nowTime = request.get_json().get('timeStamp')
     selectDir = request.get_json().get('selectDir')
     clusterList = request.get_json().get('clusterArray')
-    print(clusterList)
+    # print(clusterList)
     def get_sorted_indices(list1, list2):
         indices = [index for index, value in enumerate(list2) if value in list1]
         indices.sort(key=lambda x: list1.index(list2[x]))
@@ -704,7 +704,7 @@ def getRoadHealth():
             temp = []
             temp.append(t)
             temp.append(road_flow[n][t])
-            temp.append(road_velocity[n][t])
+            temp.append((road_velocity[n][t]*3.6))
             temp.append(road_bus[n][t])
             temp.append(n)
             restemp.append(temp)
@@ -738,6 +738,7 @@ def getBigRoadHealth():
     file_path1 = './static/data/Result/little_road_flow_health.json'
     file_path2 = './static/data/Result/little_road_velocity_health.json'
     file_path3 = './static/data/Result/little_road_bus_propotion_health.json'
+    file_path4 = './static/data/Result/middle_road_flow.json'
     restemp =[]
     with open(file_path1, "r", encoding="utf-8") as f1:
         road_flow = json.load(f1)
@@ -745,13 +746,15 @@ def getBigRoadHealth():
         road_velocity = json.load(f2)    
     with open(file_path3, "r", encoding="utf-8") as f3:
         road_bus = json.load(f3)
+    with open(file_path4, "r", encoding="utf-8") as f4:
+        middle_road = json.load(f4)
 
     for n in range(0,34,1):
         for t in range(0,24,1):
             temp = []
             temp.append(t)
             temp.append(road_flow[n][t])
-            temp.append(road_velocity[n][t])
+            temp.append((road_velocity[n][t]*3.6))
             temp.append(road_bus[n][t])
             temp.append(n)
             restemp.append(temp)
@@ -777,18 +780,20 @@ def getBigRoadHealth():
         elif i[4]<=33:
             restotal[8].append(i)
 
-    for item in restotal:
+    for index,item in enumerate(restotal):
         resbigtemp = []
         for hour in range(0,24,1):
             count=0
-            flow=0
+            if index==8:
+                flow=0
+            else:
+                flow=middle_road[hour][index]
             velocity_total=0
             bus=0
             restotaltemp=[]
             for d in item:
                 if d[0] == hour:
                     count = count+1
-                    flow = flow+d[1]
                     velocity_total = velocity_total+d[2]
                     bus=bus+d[3]
             restotaltemp.append(hour)

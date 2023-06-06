@@ -10,14 +10,8 @@ import { Radio } from "antd";
 
 
 function Details (props){
-    // const [time,setTime] = useState(1681315196);
-    // const [carNum,setcarNum] = useState(0);
-    // const [scence,setScence] = useState(0);
-    const [tipyFlag,setTipyFlag] = useState(false);
-    const [tipyContent,setTipyContent] = useState("");
-    const [tipyX,setTipyX] = useState('0px');
-    const [tipyY,setTipyY] = useState('0px');
-    // const [dataset,setDataTese] = useState([]);
+    const [specialContent,setSpecialContent] = useState("");
+    const [veloContent,setVeloContent] = useState("");
     const{time,carNum,scence,handleDetail} = props;
 
     var name=['车道0','车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8'];
@@ -85,7 +79,6 @@ function Details (props){
                         .style('position','absolute')
                         .style('opacity',0);
 
-      //console.log(dataset);
 //时间段比例尺
       var scale = d3.scaleLinear()
                     .domain([0,d3.max(dataset.map(item => {
@@ -145,11 +138,38 @@ function Details (props){
                      .attr("transform","translate(0,10)");
       var padding = (document.getElementById('arcsvg').clientWidth-160)/3;
 
-      
+      //获取最大特征信息和速度
+      const maxV = d3.max(dataset.map(item => {
+            return item.velocity
+         }));
+      //获取最大次数
+      const maxCount = d3.max(dataset.map(item => {
+            return item.count
+         }));
+      //获取最大速度
+      const maxSV = d3.max(dataset.map(item => {
+            return item.mean_velo
+         }));
+      //获取最大加速度
+      const maxA = d3.max(dataset.map(item => {
+            return item.acceleration
+         }));
+      //获取最大时间段
+      const maxTime = d3.max(dataset.map(item => {
+            return item.duration
+         }));
+
 //切入切出
      if( scence == 0){
+      if (typeof(maxCount) == "undefined"){
+            setSpecialContent("切入切出最大次数："+0+"次");
+            setVeloContent("最大平均速度："+0+"km/h");
+      }
+      else{
+            setSpecialContent("切入切出最大次数："+maxCount+"次");
+            setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
+      }
     dataset.map((item,index) => {
-
       arcsvg.append("path")
             .attr("d",arcPath(arcdata))	
             .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -200,7 +220,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -230,7 +250,7 @@ function Details (props){
             .attr('font-size','11px')
             .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
       arcsvg.append("text")
-            .text('速度')
+            .text('平均速度')
             .attr('font-size','11px')
             .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
       arcsvg.append("text")
@@ -248,6 +268,9 @@ function Details (props){
       arcsvg.append("text")
             .text(item.id)
             .attr('font-size','13px')
+            .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
             .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
       arcsvg.append("text")
             .text(converTimestampS(item.start_time/1000000))
@@ -272,6 +295,8 @@ function Details (props){
      }
     //停止过久
      else if( scence == 1){
+      setSpecialContent("最长持续时间："+maxTime.toFixed(2)+"s");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -323,7 +348,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -353,7 +378,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -371,6 +396,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -388,6 +416,8 @@ function Details (props){
      }
      //非机动车异常
      else if( scence == 2){
+      setSpecialContent("最长持续时间："+maxTime.toFixed(2)+"s");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -439,7 +469,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -469,7 +499,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4))-40)-50)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -487,6 +517,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -504,6 +537,8 @@ function Details (props){
     }
     //超速
     else if( scence == 3){
+      setSpecialContent("最大超速速度："+(maxSV*3.6).toFixed(2)+"km/h");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -521,7 +556,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('最大速度：'+item.mean_velo.toFixed(2)+'m/s');
+                  tipytool.html('最大速度：'+(item.mean_velo*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -555,7 +590,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -585,7 +620,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4))-40)-50)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -603,6 +638,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -621,6 +659,8 @@ function Details (props){
     }
     //行人异常
     else if( scence == 4){ 
+      setSpecialContent("最长持续时间："+ maxTime.toFixed(2)+"s");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -672,7 +712,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -702,7 +742,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -720,6 +760,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -737,6 +780,8 @@ function Details (props){
     }
     //逆行
     else if( scence == 5){
+      setSpecialContent("最长持续时间："+maxTime.toFixed(2)+"s");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -788,7 +833,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -818,7 +863,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -835,6 +880,9 @@ function Details (props){
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
         arcsvg.append("text")
               .text(item.id)
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr('font-size','13px')
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
@@ -853,6 +901,8 @@ function Details (props){
     }
     //急减速
     else if( scence == 6){
+      setSpecialContent("最大加速度："+(maxA*36*360).toFixed(2)+"km/h^2");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -870,7 +920,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('加速度：'+item.acceleration.toFixed(2)+'m/s^2');
+                  tipytool.html('加速度：'+(item.acceleration*36*360).toFixed(2)+'km/h^2');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -904,7 +954,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -934,7 +984,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -952,6 +1002,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -969,6 +1022,8 @@ function Details (props){
     }
     //急加速
     else if( scence == 7){
+      setSpecialContent("最大加速度："+(maxA*36*360).toFixed(2)+"km/h^2");
+      setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
       dataset.map((item,index) => {
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
@@ -986,7 +1041,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('加速度：'+item.acceleration.toFixed(2)+'m/s^2');
+                  tipytool.html('加速度：'+(item.acceleration*36*360).toFixed(2)+'km/h^2');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -1021,7 +1076,7 @@ function Details (props){
                   var svgContainer = d3.select("#detailInformation").node();
                   var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                   var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                  tipytool.html('速度：'+(item.velocity).toFixed(2)+'m/s');
+                  tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
                   tipytool.style("left", xOffset+ "px")
                           .style("top", yOffset + "px")
                           .transition()
@@ -1051,7 +1106,7 @@ function Details (props){
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
         arcsvg.append("text")
-              .text('速度')
+              .text('平均速度')
               .attr('font-size','11px')
               .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
         arcsvg.append("text")
@@ -1069,6 +1124,9 @@ function Details (props){
         arcsvg.append("text")
               .text(item.id)
               .attr('font-size','13px')
+              .style('fill',function(d,i){
+                  return typecolor[item.type];
+              })
               .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
         arcsvg.append("text")
               .text(converTimestampS(item.start_time/1000000))
@@ -1102,20 +1160,20 @@ function Details (props){
       <div style={{position:'relative'}}>
        
         <div className = 'detail' style={{height:'470px',width:'100%',position:'absolute',background:'#efefef'}}> 
-        <div style={{height:'20%' ,background:'#edede8',borderRadius:'20px',border:'5px solid #cccccc'}}>
+        <div style={{height:'20%',width:'99.8%',background:'#edede8',borderRadius:'20px',border:'5px solid #cccccc'}}>
         <div style={{textAlign:'center'}}>
-        <br></br>
+         <p>
         <text style={{color:'#5c677d'}}><b>小型车辆</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#79addc'}}><b>行人</b> &nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#f19c79'}}><b>非机动车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#f4d35e'}}><b>卡车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#709775'}}><b>客车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#ce4257'}}><b>手推车</b> </text>
-        <br></br>
+        </p>
         <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>车道{carNum}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
+        <div id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>{specialContent},&nbsp;&nbsp;&nbsp;{veloContent}</div>
         </div>
         </div>
-
         <div id = 'detailInformation' style={{height:'80%',width:'100%',overflowY:'auto',position:'relative'}}>
                           {/* 提示框
          {tipyFlag ? <div className ="tip" id="flow_tip" 

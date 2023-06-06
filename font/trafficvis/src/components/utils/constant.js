@@ -104,7 +104,7 @@ export const HV_NAME_LIST_CN_V2 = {
   "longTime":"长时间停车",
   "noMotorCross":"非机动车异常",
   "overSpeeding":"超速",
-  "overSpeeding":"行人异常",
+  "peopleCross":"行人异常",
   "reverse":"逆行",
   "speedDown":"急减速",
   "speedUp":"急加速",
@@ -112,15 +112,16 @@ export const HV_NAME_LIST_CN_V2 = {
   "结束点":"结束点"
 };
 
+
 export const HV_NAME_LIST_CN_COLOR = {
-  "carCross":"#005f73",
-  "longTime":"#001219",
-  "noMotorCross":"#0a9396",
-  "overSpeeding":"#e9d8a6",
-  "overSpeeding":"#ee9b00",
-  "reverse":"#ca6702",
-  "speedDown":"#bb3e03",
-  "speedUp":"#bb3e03",
+  "carCross":"magenta",
+  "longTime":"red",
+  "noMotorCross":"volcano",
+  "overSpeeding":"orange",
+  "peopleCross":"gold",
+  "reverse":"lime",
+  "speedDown":"green",
+  "speedUp":"geekblue",
   "出发点":"#bbd0ff",
   "结束点":"#bbd0ff"
 };
@@ -138,19 +139,19 @@ export const HV_NAME_LIST_CN = {
 
 
 export const HV_NAME_EASY_LIST = [
-  "CC",
-  "LT",
-  "NC",
-  "OS",
-  "PC",
-  "REV",
-  "SD",
-  "SU",
+  "变道",
+  "违停",
+  "非异",
+  "超速",
+  "人异",
+  "逆行",
+  "急加",
+  "急减",
 ];
 
 // export const CLUSTER_LABEL_LIST = ["red", "blue", "green"];
 
-export const CLUSTER_LABEL_LIST = ["#ef233c", "#5fa8d3", "#90a955"];
+export const CLUSTER_LABEL_LIST = [ "#5fa8d3","#f07167", "#90a955"];
 // export const CLUSTER_TYPE_LIST = ["#89fc00", "#d0f4ea", "#64dfdf"];
 export const CLUSTER_TYPE_LIST = ["#5c677d", "#f4d35e", "#709775"];
 export const LANE_ID_LIST = [

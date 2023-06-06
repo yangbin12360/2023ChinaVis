@@ -10,17 +10,53 @@ const RoadHealth =()=>{
     const [chartType,setchartType] = useState(true);
     const [buttonContent,setButtonContent] = useState('切换至中车道健康度');
 
-    
+    //计算综合指标
+    function computeHealth(){
+
+    }
     useEffect(()=>{
       if(chartType == true){
         getRoadHealth().then(res => {
-          let healthData = res
+          let temp = res;
+          let healthData = [[],[]];
+          temp.forEach((item,index) =>{
+            item.forEach((d) => {
+              if(d[0] == 0 && d[2]<5){
+                d.splice(0, 1);
+                d.push("优秀");
+                healthData[0].push(d);
+              }
+              else if(d[0] == 0 && d[2]>=5){
+               d.splice(0, 1);
+                d.push("良好");
+                healthData[1].push(d);
+            }
+            })
+          })           
+          console.log(healthData);
           drwaRoadHealth( healthData)
         })
       }
       else{
         getBigRoadHealth().then(res => {
-          let healthData = res
+          let temp = res;
+          let healthData = [[],[]];
+          let bigcarnum = ['A','B','C','D','E','F','G','H','I'];
+          temp.forEach((item,index) =>{
+            item.forEach((d) => {
+              d.push(bigcarnum[index]);
+              if (d[0] == 0 && d[2]<5){
+                d.splice(0, 1);
+                d.push("优秀");
+                healthData[0].push(d);
+              }
+              else if(d[0] == 0 && d[2]>=5){
+                d.splice(0, 1);
+                d.push("良好");
+                healthData[1].push(d);
+            }
+            })
+          })           
           drwaRoadHealth(healthData)
         })
       }
@@ -44,11 +80,13 @@ const r7 = healthData[7];
 const r8 = healthData[8];
 
   var schema = [
-    { name: 'time', index: 0, text: '时间' },
-    { name: 'flow', index: 1, text: '车流量' },
-    { name: 'velocity', index: 2, text: '速度' },
-    { name: 'bus', index: 3, text: '社会车辆/公交比' },
-    { name: 'num', index: 4, text: ' 小车道号' },
+   // { name: 'time', index: 0, text: '时间' },
+    { name: 'flow', index: 0, text: '车流量' },
+    { name: 'velocity', index: 1, text: '速度' },
+    { name: 'bus', index: 2, text: '社会车辆/公交比' },
+    { name: 'num', index: 3, text: ' 小车道号' },
+    { name: 'health', index: 4, text: ' 健康度' },
+    { name: 'bignum', index: 5, text: ' 中车道号' },
   ];
   var lineStyle = {
     width: 1,
@@ -61,37 +99,35 @@ const r8 = healthData[8];
       backgroundColor: '#efefef',
       legend: {
         bottom: 10,
-        data: ['中车道0', '中车道1', '中车道2', '中车道3', '中车道4', '中车道5', '中车道6', '中车道7', '中车道8'],
+        data: [ '良好','优秀'],
         itemGap: 25,
         textStyle: {
           color: 'black',
           fontSize:10
         }
       },
-      tooltip: {
-        padding: 10,
-        backgroundColor: '#222',
-        borderColor: '#777',
-        borderWidth: 1
-      },
       parallelAxis: [
         {
           dim: 0,
-          name: schema[0].text,
-          max: 23
+          name: schema[0].text
           // inverse: true,
           // max: 23,
           // nameLocation: 'start'
         },
         { dim: 1, name: schema[1].text },
         { dim: 2, name: schema[2].text },
-        { dim: 3, name: schema[3].text },
-        { dim: 4, name: schema[4].text ,max: 33},
+        { dim: 3, name: schema[3].text,max: 33 },
+        {
+          dim: 4,
+          name: schema[4].text,
+          type: 'category',
+          data: [ '良好','优秀']
+        }
       ],
       parallel: {
         left: '5%',
         right: '8%',
-        bottom:"30%",
+        bottom:"20%",
       //   bottom: '100%',
         parallelAxisDefault: {
           type: 'value',
@@ -122,56 +158,16 @@ const r8 = healthData[8];
       },
       series: [
         {
-          name: '中车道0',
+          name: '优秀',
           type: 'parallel',
           lineStyle: lineStyle,
           data: r0
         },
         {
-          name: '中车道1',
+          name: '良好',
           type: 'parallel',
           lineStyle: lineStyle,
           data: r1
-        },
-        {
-          name: '中车道2',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r2
-        }, {
-          name: '中车道3',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r3
-        },
-        {
-          name: '中车道4',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r4
-        },
-        {
-          name: '中车道5',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r5
-        }, {
-          name: '中车道6',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r6
-        },
-        {
-          name: '中车道7',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r7
-        },
-        {
-          name: '中车道8',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r8
         }
       ]
     };
@@ -182,7 +178,7 @@ const r8 = healthData[8];
       backgroundColor: '#efefef',
       legend: {
         bottom: 10,
-        data: ['中车道0', '中车道1', '中车道2', '中车道3', '中车道4', '中车道5', '中车道6', '中车道7', '中车道8'],
+        data: [ '良好','优秀'],
         itemGap: 25,
         textStyle: {
           color: 'black',
@@ -199,19 +195,29 @@ const r8 = healthData[8];
         {
           dim: 0,
           name: schema[0].text,
-          max: 23
           // inverse: true,
           // max: 23,
           // nameLocation: 'start'
         },
         { dim: 1, name: schema[1].text },
         { dim: 2, name: schema[2].text },
-        { dim: 3, name: schema[3].text },
+        {
+          dim:3,
+          name: schema[5].text,
+          type: 'category',
+          data: ['I','H','G','F','E','D','C','B','A']
+        },
+        {
+          dim: 4,
+          name: schema[4].text,
+          type: 'category',
+          data: [ '良好','优秀']
+        }
       ],
       parallel: {
         left: '5%',
         right: '8%',
-        bottom:"30%",
+        bottom:"20%",
       //   bottom: '100%',
         parallelAxisDefault: {
           type: 'value',
@@ -242,56 +248,16 @@ const r8 = healthData[8];
       },
       series: [
         {
-          name: '中车道0',
+          name: '优秀',
           type: 'parallel',
           lineStyle: lineStyle,
           data: r0
         },
         {
-          name: '中车道1',
+          name: '良好',
           type: 'parallel',
           lineStyle: lineStyle,
           data: r1
-        },
-        {
-          name: '中车道2',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r2
-        }, {
-          name: '中车道3',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r3
-        },
-        {
-          name: '中车道4',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r4
-        },
-        {
-          name: '中车道5',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r5
-        }, {
-          name: '中车道6',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r6
-        },
-        {
-          name: '中车道7',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r7
-        },
-        {
-          name: '中车道8',
-          type: 'parallel',
-          lineStyle: lineStyle,
-          data: r8
         }
       ]
     };
@@ -313,7 +279,7 @@ const r8 = healthData[8];
           else{
             setButtonContent('切换至中车道健康度');
           }
-        } } style = {{position:'absolute',background:"#e8e8e4",width:150,height:30,top:"90%",left:"75%",borderRadius:20,border:'2px solid #cccccc'}}>{buttonContent}</button>
+        } } style = {{position:'absolute',background:"#e8e8e4",width:130,height:20,top:"92%",left:"75%",borderRadius:20,border:'2px solid #cccccc',fontSize:'12px'}}>{buttonContent}</button>
         </>
 
     )

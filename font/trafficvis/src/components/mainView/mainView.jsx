@@ -104,16 +104,6 @@ const MainView = (props) => {
       gltf.scene.position.set(move.x, move.y, move.z);
       scene.add(gltf.scene);
     });
-    // loader.load(testcar, (gltf) => {
-    //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
-    //   gltf.scene.position.set(move.x, move.y, move.z);
-    //   scene.add(gltf.scene);
-    // });
-    // loader.load(ferrari, (gltf) => {
-    //   gltf.scene.rotateX(THREE.MathUtils.degToRad(move.angle));
-    //   gltf.scene.position.set(move.x, move.y, move.z+150);
-    //   scene.add(gltf.scene);
-    // })
     // 存储场景、加载器、相机和渲染器以便后续使用
     setScene(scene);
     setLoader(loader);
@@ -246,9 +236,9 @@ const MainView = (props) => {
             instance.up.set(0, 0, 1); // Set the up vector to the Z axis
 
             // Set the initial rotation of the model
-            instance.rotation.x =  Math.PI /4;
-            instance.rotation.y = -Math.PI /2 ;
-            instance.rotation.z = -Math.PI/4;
+            instance.rotation.x =  Math.PI /2;
+            instance.rotation.y = -Math.PI /1.5;
+            // instance.rotation.z = -Math.PI/4;
             const geometry = new THREE.TorusGeometry(1, 0.5, 16, 100); // 配置光环几何属性
             const material = new THREE.MeshBasicMaterial({ color: "red" }); // 配置光环材料属性
             const halo = new THREE.Mesh(geometry, material); // 创建光环

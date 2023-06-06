@@ -67,7 +67,7 @@ const SceneList = (props) => {
       .select("#sceneBar")
       .append("svg")
       .attr("width", dimensions.width-10)
-      .attr("height", dimensions.height-10)
+      .attr("height", dimensions.height-5)
       .attr("videBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
       .style("background", "#fff");
@@ -100,7 +100,7 @@ const SceneList = (props) => {
       })
       .attr("y", 0)
       .attr("width", xScale.bandwidth())
-      .attr("height", boundedHeight)
+      .attr("height", boundedHeight+10)
       .attr("fill", "#eeeeee");
 
     // 绘制柱状图
@@ -112,7 +112,7 @@ const SceneList = (props) => {
       .attr("x", (d, i) => {
         return xScale(i);
       })
-      .attr("y", (d) => boundedHeight - yScale(d.count))
+      .attr("y", (d) => boundedHeight - yScale(d.count)+10)
       .attr("width", xScale.bandwidth() - 1)
       .attr("height", (d) => yScale(d.count))
       .attr('fill','#86bbd8');
@@ -127,7 +127,8 @@ const SceneList = (props) => {
       .attr("x", (d, i) => {
         return xScale(i);
       })
-      .attr("y", boundedHeight+20)
+      .attr("font-size", "11px")
+      .attr("y", boundedHeight+23)
       .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
     //添加数量文字
     bounds
@@ -139,7 +140,7 @@ const SceneList = (props) => {
     .attr("x", (d, i) => {
       return xScale(i);
     })
-    .attr("y", (d) =>boundedHeight-yScale(d.count)-10 )
+    .attr("y", (d) =>boundedHeight-yScale(d.count) )
     .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
   };
 
@@ -188,12 +189,12 @@ const SceneList = (props) => {
               <thead className="tableH">
                 <tr className="thr">
                   <th className="thone">
-                    <div onClick={toggleListVisibility}>生成</div>
+                    <div onClick={toggleListVisibility} style={{cursor: "pointer",paddingLeft: "15px"}}>生成</div>
                   </th>
-                  <th>Id</th>
-                  <th>类型</th>
-                  <th>高价值场景类型</th>
-                  <th>开始时间</th>
+                  <th style={{ paddingLeft: "45px" }}>Id</th>
+                  <th style={{width: "20%",paddingLeft: "40px" }}>类型</th>
+                  <th style={{ width: "25%" ,paddingLeft: "40px"}}>高价值场景类型</th>
+                  <th  style={{ paddingLeft: "40px"}}>开始时间</th>
                 </tr>
               </thead>
               <tbody className="tableB">
@@ -206,17 +207,17 @@ const SceneList = (props) => {
                         : {}
                     }
                   >
-                    <td className="thone">
+                    <td className="thone" style={{ paddingLeft: "23px" }}>
                       <input
                         type="checkbox"
                         checked={selectedRows.includes(row.id)}
                         onChange={() => toggleRowSelection(row.id)}
                       />
                     </td>
-                    <td className="cText">{row.id}</td>
-                    <td>{TYPE_NAME_LIST[row.type]}</td>
-                    <td>{HV_NAME_LIST_CN[row.hv_type]}</td>
-                    <td>{row.start_time}</td>
+                    <td className="cText" style={{ paddingLeft: "23px" }}>{row.id}</td>
+                    <td style={{ paddingLeft: "40px" }}>{TYPE_NAME_LIST[row.type]}</td>
+                    <td style={{ paddingLeft: "40px" }}>{HV_NAME_LIST_CN[row.hv_type]}</td>
+                    <td style={{ paddingLeft: "40px" }}>{row.start_time}</td>
                   </tr>
                 ))}
               </tbody>
@@ -224,7 +225,7 @@ const SceneList = (props) => {
           </div>
         </div>
       </div>
-      <div className="mid"></div>
+      {/* <div className="mid"></div> */}
     </div>
   );
 };

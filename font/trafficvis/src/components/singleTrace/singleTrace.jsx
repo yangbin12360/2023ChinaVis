@@ -12,15 +12,15 @@ const SingleTrace = (props) => {
   const { isTraceVisible, selectTraceId, singleType,handleChangeTime,handleSelectId  } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
+  const legendRef = useRef(null);
   const changeNowTime =(timeStamp)=>{
-    console.log("触发",timeStamp);
     handleChangeTime(timeStamp);
   }
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
         const lanNumber = res["flowSe"].length;
-        drawBar(res["hvCount"]);
+        // drawBar(res["hvCount"]);
         drawSingleTrace(
           res["hvPositionList"],
           lanNumber,
@@ -28,17 +28,19 @@ const SingleTrace = (props) => {
           res["flowSe"],
           res["flowList"]
         );
+        // drawTest()
       });
     }
   }, [isTraceVisible, selectTraceId, singleType]);
-
-  const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
+const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const divHeight = singleTraceRef.current.offsetWidth;
     const divWidth = singleTraceRef.current.offsetHeight;
+    // const divHeight = 100
+
     const dimensions = {
       width: divHeight,
-      height: 250,
-      margin: { top: 10, right: 30, bottom: 40, left: 50 },
+      height: divWidth ,
+      margin: { top: 10, right: 30, bottom: 30, left: 50 },
     };
     const boundedWidth =
       dimensions.width - dimensions.margin.left - dimensions.margin.right;
@@ -49,11 +51,11 @@ const SingleTrace = (props) => {
     const svg = d3
       .select("#singleTrace")
       .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
+      .attr("width", divHeight)
+      .attr("height", divWidth)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
-      .style("background", "#fff");
+      .style("background", "#efefef")
 
     const bounds = svg
       .append("g")
@@ -137,14 +139,16 @@ const SingleTrace = (props) => {
       .call((g) => g.selectAll(".v-y-axis .tick line").remove()); // 移除vY轴的轴线
 
     // 流量比例尺
-    const colorScale = d3
-      .scaleQuantize()
-      .domain([0, d3.max(flowData, (d) => d)])
-      .range(d3.schemeBlues[9]);
+    // const colorScale = d3
+    //   .scaleQuantize()
+    //   .domain([0,d3.max(flowData, (d) => d)])
+    //   .range(["#b7d4af","#a2cbbf","#1b7c9d"]);
+    let colorScale = d3.scaleSequential([0,d3.max(flowData, (d) => d)], d3.interpolateGnBu);
     // 一个车道持续5分钟的流量
     const rectHeight = boundedHeight / flowData.length;
     const rectGroup = bounds.append("g");
-
+    const textGroup = bounds.append("g");
+    console.log("flowData",flowData);
     for (let j = 0; j < flowData.length; j++) {
       rectGroup
         .append("rect")
@@ -155,6 +159,15 @@ const SingleTrace = (props) => {
         .attr("fill", colorScale(flowData[flowData.length - 1 - j]))
         .attr("stroke", "none")
         .style("opacity", 0.5);
+        // textGroup
+        // .append("text")
+        // .attr("x", boundedWidth/2)
+        // .attr("y", (j * rectHeight) + rectHeight / 2+5)
+        // .attr("text-anchor", "middle") // 设置文本对齐方式
+        // .style("font-size", "12px") // 设置文本字体大小
+        // .text(`车流量：${flowData[flowData.length - 1 - j]}`)
+        // .attr("fill", "black")
+        // .attr("opacity", 0.6)
     }
 
     /*******************************************绘制线、点 */
@@ -202,11 +215,12 @@ const SingleTrace = (props) => {
       lineGroup
         .append("path")
         .datum(segment)
-        .attr("stroke", "blue")
+        .attr("stroke", "#6c757d")
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .attr("stroke-linejoin", "round")
         .attr("d", line);
+      
     });
 
     // 画点
@@ -221,7 +235,7 @@ let tooltip = d3.select("body").append("div")
       .join("circle")
       .attr("cx", (d) => xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
-      .attr("r", 3) // 设置点的大小
+      .attr("r", 4) // 设置点的大小
       .attr("fill", (d,i)=>{
         return HV_NAME_LIST_CN_COLOR[d.type] 
       })
@@ -230,8 +244,8 @@ let tooltip = d3.select("body").append("div")
         d3.select(event.currentTarget)
         .transition()
         .duration(50)
-        .attr("r", 3 * 1.5)
-          .attr("fill", "yellow"); // 改变高亮颜色
+        .attr("r", 4 * 1.5)
+          .attr("fill", "white"); // 改变高亮颜色
         tooltip.transition()
           .duration(200)
           .style("opacity", .9);
@@ -243,7 +257,7 @@ let tooltip = d3.select("body").append("div")
         d3.select(event.currentTarget)
         .transition()
         .duration(50)
-        .attr("r", 3 )
+        .attr("r", 5 )
           .attr("fill", d=>HV_NAME_LIST_CN_COLOR[d.type] ); // 恢复原颜色
         tooltip.transition()
           .duration(500)
@@ -299,117 +313,17 @@ const converTimestamp = (timestamp) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-  //绘制柱状图
-  const drawBar = (data) => {
-    // 获取div元素的高度和宽度
-    const divHeight = barRef.current.offsetHeight;
-    const divWidth = barRef.current.offsetWidth;
-    const dimensions = {
-      width: divWidth,
-      height: 215,
-      margin: { top: 10, right: 10, bottom: 50, left: 10 },
-    };
-    const boundedWidth =
-      dimensions.width - dimensions.margin.left - dimensions.margin.right;
-    const boundedHeight =
-      dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
-
-    d3.selectAll("div#bar svg").remove();
-
-    const svg = d3
-      .select("#bar")
-      .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
-      .attr("videBox", [0, 0, dimensions.width, dimensions.height])
-      .style("max-width", "100%")
-      .style("background", "#fff");
-
-    const bounds = svg
-      .append("g")
-      .style(
-        "transform",
-        `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
-      );
-
-    let xScale = d3
-      .scaleBand()
-      .domain(d3.range(data.length))
-      .range([0, boundedWidth])
-      .padding(0.05);
-    let yScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.count)])
-      .range([0, boundedHeight - dimensions.margin.bottom]);
-
-    //绘制柱状图背景
-    bounds
-      .append("g")
-      .selectAll("rect")
-      .data(data)
-      .join("rect")
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", 0)
-      .attr("width", xScale.bandwidth())
-      .attr("height", boundedHeight)
-      .attr("fill", "#eeeeee");
-
-    // 绘制柱状图
-    bounds
-      .append("g")
-      .selectAll("rect")
-      .data(data)
-      .join("rect")
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", (d) => boundedHeight - yScale(d.count))
-      .attr("width", xScale.bandwidth() - 1)
-      .attr("height", (d) => yScale(d.count));
-
-    //绘制状图x轴名称
-    bounds
-      .append("g")
-      .selectAll("text")
-      .data(data)
-      .join("text")
-      .text((d) => d.sceneType)
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", boundedHeight + 20)
-      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
-    //添加数量文字
-    bounds
-      .append("g")
-      .selectAll("text")
-      .data(data)
-      .join("text")
-      .text((d) => d.count)
-      .attr("x", (d, i) => {
-        return xScale(i);
-      })
-      .attr("y", (d) => boundedHeight - yScale(d.count) - 10)
-      .attr("transform", `translate(${xScale.bandwidth() / 4},0)`);
-  };
 
   return (
     <div className="box">
-      <div className="barBox">
         <div className="infoList">
           <InfoList
             selectTraceId={selectTraceId}
             singleType={singleType}
           ></InfoList>
         </div>
-        <div className="bar" ref={barRef} id="bar"></div>
-      </div>
-      <div className="container">
-        <div className="legend">123</div>
+        {/* <div className="bar" ref={barRef} id="bar"></div> */}
         <div className="picBox" ref={singleTraceRef} id="singleTrace"></div>
-      </div>
     </div>
   );
 };
