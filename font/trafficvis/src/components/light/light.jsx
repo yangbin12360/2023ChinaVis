@@ -22,6 +22,7 @@ function Light(props){
         //     [3,30,25,23,30,13,14]//行人过马路流量——红（人流量越大，红灯越大）
 
         // ];
+
         const tipytool = d3.select('body')
                      .append('div')
                      .attr('background','white')
@@ -36,7 +37,44 @@ function Light(props){
                     .attr('width', width)
                     .attr('height', height)
                     .attr('transform','translate('+ left+')');
+        //图例
+        var legend = svg.append('g').attr('id','legend');
 
+        legend.append('rect')
+              .attr('y',5)
+              .attr('x',width-21*barPadding)
+              .attr('width',10)
+              .attr('height',5)
+              .attr('stroke','black')
+              .attr('fill', '#e8e8e4');
+        legend.append('text')
+              .text('事件统计')
+              .style('font-size',10)
+              .attr('y',10)
+              .attr('x',width-17*barPadding);
+
+        legend.append('circle')
+              .attr('cy',top+3)
+              .attr('cx',width-20*barPadding)
+              .attr('r',3)
+              .style('fill',"#de7266");
+        legend.append('text')
+              .text('人流量')
+              .style('font-size',10)
+              .attr('y',top+5)
+              .attr('x',width-17*barPadding);
+        
+        legend.append('circle')
+              .attr('cy',top+18)
+              .attr('cx',width-20*barPadding)
+              .attr('r',3)
+              .style('fill',"#84b791");
+        legend.append('text')
+              .text('通行速度')
+              .style('font-size',10)
+              .attr('y',top+20)
+              .attr('x',width-17*barPadding);
+              
         var Scence = svg.append('g').attr('id','Scence');
        
         //矩形条的高度标尺
@@ -97,7 +135,7 @@ function Light(props){
                                         var svgContainer = d3.select("#lightContainer").node();
                                         var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                         var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                        tipytool.html(d.toFixed(2));
+                                        tipytool.html("速度："+(d*3.6).toFixed(2)+"km/h");
                                         tipytool.style("left", xOffset+ "px")
                                                 .style("top", yOffset + "px")
                                                 .transition()
@@ -130,7 +168,7 @@ function Light(props){
                                     var svgContainer = d3.select("#lightContainer").node();
                                     var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                     var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                    tipytool.html(d.toFixed(2));
+                                    tipytool.html("人流量："+d.toFixed(2));
                                     tipytool.style("left", xOffset+ "px")
                                             .style("top", yOffset + "px")
                                             .transition()
@@ -166,6 +204,43 @@ function Light(props){
         console.log(width,barWidth);
         var svg = d3.select('#lightSvg');
         svg.selectAll('*').remove();
+        //图例
+        var legend = svg.append('g').attr('id','legend');
+
+        legend.append('rect')
+              .attr('y',5)
+              .attr('x',width-21*barPadding)
+              .attr('width',10)
+              .attr('height',5)
+              .attr('stroke','black')
+              .attr('fill', '#e8e8e4');
+        legend.append('text')
+              .text('事件统计')
+              .style('font-size',10)
+              .attr('y',10)
+              .attr('x',width-17*barPadding);
+
+        legend.append('circle')
+              .attr('cy',top+3)
+              .attr('cx',width-20*barPadding)
+              .attr('r',3)
+              .style('fill',"#de7266");
+        legend.append('text')
+              .text('人流量')
+              .style('font-size',10)
+              .attr('y',top+5)
+              .attr('x',width-17*barPadding);
+        
+        legend.append('circle')
+              .attr('cy',top+18)
+              .attr('cx',width-20*barPadding)
+              .attr('r',3)
+              .style('fill',"#84b791");
+        legend.append('text')
+              .text('通行速度')
+              .style('font-size',10)
+              .attr('y',top+20)
+              .attr('x',width-17*barPadding);
 
         var Scence = svg.append('g').attr('id','Scence');
        
@@ -227,7 +302,7 @@ function Light(props){
                                         var svgContainer = d3.select("#lightContainer").node();
                                         var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                         var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                        tipytool.html(d.toFixed(2));
+                                        tipytool.html("速度："+(d*3.6).toFixed(2)+"km/h");
                                         tipytool.style("left", xOffset+ "px")
                                                 .style("top", yOffset + "px")
                                                 .transition()
@@ -264,7 +339,7 @@ function Light(props){
                                     var svgContainer = d3.select("#lightContainer").node();
                                     var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                     var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                    tipytool.html(d.toFixed(2));
+                                    tipytool.html("人流量："+ d.toFixed(2));
                                     tipytool.style("left", xOffset+ "px")
                                             .style("top", yOffset + "px")
                                             .transition()

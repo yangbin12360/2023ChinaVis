@@ -115,7 +115,7 @@ const SceneList = (props) => {
       .attr("y", (d) => boundedHeight - yScale(d.count)+10)
       .attr("width", xScale.bandwidth() - 1)
       .attr("height", (d) => yScale(d.count))
-      .attr('fill','#61a5c2');
+      .attr('fill','#86bbd8');
 
     //绘制状图x轴名称
     bounds

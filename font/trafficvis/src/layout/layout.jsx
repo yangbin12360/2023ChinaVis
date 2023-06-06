@@ -155,7 +155,7 @@ const Layout = () => {
             <Col span={9} id="left_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"Details"}
+                  title={"高价值场景特征仪表盘"}
                   component={
                     <Details
                       time={time}
@@ -262,7 +262,7 @@ const Layout = () => {
               <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>
                   <Box
-                    title={"Light"}
+                    title={"行人异常红绿灯图"}
                     component={<Light timeStamp={timeStamp}></Light>}
                   ></Box>
                 </div>
