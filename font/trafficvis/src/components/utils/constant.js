@@ -170,7 +170,7 @@ export const HV_NAME_LEGEND_LIST = [
 
 export const CLUSTER_LABEL_LIST = [ "#5fa8d3","#f07167", "#90a955"];
 // export const CLUSTER_TYPE_LIST = ["#89fc00", "#d0f4ea", "#64dfdf"];
-export const CLUSTER_TYPE_LIST = ["black", "black", "black"];
+export const CLUSTER_TYPE_LIST = ["#5c677d", "#f4d35e", "#709775"];
 export const LANE_ID_LIST = [
   "1912", "1910", "1910_2", '1910_1',
   "1898_1", "1898_2", "1900", "1901",

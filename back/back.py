@@ -704,7 +704,7 @@ def getRoadHealth():
             temp = []
             temp.append(t)
             temp.append(road_flow[n][t])
-            temp.append(road_velocity[n][t])
+            temp.append((road_velocity[n][t]*3.6))
             temp.append(road_bus[n][t])
             temp.append(n)
             restemp.append(temp)
@@ -754,7 +754,7 @@ def getBigRoadHealth():
             temp = []
             temp.append(t)
             temp.append(road_flow[n][t])
-            temp.append(road_velocity[n][t])
+            temp.append((road_velocity[n][t]*3.6))
             temp.append(road_bus[n][t])
             temp.append(n)
             restemp.append(temp)

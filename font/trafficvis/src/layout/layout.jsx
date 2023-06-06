@@ -44,6 +44,7 @@ const Layout = () => {
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
   const [flowtimeStamp,setFlowtimeStamp]=useState(1681372078);
+  const [hourindex,setHourIndex]=useState(0);
   const [simCount, SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
   const [allCluster, setAllCluster] = useState([]); //用来控制时间切换时候散点图的数组
   // ----------------------- 状态改变--------------------------
@@ -76,6 +77,10 @@ const Layout = () => {
   //玫瑰图时间戳改变
   const handleFlowtimeStamp = (newData) => {
     setFlowtimeStamp(newData);
+  };
+  //玫瑰图传花瓣序号
+  const handleHourIndex = (newData) => {
+    setHourIndex(newData);
   };
   //相机控制
   const handleControlCamra = (index) => {
@@ -150,7 +155,7 @@ const Layout = () => {
             <Col span={9} id="left_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"Details"}
+                  title={"高价值场景特征仪表盘"}
                   component={
                     <Details
                       time={time}
@@ -257,7 +262,7 @@ const Layout = () => {
               <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>
                   <Box
-                    title={"Light"}
+                    title={"行人异常红绿灯图"}
                     component={<Light timeStamp={timeStamp}></Light>}
                   ></Box>
                 </div>
@@ -273,7 +278,7 @@ const Layout = () => {
               <Row style={{ height: "60%", width: "100%" }}>
                 <Box
                   title={"道路健康平行坐标图"}
-                  component={<RoadHealth></RoadHealth>}
+                  component={<RoadHealth hourindex={hourindex}></RoadHealth>}
                 ></Box>
               </Row>
             </Col>
@@ -281,7 +286,7 @@ const Layout = () => {
               <div style={{ height: "100%" }}>
                 <Box
                   title={"Rose"}
-                  component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp}></RoseComponent>}
+                  component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp} handleHourIndex={handleHourIndex}></RoseComponent>}
                 ></Box>
               </div>
             </Col>
