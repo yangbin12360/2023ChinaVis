@@ -5,7 +5,7 @@ import { getFlow } from "../../apis/api";
 
 const ForecastHeat = (props) => {
   const { flowTime,flowtimeStamp } = props;
-  console.log(flowtimeStamp)
+  //console.log(flowtimeStamp)
   const heatRef = useRef(null);
 
   useEffect(() => {

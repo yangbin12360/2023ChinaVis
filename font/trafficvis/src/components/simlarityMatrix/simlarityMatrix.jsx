@@ -115,7 +115,7 @@ const SimlarityMatrix = (props) => {
     const colorScale = d3
       .scaleOrdinal()
       .domain([0, 1, 2]) // input
-      .range(["red", "blue", "green"]); // output
+      .range(["#ef233c", "#5fa8d3", "#90a955"]); // output
     const total = d3.sum(ratio);
     const topRect = bounds.append("g").attr("id", "topRect");
     const leftRect = bounds.append("g").attr("id", "leftRect");

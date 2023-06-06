@@ -97,7 +97,7 @@ function Light(props){
                                         var svgContainer = d3.select("#lightContainer").node();
                                         var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                         var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                        tipytool.html(d.toFixed(2));
+                                        tipytool.html("速度："+d.toFixed(2)+"m/s");
                                         tipytool.style("left", xOffset+ "px")
                                                 .style("top", yOffset + "px")
                                                 .transition()
@@ -130,7 +130,7 @@ function Light(props){
                                     var svgContainer = d3.select("#lightContainer").node();
                                     var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                     var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                    tipytool.html(d.toFixed(2));
+                                    tipytool.html("人流量："+d.toFixed(2));
                                     tipytool.style("left", xOffset+ "px")
                                             .style("top", yOffset + "px")
                                             .transition()
@@ -227,7 +227,7 @@ function Light(props){
                                         var svgContainer = d3.select("#lightContainer").node();
                                         var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                         var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                        tipytool.html(d.toFixed(2));
+                                        tipytool.html("速度："+d.toFixed(2)+"m/s");
                                         tipytool.style("left", xOffset+ "px")
                                                 .style("top", yOffset + "px")
                                                 .transition()
@@ -264,7 +264,7 @@ function Light(props){
                                     var svgContainer = d3.select("#lightContainer").node();
                                     var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
                                     var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
-                                    tipytool.html(d.toFixed(2));
+                                    tipytool.html("人流量："+ d.toFixed(2));
                                     tipytool.style("left", xOffset+ "px")
                                             .style("top", yOffset + "px")
                                             .transition()

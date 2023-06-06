@@ -273,7 +273,6 @@ function Details (props){
     //停止过久
      else if( scence == 1){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -390,7 +389,6 @@ function Details (props){
      //非机动车异常
      else if( scence == 2){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -507,7 +505,6 @@ function Details (props){
     //超速
     else if( scence == 3){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -625,7 +622,6 @@ function Details (props){
     //行人异常
     else if( scence == 4){ 
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -742,7 +738,6 @@ function Details (props){
     //逆行
     else if( scence == 5){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -859,7 +854,6 @@ function Details (props){
     //急减速
     else if( scence == 6){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -976,7 +970,6 @@ function Details (props){
     //急加速
     else if( scence == 7){
       dataset.map((item,index) => {
-        console.log(index);
         arcsvg.append("path")
               .attr("d",arcPath(arcdata))	
               .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
@@ -1117,7 +1110,7 @@ function Details (props){
         <text style={{color:'#f19c79'}}><b>非机动车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#f4d35e'}}><b>卡车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#709775'}}><b>客车</b>&nbsp;&nbsp;&nbsp;</text>
-        <text style={{color:'#ce4257'}}><b>手推车、三轮车</b> </text>
+        <text style={{color:'#ce4257'}}><b>手推车</b> </text>
         <br></br>
         <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>车道{carNum}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
         </div>
