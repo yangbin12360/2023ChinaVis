@@ -243,6 +243,10 @@ function RoseComponent(props) {
                 orient: 'horizontal',
                 inRange: {
                     color: ['#a6da6a', '#d8e98a', '#dde0a0', '#ffc455','#f48043', '#f46d43']
+                },
+                text: ['2000', '0'], // 定义图例的范围
+                textStyle: {
+                color: '#333' // 图例文本颜色
                 }
             },
             series: [
