@@ -305,7 +305,7 @@ const MainView = (props) => {
                 position: modelsToLoad[modelId].instance.position,
                 rotation: modelsToLoad[modelId].instance.rotation,
                 scale: modelsToLoad[modelId].instance.scale,
-                velocity:modelsToLoad[modelId].velocity,
+                velocity:(modelsToLoad[modelId].velocity*3.6).toFixed(2),
                 type:modelsToLoad[modelId].type,
                 startTime:modelsToLoad[modelId].startTime,
                 endTime:modelsToLoad[modelId].endTime

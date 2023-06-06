@@ -46,24 +46,24 @@ const NowList = (props) => {
           <HeaderCell>ID</HeaderCell>
           <Cell dataKey="id" />
         </Column>
-        <Column width={50} fixed>
-          <HeaderCell>Type</HeaderCell>
+        <Column width={45} align="center" fixed>
+          <HeaderCell>类型</HeaderCell>
           <Cell dataKey="type" />
         </Column>
-        <Column width={80} fixed>
-          <HeaderCell>velocity</HeaderCell>
+        <Column width={90} align="center" fixed>
+          <HeaderCell>速度(km/h)</HeaderCell>
           <Cell dataKey="velocity" />
         </Column>
-        <Column width={85} fixed>
-          <HeaderCell>startTime</HeaderCell>
+        <Column width={80}  align="center"fixed>
+          <HeaderCell>出现时间</HeaderCell>
           <Cell>
             {(rowData, rowIndex) => {
               return converTimeStamp(rowData.startTime);
             }}
           </Cell>
         </Column>
-        <Column width={85} fixed>
-          <HeaderCell>endTime</HeaderCell>
+        <Column width={85} align="center" fixed>
+          <HeaderCell>消失时间</HeaderCell>
           <Cell>
             {(rowData, rowIndex) => {
               return converTimeStamp(rowData.endTime);
