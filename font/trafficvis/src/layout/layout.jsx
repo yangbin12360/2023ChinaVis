@@ -55,6 +55,9 @@ const handleTextId=(id,type)=>{
   setTextId(id);
   setTextType(type);
 }
+const inputTextId =(id)=>{
+  setTextId(id);
+}
   //控制allCluster
   const handleAllCluster = (cluter) => {
     setAllCluster(cluter);
@@ -189,6 +192,7 @@ const handleTextId=(id,type)=>{
                       handleSelectId={handleSelectId}
                       handleControlCamra={handleControlCamra}
                       textId={textId}
+                      inputTextId={inputTextId}
                     ></ControlPanel>
                   }
                 ></Box>

@@ -24,6 +24,7 @@ import datetime as dt
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 import collections
+import shutil
 
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
@@ -3471,7 +3472,26 @@ def readCsv():
     df = pd.read_csv(file)
     column_data = df["orientation"].to_list()
     print(column_data)
+# 查看-1文件夹下是否有同名数据
+def validate():
+    main_folder = './static/data/DataProcess/idRoadCsv'  # 替换为你的文件夹路径
+    target_folder = os.path.join(main_folder, '-1')
+# 获取所有文件名
+    file_names = os.listdir(target_folder)
+    with alive_bar(len(file_names), title='Processing files') as bar:
+        for file_name in file_names:
+            file_path = os.path.join(target_folder, file_name)
+            for folder_name in os.listdir(main_folder):
+                if folder_name != '-1':  # 排除目标文件夹本身
+                    folder_path = os.path.join(main_folder, folder_name)
+                    if os.path.exists(os.path.join(folder_path, file_name)):
+                        print(f"文件 {file_name} 在文件夹 {folder_name} 中存在，目录为: {folder_path}")
+            bar()
 
+def jsonLen():
+    with open("./static/data/DataProcess/allFault.json") as f:
+        data = json.load(f)
+    print(len(data))
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3503,4 +3523,6 @@ if __name__ == '__main__':
     # mergeReverse()
     # mergeId()
     # mergeRadar()
-    readCsv()
+    # readCsv()
+    # validate()
+    jsonLen()

@@ -8,7 +8,7 @@ import "./controlPanel.css";
 const { Search } = Input;
 
 const ControlPanel = (props) => {
-  const { handleChangeTime, handleSelectId, handleControlCamra,textId,textType } = props;
+  const { handleChangeTime, handleSelectId,inputTextId,handleControlCamra,textId,textType, } = props;
   const [yearStr, setYearStr] = useState("2023/4/");
   const [dayStr, setDayStr] = useState("");
   const [hourStr, setHourStr] = useState("8");
@@ -16,6 +16,7 @@ const ControlPanel = (props) => {
   const [secondStr, setSecondStr] = useState("13");
   const { cameFlag, setcamaFlag } = useState(1);
   const [searchValue, setSearchValue] = useState(null);
+  
 
   // const timeSelect = ()=>{
   //   const timeStr = yearStr+dayStr+' '+hourStr+':'+minuteStr+':'+secondStr;
@@ -28,6 +29,9 @@ const ControlPanel = (props) => {
   const changeId = () => {
     handleSelectId(269548444);
   };
+  const handleInputChange = (e) => {
+    inputTextId(e.target.value);
+};
   const styles = { width: 200 ,paddingLeft:3,paddingTop:3};
   const onSearch = (value) => handleSelectId(value,textType);
   return (
@@ -45,6 +49,7 @@ const ControlPanel = (props) => {
       allowClear
       size={"small"}
       onSearch={onSearch}
+      onChange={handleInputChange}
       style={{
         width: 200,
         height: 30,
