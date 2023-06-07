@@ -284,7 +284,7 @@ const SceneList = (props) => {
                       key={row.index}
                       style={
                         selectedRows.includes(row.id)
-                          ? { background: "yellow" }
+                          ? { background: "#8ab9d7" }
                           : {}
                       }
                     >

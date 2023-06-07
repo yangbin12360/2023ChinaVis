@@ -19,7 +19,7 @@ const RoadHealth =(props)=>{
       let veloscore = velo/maxVelo[hourindex]*100;
       let proscore = pro/maxPro[hourindex]*100;
       let score = flowscore*0.4+veloscore*0.4+proscore*0.2;
-      console.log(flowscore,veloscore, proscore,score)
+      // console.log(flowscore,veloscore, proscore,score)
       if(90<= score){
         return '极好';
       }
@@ -44,7 +44,7 @@ const RoadHealth =(props)=>{
           let healthData = [[],[],[],[],[],[]];
           temp.forEach((item,index) =>{
             item.forEach((d) => {
-              console.log(d);
+              // console.log(d);
               if (d[0] == hourindex && computeHealth(d[1],d[2],d[3])=='极好'){
                 d.splice(0, 1);
                 d.push("极好");
@@ -72,7 +72,7 @@ const RoadHealth =(props)=>{
       }
             })
           })           
-          console.log(healthData);
+          // console.log(healthData)
           drwaRoadHealth( healthData)
         })
       }

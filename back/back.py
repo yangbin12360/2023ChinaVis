@@ -8,6 +8,7 @@ from itertools import groupby
 from operator import itemgetter
 import pandas as pd
 import math
+import csv
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -236,6 +237,7 @@ def getIdHighValue():
   "right_r":["1442", "1443", "1444", "1445"],
   "top_l":["1974", "1973", "1972"],
   "top_r":["19751", "19752", "1977", "1978"],
+  "cross":["-1"]
 }
     laneYList = [
   "1912", "1911", "19102", '19101',
@@ -245,7 +247,7 @@ def getIdHighValue():
   "1450", "1449", "1448", "1447", "1446",
   "1442", "1443", "1444", "1445",
   "1974", "1973", "1972",
-  "19751", "19752", "1977", "1978"
+  "19751", "19752", "1977", "1978","-1"
 ];
     lanNumber= {
     "left_l":[0,1,2,3],
@@ -255,7 +257,8 @@ def getIdHighValue():
     "right_l":[16,17,18,19,20],
     "right_r":[21,22,23,24],
     "top_l":[25,26,27],
-    "top_r":[28,29,30,31]
+    "top_r":[28,29,30,31],
+    "cross":[32]
     }
     file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
     file = '../back/static/data/DataProcess/highSceneCsv'
@@ -264,7 +267,7 @@ def getIdHighValue():
     hvCount = [] #高价值场景数量，对应bar图
     # 定义一个自定义函数，用于除以1000000
     def divide_by_1000000(value):
-        return int(value / 1000000)
+        return int(int(value) / 1000000)
     hvForNum = 0
     for name in file_name:
         file_path = os.path.join(file,name)
@@ -290,7 +293,42 @@ def getIdHighValue():
                 new_value['action_name'] = key
                 new_data.append(new_value)
         return new_data
-
+    # 找变换车道点
+    def find_consecutive_elements(lst):
+        index = 0
+        results = []
+        while index < len(lst)-1:
+            if lst[index] == lst[index+1]:
+                start = index
+                while index < len(lst)-1 and lst[index] == lst[index+1]:
+                    index += 1
+                results.append((start, index))
+            index += 1
+        return  results
+    # 读取对应csv文件的变道点行数据
+    def read_csv_rows_and_process(filename, ranges):
+    # 读取CSV文件
+        df = pd.read_csv(filename)    
+    # 初始化结果列表
+        results = []    
+        for range_ in ranges:
+        # 遍历每个元组，获取行索引
+            start, end = range_        
+        # 获取对应索引的行
+            for index in [start, end]:
+            # 获取每一行，转换为字典
+                row_dict = dict()          
+            # 获取对应行数据
+                row = df.iloc[index]            
+            # 将16位的时间戳转为10位并作为'nowTime'和'x'存储
+                row_dict['nowTime'] = row_dict['x'] = int(row['time_meas'] / 1e6)           
+            # 如果lineFid为空，填充为-1，并作为'y'存储
+                row_dict['y'] = row['lineFid'] if pd.notnull(row['lineFid']) else -1           
+            # 设置'type'为'carCross'
+                row_dict['type'] = 'carCross'
+            # 将处理后的行添加到结果列表
+                results.append(row_dict)
+        return results
     newRes = {}
     newRes["highValue"] = transform_data(res)
     # newRes["highValue"] = res #高价值场景数据
@@ -301,10 +339,30 @@ def getIdHighValue():
     velocityList = [] #速度折线图列表，还需要除以5,以获得每秒的平均速度
     # print(data.iloc[0:]["lineFid"].to_list())
     laneRoadList = list(set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())) #所在车道列表，对应轨迹
-    # print("laneRoadList",set(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
+    # print("laneRoadList",data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())
+    # print(find_consecutive_elements(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list()))
+    laneRoadChangeIndex = find_consecutive_elements(data.iloc[0:]["lineFid"].fillna(-1).astype(int).to_list())
+    # 获取到该id的变道点的各信息了，y还是车道信息
+    realLaneRoadList = read_csv_rows_and_process(file_name_id,laneRoadChangeIndex)
+    # print(newRes["highValue"])
+    # 将高价值场景点加入realLaneRoadList
+    # 结束点位置的索引
+    endIndex = len(realLaneRoadList)-1
+    for i in newRes["highValue"]:
+        print(i["action_name"])
+        # print("^^^^^^^^^^^^^^^^^^^^^^^^^")
+        if i["action_name"]!="carCross":
+            print("进入了！！！！！！！！！！")
+            tempDict = {}
+            tempDict["x"] = i["start_time"]
+            tempDict["y"] = "888"
+            tempDict["type"] = i["action_name"]
+            tempDict["nowTime"] = i["start_time"]
+            realLaneRoadList.append(tempDict)
+
+    print("realLaneRoadList",realLaneRoadList)
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
-    # print("keys",keys)
     #获取到了flow文件中的车道号值了
     values = [value for key in keys for value in lanNumber[key]]
     # print("values",values)
@@ -396,6 +454,26 @@ def getIdHighValue():
         newY = laneYList.index(tempStr)
         finalY = newRes["flowSe"].index(newY)
         i["y"] = finalY
+        # 对realLaneRoadList 进行y坐标的替换
+    index = 0
+    for i in realLaneRoadList:
+        tempStr =str(int(i["y"]))
+        tempStr=tempStr.split('.')[0]
+        if tempStr == "888":
+            for j in realLaneRoadList:
+                if i["nowTime"] <= j["nowTime"]:
+                    i["y"]=j['y']
+                    break;
+        else:
+            newY = laneYList.index(tempStr)
+            finalY = newRes["flowSe"].index(newY)
+            i["y"] = finalY
+        if index==0:
+            i["type"]="出发点"
+        if index==endIndex:
+            i["type"]="结束点"
+        index+=1
+    newRes["realLaneRoadList"] = realLaneRoadList #变道点数据
     # 为变道添加坐标点
     newList = []
     iNum = 0
@@ -421,7 +499,7 @@ def getCluster():
     start_time = 1681315196
     clusterTime = math.ceil(((time-start_time)/300))
     # print(clusterTime)
-    file_path = "../back/static/data/DataProcess/5m/merge/" 
+    file_path = "../back/static/data/DataProcess/5m/newMerge/" 
     res ={}
     cluster_avg_values = {}
     #获取聚类结果
@@ -434,7 +512,7 @@ def getCluster():
              round(df_temp['a_std'].mean(), 2),
              round(df_temp['o_std'].mean(), 2),
             round(df_temp['distance_mean'].mean(), 2),
-           round(df_temp['v_pca'].mean(), 2),
+           round(df_temp['v_mean'].mean(), 2),
         ]
         for _, row in df_temp.iterrows():
             tempDict = {}

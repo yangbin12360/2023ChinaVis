@@ -8,11 +8,11 @@ const ForecastHeat = (props) => {
   const heatRef = useRef(null);
 
   useEffect(() => {
-    // console.log("flowtimeStamp",flowtimeStamp);
-    getFlow(1681376400).then((res)=>{
+    console.log("flowtimeStamp",flowtimeStamp);
+    getFlow(flowtimeStamp).then((res)=>{
       const flowData = Object.values(res["all"]);
   
-      console.log("flowData",typeof(flowData));
+      console.log("flowData",flowData);
       drawHeat(flowData);
     })
     // drawHeat();

@@ -47,9 +47,14 @@ const Layout = () => {
   const [hourindex,setHourIndex]=useState(17);
   const [simCount, SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
   const [allCluster, setAllCluster] = useState([]); //用来控制时间切换时候散点图的数组
-
+const [textId,setTextId] = useState(null);
+const [textType,setTextType] = useState(null);
   // ----------------------- 状态改变--------------------------
-
+//修改文本框中的id
+const handleTextId=(id,type)=>{
+  setTextId(id);
+  setTextType(type);
+}
   //控制allCluster
   const handleAllCluster = (cluter) => {
     setAllCluster(cluter);
@@ -77,6 +82,7 @@ const Layout = () => {
   };
   //玫瑰图时间戳改变
   const handleFlowtimeStamp = (newData) => {
+    console.log("newData",newData);
     setFlowtimeStamp(newData);
   };
   //玫瑰图传花瓣序号
@@ -182,6 +188,7 @@ const Layout = () => {
                       handleChangeTime={handleChangeTime}
                       handleSelectId={handleSelectId}
                       handleControlCamra={handleControlCamra}
+                      textId={textId}
                     ></ControlPanel>
                   }
                 ></Box>
@@ -253,6 +260,7 @@ const Layout = () => {
                     singleType={singleType}
                     handleChangeTime={handleChangeTime}
                     handleSelectId={handleSelectId}
+                    handleTextId={handleTextId}
                   ></SingleTrace>
                 }
               ></Box>
