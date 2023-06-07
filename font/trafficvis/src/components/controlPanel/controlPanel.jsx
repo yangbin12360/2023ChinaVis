@@ -1,8 +1,12 @@
 import { Select, Button } from "antd";
-import { DatePicker } from "rsuite";
+import { DatePicker} from "rsuite";
+import SearchIcon from '@rsuite/icons/Search';
 import { hourList, sixtyList } from "../utils/constant";
 import { useState } from "react";
+import { Input } from 'antd';
 import "./controlPanel.css";
+const { Search } = Input;
+
 const ControlPanel = (props) => {
   const { handleChangeTime, handleSelectId, handleControlCamra } = props;
   const [yearStr, setYearStr] = useState("2023/4/");
@@ -22,15 +26,29 @@ const ControlPanel = (props) => {
   const changeId = () => {
     handleSelectId(269548444);
   };
-  const styles = { width: 200, marginBottom: 10 };
+  const styles = { width: 200 ,paddingLeft:3,paddingTop:3};
+  const onSearch = (value) => handleSelectId(value);
   return (
     <div className="container" style={{ background: "#efefef" }}>
-      <span style={{ lineHeight: "5px" }}>时间选择：</span>
+     <span style={{ paddingLeft:15,paddingTop:5 }}>时间选择：</span>
       <DatePicker
       size="xs" placeholder="时间选择" style={styles}
         format="yyyy-MM-dd HH:mm:ss"
         onChange={timeSelect}
       />
+      <span style={{ paddingLeft:30,paddingTop:5 }}>交通参与者查询:</span>
+      <Search
+      placeholder="input search text"
+      allowClear
+      size={"small"}
+      onSearch={onSearch}
+      style={{
+        width: 200,
+        height: 30,
+        paddingLeft:10,paddingTop:3
+      }}
+    />
+
     </div>
   );
 };

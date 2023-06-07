@@ -44,9 +44,10 @@ const Layout = () => {
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
   const [flowtimeStamp,setFlowtimeStamp]=useState(1681372078);
-  const [hourindex,setHourIndex]=useState(0);
+  const [hourindex,setHourIndex]=useState(17);
   const [simCount, SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
   const [allCluster, setAllCluster] = useState([]); //用来控制时间切换时候散点图的数组
+
   // ----------------------- 状态改变--------------------------
 
   //控制allCluster

@@ -242,7 +242,7 @@ function RoseComponent(props) {
                 itemHeight:90,
                 orient: 'horizontal',
                 inRange: {
-                    color: ['#a6da6a', '#d8e98a', '#dde0a0', '#ffc455','#f48043', '#f46d43']
+                    color: ['#68B386', '#ffe08b','#b4200d']
                 },
                 text: ['2000', '0'], // 定义图例的范围
                 textStyle: {
@@ -356,7 +356,7 @@ function RoseComponent(props) {
                     ], // 数据
                     itemStyle: {
                         // color: '#ff9c47' // 柱子颜色
-                        color: '#99cae1' // 柱子颜色
+                        color: '#86b3d3' // 柱子颜色
                     },
                     emphasis: {
                         itemStyle: {
@@ -453,7 +453,7 @@ function RoseComponent(props) {
                     ], // 数据
                     itemStyle: {
                         // color: '#87c1fa' // 柱子颜色
-                        color: '#cd5c3c' // 柱子颜色
+                        color: '#709775' // 柱子颜色
                     },
                     emphasis: {
                         itemStyle: {

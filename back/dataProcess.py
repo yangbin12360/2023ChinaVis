@@ -21,6 +21,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import datetime as dt
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
 
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
@@ -197,28 +199,32 @@ def dataTypebytime_meas():
     # 获取所有数据文件夹
     for i in range(10):
         # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
-        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
-                 "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
-        data = f.read().split("\n")
+        # f = open("./static/data/DataProcess/idRoad/part" + str(i) +
+        #          ".json", "r", encoding="utf-8")
+        # data = f.read()
+        with open("./static/data/DataProcess/idRoad/part" + str(i) +
+                 ".json", "r") as f:
+            data=json.load(f)
         # 按照id将数据分组
-        for j in data:
-            try:
-                nowData = json.loads(j)
-                nowTime = float(nowData["time_meas"]) / 1000000
-                nowTime = time.localtime(nowTime)
-                nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
-                if(nowTime not in allData):
-                    allData[nowTime] = []
-                allData[nowTime].append(nowData)
-            except:
-                print(j)
-
+        with alive_bar(len(data)) as bar:
+            for key, value in data.items():
+                try:
+                    nowData = value
+                    nowTime = float(nowData["time_meas"]) / 1000000
+                    nowTime = time.localtime(nowTime)
+                    nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
+                    if nowTime not in allData:
+                        allData[nowTime] = []
+                    allData[nowTime].append(nowData)
+                except:
+                    print("Error processing data:", value)
+                bar()
     # 按照数据的类型进行分组保存
     for i in allData:
         data = time.mktime(time.strptime(i, "%Y-%m-%d %H:%M:%S"))
-        if(not os.path.exists("./static/data/DataProcess/time_meas")):
-            os.makedirs("./static/data/DataProcess/time_meas")
-        f = open("./static/data/DataProcess/time_meas/" +
+        if(not os.path.exists("./static/data/DataProcess/newtime_meas")):
+            os.makedirs("./static/data/DataProcess/newtime_meas")
+        f = open("./static/data/DataProcess/newtime_meas/" +
                  str(data) + ".json", "w")
         f.write(json.dumps(allData[i]))
 
@@ -3111,14 +3117,14 @@ def processFid():
 
 #将预测数据处理成整点数据
 def forecastToInt():
-    df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre.csv")
+    df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre0607.csv")
     # 处理timestamp列，使其变为最接近的整点时刻
 # 处理timestamp列，将其转换为最接近的整点时刻
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['timestamp'] = df['timestamp'].dt.round('H')
 # 将timestamp列转换为10位时间戳
     df['timestamp'] = df['timestamp'].apply(lambda x: int(time.mktime(x.timetuple())))
-    df.to_csv('../back/static/data/DataProcess/flowForecast/new_file1.csv', index=False)
+    df.to_csv('../back/static/data/DataProcess/flowForecast/new_file0607.csv', index=False)
 
 
 def getDriveReserve():
@@ -3323,7 +3329,31 @@ def proSim():
             matrix_df.to_csv(new_path+filename, index=True)
             bar()
 
-
+def getSingleFlow():
+        file_path = './static/data/DataProcess/laneData/part1972.json'
+        df = pd.DataFrame(columns=["roadid", "timestamp", "true"])
+    # for filename in os.listdir(file_path):
+        with open(file_path,"r")as f:
+            data = json.load(f)
+        new_data = defaultdict(list)
+        earliest_time = min(datetime.strptime(key, "%Y-%m-%d %H:%M:%S") for key in data.keys())
+        current_hour = earliest_time
+        for time, records in sorted(data.items()):
+            time_as_datetime = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            if time_as_datetime < current_hour + timedelta(hours=1):
+                new_data[current_hour.strftime("%Y-%m-%d %H:%M:%S")].extend(records)
+            else:
+                current_hour += timedelta(hours=1)
+                new_data[current_hour.strftime("%Y-%m-%d %H:%M:%S")].extend(records)
+        for timestamp, records in new_data.items():
+            ids = set()
+            count = 0
+            for record in records:
+                if record["type"] in [1, 3, 4, 6, 10] and record["id"] not in ids:
+                    count += 1
+                    ids.add(record["id"])
+            df = df.append({"roadid": "1972", "timestamp": timestamp, "true": count}, ignore_index=True)
+        df.to_csv("./static/data/DataProcess/laneData/1972.csv", index=False)
 
     # res["data"] =data
     # return res 
@@ -3351,5 +3381,7 @@ if __name__ == '__main__':
     # getHighSceneCount()
     # mergeHV()
     # mergeHVCount()
-    sortSimilarity()
+    # sortSimilarity()
     # # proSim()
+    # dataTypebytime_meas()
+    forecastToInt()

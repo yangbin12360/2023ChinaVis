@@ -69,7 +69,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     bounds
       .append("rect")
       .attr("id", "containerRect")
-      .attr("width", boundedWidth)
+      .attr("width", boundedWidth-20)
       .attr("height", boundedHeight)
       .style("fill", "#fff")
       .style("stroke", "black") // 设置描边颜色为黑色
@@ -80,7 +80,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const xScale = d3
       .scaleLinear()
       .domain([d3.min(data, (d) => d.x), d3.max(data, (d) => d.x)]) // 输入范围
-      .range([0, boundedWidth]); // 输出范围
+      .range([0, boundedWidth-20]); // 输出范围
 
     const xAxis = d3
       .axisBottom(xScale)
@@ -107,7 +107,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       .attr("class", "y-axis")
       .call(yAxis)
       .call((g) => g.select(".domain").remove()) // 移除y轴的轴线
-      .call((g) => g.selectAll(".tick line").attr("x2", boundedWidth)); // 设置刻度线的长度;
+      .call((g) => g.selectAll(".tick line").attr("x2", boundedWidth-20)); // 设置刻度线的长度;
     bounds
       .select(".y-axis")
       .selectAll(".tick text")
@@ -128,13 +128,13 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     //添加vy轴以及设置vy轴
     const yVelocityScale = d3
       .scaleLinear()
-      .domain([0, d3.max(vdata, (d) => d.y)])
+      .domain([0, d3.max(vdata, (d) => 3.6*d.y)])
       .range([boundedHeight, 0]); // 输出范围
-    const vYAxis = d3.axisRight(yVelocityScale).ticks(5);
+    const vYAxis = d3.axisRight(yVelocityScale).ticks(5).tickFormat((d) => `${d}km/h`);
     bounds
       .append("g")
       .attr("class", "v-y-axis")
-      .attr("transform", `translate(${boundedWidth}, 0)`)
+      .attr("transform", `translate(${boundedWidth-20}, 0)`)
       .call(vYAxis)
       .call((g) => g.selectAll(".v-y-axis .tick line").remove()); // 移除vY轴的轴线
 
@@ -154,7 +154,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
         .append("rect")
         .attr("x", 0)
         .attr("y", j * rectHeight)
-        .attr("width", boundedWidth)
+        .attr("width", boundedWidth-20)
         .attr("height", rectHeight)
         .attr("fill", colorScale(flowData[flowData.length - 1 - j]))
         .attr("stroke", "none")
@@ -179,7 +179,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const vLine = d3
       .line()
       .x((d) => xScale(d.x))
-      .y((d) => yVelocityScale(d.y));
+      .y((d) => yVelocityScale(3.6*d.y));
     const vLineGroup = bounds.append("g");
     vLineGroup
       .append("path")
@@ -215,7 +215,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       lineGroup
         .append("path")
         .datum(segment)
-        .attr("stroke", "#6c757d")
+        .attr("stroke", "#303842")
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .attr("stroke-linejoin", "round")
@@ -240,11 +240,13 @@ let tooltip = d3.select("body").append("div")
         return HV_NAME_LIST_CN_COLOR[d.type] 
       })
       .style("cursor", "pointer")
+      .style("stroke","black")
+      .style("stroke-width",1)
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget)
         .transition()
         .duration(50)
-        .attr("r", 4 * 1.5)
+        .attr("r", 5 * 1.5)
           .attr("fill", "white"); // 改变高亮颜色
         tooltip.transition()
           .duration(200)

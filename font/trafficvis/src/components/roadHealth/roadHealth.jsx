@@ -144,12 +144,12 @@ const r8 = healthData[8];
   ];
   var lineStyle = {
     width: 1,
-    opacity: 0.5
+    opacity: 0.8
   };
   var option = {}
   if(chartType == true){
     option = {
-      color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'],
+      color:['#4c9064','#b9d36c','#c2b847','rgb(217,164, 14)','#aa3333'],
       backgroundColor: '#efefef',
       legend: {
         bottom: 10,
@@ -246,7 +246,7 @@ const r8 = healthData[8];
   }
   else{
     option = {
-      color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'],
+      color:['#4c9064','#b9d36c','#c2b847','rgb(217,164, 14)','#aa3333'],
       backgroundColor: '#efefef',
       legend: {
         bottom: 10,
