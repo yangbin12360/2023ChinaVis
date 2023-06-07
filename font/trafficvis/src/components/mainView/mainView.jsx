@@ -334,7 +334,7 @@ const MainView = (props) => {
       if (id === String(selectId) && model.halo) {
           model.halo.visible = true;
       }
-    }},3000)
+    }},2000)
     return () => clearInterval(interval);
   }, [selectId, models]);
   /**********************静态信息展示*/
