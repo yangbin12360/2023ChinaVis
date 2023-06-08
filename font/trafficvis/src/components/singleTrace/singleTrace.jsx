@@ -1,7 +1,11 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
 import { getIdHighValue } from "../../apis/api";
-import { LANE_ID_LIST ,HV_NAME_LIST_CN_V2,HV_NAME_LIST_CN_COLOR } from "../utils/constant";
+import {
+  LANE_ID_LIST,
+  HV_NAME_LIST_CN_V2,
+  HV_NAME_LIST_CN_COLOR,
+} from "../utils/constant";
 import { Table } from "rsuite";
 import "./singleTrace.css";
 import InfoList from "../infoList/infoList";
@@ -9,20 +13,27 @@ import InfoList from "../infoList/infoList";
 const { Column, HeaderCell, Cell } = Table;
 
 const SingleTrace = (props) => {
-  const { isTraceVisible, selectTraceId, singleType,handleChangeTime,handleSelectId  } = props;
+  const {
+    isTraceVisible,
+    handleTextId,
+    selectTraceId,
+    singleType,
+    handleChangeTime,
+    handleSelectId,
+  } = props;
   const singleTraceRef = useRef(null);
   const barRef = useRef(null);
   const legendRef = useRef(null);
-  const changeNowTime =(timeStamp)=>{
+  const changeNowTime = (timeStamp) => {
     handleChangeTime(timeStamp);
-  }
+  };
   useEffect(() => {
     if (isTraceVisible) {
       getIdHighValue(selectTraceId, singleType).then((res) => {
         const lanNumber = res["flowSe"].length;
         // drawBar(res["hvCount"]);
         drawSingleTrace(
-          res["hvPositionList"],
+          res["realLaneRoadList"],
           lanNumber,
           res["vPositionList"],
           res["flowSe"],
@@ -32,14 +43,14 @@ const SingleTrace = (props) => {
       });
     }
   }, [isTraceVisible, selectTraceId, singleType]);
-const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
+  const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const divHeight = singleTraceRef.current.offsetWidth;
     const divWidth = singleTraceRef.current.offsetHeight;
     // const divHeight = 100
 
     const dimensions = {
       width: divHeight,
-      height: divWidth ,
+      height: divWidth,
       margin: { top: 10, right: 30, bottom: 30, left: 50 },
     };
     const boundedWidth =
@@ -55,7 +66,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       .attr("height", divWidth)
       .attr("viewBox", [0, 0, dimensions.width, dimensions.height])
       .style("max-width", "100%")
-      .style("background", "#efefef")
+      .style("background", "#efefef");
 
     const bounds = svg
       .append("g")
@@ -64,12 +75,13 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
         `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`
       );
     data.forEach((d) => {
+      console.log("1111", d.y);
       d.y += 0.5;
     });
     bounds
       .append("rect")
       .attr("id", "containerRect")
-      .attr("width", boundedWidth-20)
+      .attr("width", boundedWidth - 20)
       .attr("height", boundedHeight)
       .style("fill", "#fff")
       .style("stroke", "black") // 设置描边颜色为黑色
@@ -80,7 +92,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const xScale = d3
       .scaleLinear()
       .domain([d3.min(data, (d) => d.x), d3.max(data, (d) => d.x)]) // 输入范围
-      .range([0, boundedWidth-20]); // 输出范围
+      .range([0, boundedWidth - 20]); // 输出范围
 
     const xAxis = d3
       .axisBottom(xScale)
@@ -107,7 +119,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       .attr("class", "y-axis")
       .call(yAxis)
       .call((g) => g.select(".domain").remove()) // 移除y轴的轴线
-      .call((g) => g.selectAll(".tick line").attr("x2", boundedWidth-20)); // 设置刻度线的长度;
+      .call((g) => g.selectAll(".tick line").attr("x2", boundedWidth - 20)); // 设置刻度线的长度;
     bounds
       .select(".y-axis")
       .selectAll(".tick text")
@@ -124,17 +136,24 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
       .attr("y", (d, i) => yScale(i) + (yScale(1) - yScale(0)) / 5)
       .attr("text-anchor", "end") // 设置文本对齐方式为右对齐
       .style("font-size", "12px") // 设置文本字体大小
-      .text((d) => `road:${d}`);
+      .text((d) => {
+        if (d == 32) {
+          return "路口";
+        } else return `road:${d}`;
+      });
     //添加vy轴以及设置vy轴
     const yVelocityScale = d3
       .scaleLinear()
-      .domain([0, d3.max(vdata, (d) => 3.6*d.y)])
+      .domain([0, d3.max(vdata, (d) => 3.6 * d.y)])
       .range([boundedHeight, 0]); // 输出范围
-    const vYAxis = d3.axisRight(yVelocityScale).ticks(5).tickFormat((d) => `${d}km/h`);
+    const vYAxis = d3
+      .axisRight(yVelocityScale)
+      .ticks(5)
+      .tickFormat((d) => `${d}km/h`);
     bounds
       .append("g")
       .attr("class", "v-y-axis")
-      .attr("transform", `translate(${boundedWidth-20}, 0)`)
+      .attr("transform", `translate(${boundedWidth - 20}, 0)`)
       .call(vYAxis)
       .call((g) => g.selectAll(".v-y-axis .tick line").remove()); // 移除vY轴的轴线
 
@@ -143,31 +162,33 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     //   .scaleQuantize()
     //   .domain([0,d3.max(flowData, (d) => d)])
     //   .range(["#b7d4af","#a2cbbf","#1b7c9d"]);
-    let colorScale = d3.scaleSequential([0,d3.max(flowData, (d) => d)], d3.interpolateGnBu);
+    let colorScale = d3.scaleSequential(
+      [0, d3.max(flowData, (d) => d)],
+      d3.interpolateGnBu
+    );
     // 一个车道持续5分钟的流量
     const rectHeight = boundedHeight / flowData.length;
     const rectGroup = bounds.append("g");
     const textGroup = bounds.append("g");
-    console.log("flowData",flowData);
     for (let j = 0; j < flowData.length; j++) {
       rectGroup
         .append("rect")
         .attr("x", 0)
         .attr("y", j * rectHeight)
-        .attr("width", boundedWidth-20)
+        .attr("width", boundedWidth - 20)
         .attr("height", rectHeight)
         .attr("fill", colorScale(flowData[flowData.length - 1 - j]))
         .attr("stroke", "none")
         .style("opacity", 0.5);
-        // textGroup
-        // .append("text")
-        // .attr("x", boundedWidth/2)
-        // .attr("y", (j * rectHeight) + rectHeight / 2+5)
-        // .attr("text-anchor", "middle") // 设置文本对齐方式
-        // .style("font-size", "12px") // 设置文本字体大小
-        // .text(`车流量：${flowData[flowData.length - 1 - j]}`)
-        // .attr("fill", "black")
-        // .attr("opacity", 0.6)
+      // textGroup
+      // .append("text")
+      // .attr("x", boundedWidth/2)
+      // .attr("y", (j * rectHeight) + rectHeight / 2+5)
+      // .attr("text-anchor", "middle") // 设置文本对齐方式
+      // .style("font-size", "12px") // 设置文本字体大小
+      // .text(`车流量：${flowData[flowData.length - 1 - j]}`)
+      // .attr("fill", "black")
+      // .attr("opacity", 0.6)
     }
 
     /*******************************************绘制线、点 */
@@ -179,7 +200,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
     const vLine = d3
       .line()
       .x((d) => xScale(d.x))
-      .y((d) => yVelocityScale(3.6*d.y));
+      .y((d) => yVelocityScale(3.6 * d.y));
     const vLineGroup = bounds.append("g");
     vLineGroup
       .append("path")
@@ -196,7 +217,7 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
         const isSameLocation = current.y === prev.y || current.x === prev.x;
         const isCarCrossType = current.type === "carCross";
         const shouldConnect =
-          isSameLocation && !(isCarCrossType && timeDiff > 20);
+          isSameLocation && !(isCarCrossType && timeDiff > 120);
 
         if (shouldConnect) {
           result[result.length - 1].push(current);
@@ -220,13 +241,14 @@ const drawSingleTrace = (data, yNum, vdata, roadData, flowData) => {
         .attr("fill", "none")
         .attr("stroke-linejoin", "round")
         .attr("d", line);
-      
     });
 
     // 画点
-let tooltip = d3.select("body").append("div")
-.attr("class", "tooltip")
-.style("opacity", 0);
+    let tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
     // 画点
     bounds
       .append("g")
@@ -236,45 +258,53 @@ let tooltip = d3.select("body").append("div")
       .attr("cx", (d) => xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
       .attr("r", 4) // 设置点的大小
-      .attr("fill", (d,i)=>{
-        return HV_NAME_LIST_CN_COLOR[d.type] 
+      .attr("fill", (d, i) => {
+        return HV_NAME_LIST_CN_COLOR[d.type];
       })
       .style("cursor", "pointer")
-      .style("stroke","black")
-      .style("stroke-width",1)
+      .style("stroke", "black")
+      .style("stroke-width", (d,i)=>{
+        if (i==0||i==data.length-1) {
+          return 0
+        }else
+        return 1
+      })
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget)
-        .transition()
-        .duration(50)
-        .attr("r", 5 * 1.5)
+          .transition()
+          .duration(50)
+          .attr("r", 5 * 1.5)
           .attr("fill", "white"); // 改变高亮颜色
-        tooltip.transition()
-          .duration(200)
-          .style("opacity", .9);
-        tooltip.html("时间: " + converTimestamp(d.nowTime) + "<br/>" + "事件类型: " + HV_NAME_LIST_CN_V2[d.type]) 
-          .style("left", (event.pageX-250) + "px")
-          .style("top", (event.pageY - 28) + "px");
+        tooltip.transition().duration(200).style("opacity", 0.9);
+        tooltip
+          .html(
+            "时间: " +
+              converTimestamp(d.nowTime) +
+              "<br/>" +
+              "事件类型: " +
+              HV_NAME_LIST_CN_V2[d.type]
+          )
+          .style("left", event.pageX - 250 + "px")
+          .style("top", event.pageY - 28 + "px");
       })
       .on("mouseout", (event, d) => {
         d3.select(event.currentTarget)
-        .transition()
-        .duration(50)
-        .attr("r", 5 )
-          .attr("fill", d=>HV_NAME_LIST_CN_COLOR[d.type] ); // 恢复原颜色
-        tooltip.transition()
-          .duration(500)
-          .style("opacity", 0);
+          .transition()
+          .duration(50)
+          .attr("r", 5)
+          .attr("fill", (d) => HV_NAME_LIST_CN_COLOR[d.type]); // 恢复原颜色
+        tooltip.transition().duration(500).style("opacity", 0);
       })
-      .on("click",(e)=>{
+      .on("click", (e) => {
         // changeNowTime(d.nowTime)
-        let clickedElement =e.currentTarget;
+        let clickedElement = e.currentTarget;
         let boundData = d3.select(clickedElement).datum();
-        changeNowTime(boundData.nowTime)
-        handleSelectId(selectTraceId,singleType)
-      })
+        changeNowTime(boundData.nowTime);
+        // handleSelectId(selectTraceId,singleType)
+        handleTextId(selectTraceId, singleType);
+      });
       
-      ;
-       // 设置点的颜色
+    // 设置点的颜色
     const zoom = d3
       .zoom()
       .scaleExtent([1, Infinity]) // 设置缩放的最小和最大比例
@@ -302,30 +332,29 @@ let tooltip = d3.select("body").append("div")
       bounds.selectAll("circle").attr("cx", (d) => new_xScale(d.x));
     }
   };
-//16位时间戳转换
-const converTimestamp = (timestamp) => {
-  const date = new Date(timestamp * 1000);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
+  //16位时间戳转换
+  const converTimestamp = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
 
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
 
   return (
     <div className="box">
-        <div className="infoList">
-          <InfoList
-            selectTraceId={selectTraceId}
-            singleType={singleType}
-          ></InfoList>
-        </div>
-        {/* <div className="bar" ref={barRef} id="bar"></div> */}
-        <div className="picBox" ref={singleTraceRef} id="singleTrace"></div>
+      <div className="infoList">
+        <InfoList
+          selectTraceId={selectTraceId}
+          singleType={singleType}
+        ></InfoList>
+      </div>
+      {/* <div className="bar" ref={barRef} id="bar"></div> */}
+      <div className="picBox" ref={singleTraceRef} id="singleTrace"></div>
     </div>
   );
 };

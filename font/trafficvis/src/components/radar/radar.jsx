@@ -32,10 +32,10 @@ const Radar = (props) =>{
             shape: "circle",
             center: ["50%", "54%"],
             indicator: [
-              { name: "a_std", max: 1 },
-              { name: "o_std", max: 2 },
-              { name: "distance_mean", max: 100 },
-              { name: "v_pca", min: -10, max: 5 },
+              { name: "加速度变化", max: 1 },
+              { name: "朝向波动", max: 5 },
+              { name: "位置变化", max: 100 },
+              { name: "平均速度", min: -10, max: 10 },
             ],
           },
           series: [

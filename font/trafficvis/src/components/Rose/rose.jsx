@@ -495,6 +495,7 @@ function RoseComponent(props) {
                // 获取点击的花瓣索引
               var dataIndex = params.dataIndex;
               var timeString=params.data.name;
+             
               const [hours, minutes] = timeString.split(':');
               const date = new Date(); // 创建一个新的 Date 对象
               date.setHours(hours); // 设置小时数
@@ -503,7 +504,8 @@ function RoseComponent(props) {
               // 获取对应的 Unix 时间戳（单位为毫秒）
               const unixTimestamp = date.getTime();
             //   console.log(unixTimestamp);
-              handleFlowtimeStamp(unixTimestamp);
+            // console.log("timeToTimestamp(dataIndex)",timeToTimestamp(dataIndex));
+              handleFlowtimeStamp(timeToTimestamp(dataIndex));
               handleHourIndex(dataIndex);
               // 获取当前 echarts 实例的配置项
               var option = myChart.getOption();
@@ -574,6 +576,10 @@ function RoseComponent(props) {
 
     }
 
+    const timeToTimestamp = (hour)=>{
+        let srtTime = "2023-04-13 " +hour.toString() +":00:00"
+        return Date.parse(srtTime) / 1000
+    }
     useEffect(() => {
         drawRose()
     }, [])
