@@ -130,7 +130,7 @@ const inputTextId =(id)=>{
       <Row style={{ width: "100%", height: "100%" }}>
         <Col span={14} id="left">
           <Row style={{ width: "100%", height: "3%" }}>
-            <div style={{width:"100%",height:"100%", fontSize:30,paddingLeft:450,fontWeight:"bolder",userSelect:"none",color:"black"}}>交通路口高价值场景与态势可视分析系统</div>
+            <div style={{width:"100%",height:"100%", fontSize:30,paddingLeft:450,fontWeight:"bolder",userSelect:"none",color:"black"}}>城市路口高价值场景与态势可视分析系统</div>
           </Row>
           <Row style={{ width: "100%", height: "62%" }}>
             <Col span={24} id="left_top">
@@ -152,7 +152,7 @@ const inputTextId =(id)=>{
             <Col span={15} id="left_bottom_left">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"高价值场景分组折线概览图"}
+                  title={"高价值场景概览折线图"}
                   component={
                     <RelationshipScene
                       time={time}
@@ -218,7 +218,7 @@ const inputTextId =(id)=>{
                 </div>
                 <div style={{ height: "100%", width: "50%" }}>
                   <Box
-                    title={"车辆特征雷达图"}
+                    title={"行为特征雷达图"}
                     component={<Radar timeStamp={timeStamp}></Radar>}
                   ></Box>
                 </div>
@@ -226,7 +226,7 @@ const inputTextId =(id)=>{
             </Col>
             <Col span={9}>
               <Box
-                title={"场景与驾驶行为相关性分析图"}
+                title={"高价值场景与驾驶行为相关性分析图"}
                 component={
                   <SimlarityMatrix
                     timeStamp={timeStamp}
@@ -243,7 +243,7 @@ const inputTextId =(id)=>{
           <Row style={{ height: "13.5%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"高价值场景详情列表图"}
+                title={"高价值场景实时列表"}
                 component={
                   <SceneList
                     timeStamp={timeStamp}
@@ -259,7 +259,7 @@ const inputTextId =(id)=>{
           <Row style={{ height: "27%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"交通参与者个人轨迹图"}
+                title={"交通参与个体轨迹图"}
                 component={
                   <SingleTrace
                     isTraceVisible={isTraceVisible}
@@ -278,7 +278,7 @@ const inputTextId =(id)=>{
               <Row style={{ height: "40%", width: "100%" }}>
                 <div style={{ height: "100%", width: "40%" }}>
                   <Box
-                    title={"行人异常红绿灯图"}
+                    title={"红绿灯合理性分析柱状图"}
                     component={<Light timeStamp={timeStamp}></Light>}
                   ></Box>
                 </div>
@@ -301,7 +301,7 @@ const inputTextId =(id)=>{
             <Col span={9} id="right_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"拥堵识别玫瑰图"}
+                  title={"拥堵分析玫瑰图"}
                   component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp} handleHourIndex={handleHourIndex}></RoseComponent>}
                 ></Box>
               </div>
