@@ -170,7 +170,6 @@ const SingleTrace = (props) => {
     const rectHeight = boundedHeight / flowData.length;
     const rectGroup = bounds.append("g");
     const textGroup = bounds.append("g");
-    console.log("flowData", flowData);
     for (let j = 0; j < flowData.length; j++) {
       rectGroup
         .append("rect")

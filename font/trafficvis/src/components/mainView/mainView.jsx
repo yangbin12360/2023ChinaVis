@@ -237,16 +237,17 @@ const MainView = (props) => {
             // instance.rotation.y = -Math.PI/2 *2;
             // instance.rotation.x = -Math.PI/2 *2;
             instance.up.set(0, 0, 1); // Set the up vector to the Z axis
-
             // Set the initial rotation of the model
             instance.rotation.x =  Math.PI /2;
             instance.rotation.y = -Math.PI /1.5;
             // instance.rotation.z = -Math.PI/4;
-            const geometry = new THREE.TorusGeometry(1, 0.5, 16, 100); // 配置光环几何属性
-            const material = new THREE.MeshBasicMaterial({ color: "red" }); // 配置光环材料属性
+            const geometry = new THREE.TorusGeometry(2.5, 0.5, 16, 100); // 配置光环几何属性
+            const material = new THREE.MeshBasicMaterial({ color: "#edf8ea" }); // 配置光环材料属性
             const halo = new THREE.Mesh(geometry, material); // 创建光环
             halo.position.z = -1; // 将光环置于模型底部
             halo.visible = false; // 初始设为不可见
+            halo.rotation.x = Math.PI / 2; // 设置x轴旋转角度
+            halo.position.z += 1;
             instance.add(halo); // 将光环添加到模型中
             instance.userData.id = trafficId;
             // instance.scale.set(shape.x / 4, shape.y / 4, shape.z / 4); // 设置模型的大小

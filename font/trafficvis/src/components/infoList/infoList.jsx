@@ -92,7 +92,7 @@ const InfoList = (props) => {
       .attr("width", 50)
       .attr("height", 20)
       .style("fill", "url(#gradient)");
-    flowRect.append("text").attr("x", 280).attr("y", 30).text("车流量");
+    flowRect.append("text").attr("x", 280).attr("y", 30).text("相对车流量");
   };
 
   const drawCircleLegend = () => {

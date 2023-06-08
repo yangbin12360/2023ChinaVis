@@ -129,8 +129,10 @@ const inputTextId =(id)=>{
     >
       <Row style={{ width: "100%", height: "100%" }}>
         <Col span={14} id="left">
-          <Row style={{ width: "100%", height: "2%" }}>title </Row>
-          <Row style={{ width: "100%", height: "63%" }}>
+          <Row style={{ width: "100%", height: "3%" }}>
+            <div style={{width:"100%",height:"100%", fontSize:30,paddingLeft:450,fontWeight:"bolder",userSelect:"none",color:"black"}}>交通路口高价值场景与态势可视分析系统</div>
+          </Row>
+          <Row style={{ width: "100%", height: "62%" }}>
             <Col span={24} id="left_top">
               <div style={{ height: "100%" }}>
                 <Box
@@ -157,6 +159,7 @@ const inputTextId =(id)=>{
                       carNum={carNum}
                       scence={scence}
                       handleDetail={handleDetail}
+                      handleChangeTime={handleChangeTime}
                     ></RelationshipScene>
                   }
                 ></Box>
@@ -200,7 +203,7 @@ const inputTextId =(id)=>{
               <Row style={{ height: "82%", width: "100%" }}>
                 <div style={{ height: "100%", width: "50%" }}>
                   <Box
-                    title={"群体驾驶聚类散点图"}
+                    title={"群体驾驶行为聚类散点图"}
                     component={
                       <ClusterScatter
                         timeStamp={timeStamp}
@@ -215,7 +218,7 @@ const inputTextId =(id)=>{
                 </div>
                 <div style={{ height: "100%", width: "50%" }}>
                   <Box
-                    title={"指标雷达图"}
+                    title={"车辆特征雷达图"}
                     component={<Radar timeStamp={timeStamp}></Radar>}
                   ></Box>
                 </div>
@@ -223,7 +226,7 @@ const inputTextId =(id)=>{
             </Col>
             <Col span={9}>
               <Box
-                title={"相似度矩阵"}
+                title={"场景与驾驶行为相关性分析图"}
                 component={
                   <SimlarityMatrix
                     timeStamp={timeStamp}
@@ -240,7 +243,7 @@ const inputTextId =(id)=>{
           <Row style={{ height: "13.5%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"高价值场景列表"}
+                title={"高价值场景详情列表图"}
                 component={
                   <SceneList
                     timeStamp={timeStamp}
@@ -298,7 +301,7 @@ const inputTextId =(id)=>{
             <Col span={9} id="right_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"Rose"}
+                  title={"拥堵识别玫瑰图"}
                   component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp} handleHourIndex={handleHourIndex}></RoseComponent>}
                 ></Box>
               </div>
@@ -323,7 +326,7 @@ const inputTextId =(id)=>{
       <div
         style={{
           left: "42.6%",
-          top: "5.4%",
+          top: "6.4%",
           width: 400,
           height: 200,
           position: "absolute",
@@ -339,7 +342,7 @@ const inputTextId =(id)=>{
       <div
         style={{
           left: "42.62%",
-          top: "4.01%",
+          top: "5.01%",
           width: 199,
           height: 20,
           position: "absolute",
