@@ -21,6 +21,10 @@ import pandas as pd
 # from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import datetime as dt
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
+import collections
+import shutil
 
 
 def check_contraflow(road_file, road_direction): # 检查逆行行为
@@ -197,28 +201,32 @@ def dataTypebytime_meas():
     # 获取所有数据文件夹
     for i in range(10):
         # 创建文件夹./static/data/ChinaVis Data文件夹，里面放入ChinaVis数据和./static/data/DataProcess/文件夹
-        f = open("./static/data/ChinaVis Data/part-0000" + str(i) +
-                 "-905505be-27fc-4ec6-9fb3-3c3a9eee30c4-c000.json", "r", encoding="utf-8")
-        data = f.read().split("\n")
+        # f = open("./static/data/DataProcess/idRoad/part" + str(i) +
+        #          ".json", "r", encoding="utf-8")
+        # data = f.read()
+        with open("./static/data/DataProcess/idRoad/part" + str(i) +
+                 ".json", "r") as f:
+            data=json.load(f)
         # 按照id将数据分组
-        for j in data:
-            try:
-                nowData = json.loads(j)
-                nowTime = float(nowData["time_meas"]) / 1000000
-                nowTime = time.localtime(nowTime)
-                nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
-                if(nowTime not in allData):
-                    allData[nowTime] = []
-                allData[nowTime].append(nowData)
-            except:
-                print(j)
-
+        with alive_bar(len(data)) as bar:
+            for key, value in data.items():
+                try:
+                    nowData = value
+                    nowTime = float(nowData["time_meas"]) / 1000000
+                    nowTime = time.localtime(nowTime)
+                    nowTime = time.strftime("%Y-%m-%d %H:%M:%S", nowTime)
+                    if nowTime not in allData:
+                        allData[nowTime] = []
+                    allData[nowTime].append(nowData)
+                except:
+                    print("Error processing data:", value)
+                bar()
     # 按照数据的类型进行分组保存
     for i in allData:
         data = time.mktime(time.strptime(i, "%Y-%m-%d %H:%M:%S"))
-        if(not os.path.exists("./static/data/DataProcess/time_meas")):
-            os.makedirs("./static/data/DataProcess/time_meas")
-        f = open("./static/data/DataProcess/time_meas/" +
+        if(not os.path.exists("./static/data/DataProcess/newtime_meas")):
+            os.makedirs("./static/data/DataProcess/newtime_meas")
+        f = open("./static/data/DataProcess/newtime_meas/" +
                  str(data) + ".json", "w")
         f.write(json.dumps(allData[i]))
 
@@ -2813,7 +2821,7 @@ def addRoadId():
 
 #群体性驾驶行为变化趋势分析
 #统计特征提取
-def featureExtraction(startTime):
+def featureExtraction(startTime,nameTime):
     # startTime = 1681315196
     pathList = []
     #每5分钟交通参与者提取
@@ -2863,12 +2871,13 @@ def featureExtraction(startTime):
         newRes[id]["v_max"] = np.max(newRes[id]["v"])
         #最小速度
         newRes[id]["v_min"] = np.min(newRes[id]["v"])
-        #速度标准差
-        newRes[id]["v_std"] = np.std(newRes[id]["v"])
-        #加速度标准差
-        newRes[id]["a_std"] = np.std(newRes[id]["a"])
-        #朝向标准差
+        # #速度标准差
+        # newRes[id]["v_std"] = np.std(newRes[id]["v"])
+        # #加速度标准差
+        # newRes[id]["a_std"] = np.std(newRes[id]["a"])
+        # #朝向标准差
         newRes[id]["o_std"] = np.std(newRes[id]["o"])
+        newRes[id]["a_mean"] = np.mean(newRes[id]["a"])
         #位置聚集程度：1.求各个坐标的几何中心 2.求各个坐标到几何中心的距离 3.求距离的平均值
         xList = []
         yList = []
@@ -2883,20 +2892,22 @@ def featureExtraction(startTime):
             distanceList.append(math.sqrt((xList[i]-x_mean)**2+(yList[i]-y_mean)**2))
         newRes[id]["distance_mean"] = np.mean(distanceList)
     #将newRes写入csv文件
-    with open("../back\static\data\DataProcess/5m/feature_extraction/"+str(startTime)+".csv","w") as f:
+    with open("../back\static\data\DataProcess/5m/originFeature/"+str(nameTime)+"s.csv","w") as f:
         writer = csv.writer(f)
-        writer.writerow(["id","type","v_mean","v_max","v_min","v_std","a_std","o_std","distance_mean"])
+        writer.writerow(["id","type","v_mean","v_max","v_min","a_mean"])
         for id in newRes:
-            writer.writerow([id,newRes[id]["type"],newRes[id]["v_mean"],newRes[id]["v_max"],newRes[id]["v_min"],newRes[id]["v_std"],newRes[id]["a_std"],newRes[id]["o_std"],newRes[id]["distance_mean"]])
+            writer.writerow([id,newRes[id]["type"],newRes[id]["v_mean"],newRes[id]["v_max"],newRes[id]["v_min"],newRes[id]["a_mean"]])
 #对time_meas文件夹下的所有文件每300个文件进行特征提取
 def featureAll():
     file_list = os.listdir('../back/static/data\DataProcess/time_meas')
     file_count = len(file_list)
     startTime = 1681315196
+    nameTime = 300
     with alive_bar(len(file_list),title="Processing") as bar:
         for i in range(0,math.ceil(file_count/300)):
-            featureExtraction(startTime)
+            featureExtraction(startTime,nameTime)
             startTime += 300
+            nameTime += 300
         bar()
         time.sleep(0.1)
 
@@ -3111,14 +3122,14 @@ def processFid():
 
 #将预测数据处理成整点数据
 def forecastToInt():
-    df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre.csv")
+    df = pd.read_csv("../back/static/data/DataProcess/flowForecast/countpre0607.csv")
     # 处理timestamp列，使其变为最接近的整点时刻
 # 处理timestamp列，将其转换为最接近的整点时刻
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['timestamp'] = df['timestamp'].dt.round('H')
 # 将timestamp列转换为10位时间戳
     df['timestamp'] = df['timestamp'].apply(lambda x: int(time.mktime(x.timetuple())))
-    df.to_csv('../back/static/data/DataProcess/flowForecast/new_file1.csv', index=False)
+    df.to_csv('../back/static/data/DataProcess/flowForecast/new_file0607.csv', index=False)
 
 
 def getDriveReserve():
@@ -3323,11 +3334,164 @@ def proSim():
             matrix_df.to_csv(new_path+filename, index=True)
             bar()
 
-
+def getSingleFlow():
+        file_path = './static/data/DataProcess/laneData/part1972.json'
+        df = pd.DataFrame(columns=["roadid", "timestamp", "true"])
+    # for filename in os.listdir(file_path):
+        with open(file_path,"r")as f:
+            data = json.load(f)
+        new_data = defaultdict(list)
+        earliest_time = min(datetime.strptime(key, "%Y-%m-%d %H:%M:%S") for key in data.keys())
+        current_hour = earliest_time
+        for time, records in sorted(data.items()):
+            time_as_datetime = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            if time_as_datetime < current_hour + timedelta(hours=1):
+                new_data[current_hour.strftime("%Y-%m-%d %H:%M:%S")].extend(records)
+            else:
+                current_hour += timedelta(hours=1)
+                new_data[current_hour.strftime("%Y-%m-%d %H:%M:%S")].extend(records)
+        for timestamp, records in new_data.items():
+            ids = set()
+            count = 0
+            for record in records:
+                if record["type"] in [1, 3, 4, 6, 10] and record["id"] not in ids:
+                    count += 1
+                    ids.add(record["id"])
+            df = df.append({"roadid": "1972", "timestamp": timestamp, "true": count}, ignore_index=True)
+        df.to_csv("./static/data/DataProcess/laneData/1972.csv", index=False)
 
     # res["data"] =data
     # return res 
 
+#去除非机动车逆行数据中没有移动的数据
+def noMoving():
+    file_path='./static/data/DataProcess/freverse'
+    for filename in os.listdir(file_path):
+        # 收集要删除的条目
+        to_delete = []
+        with open(file_path+'/'+filename,"r")as f:
+            data = json.load(f)
+        for key, value in data.items():
+            for sub_key, sub_value in value.items():
+        # 如果"is_moving"为0，则删除该条目
+                if sub_value.get("is_moving") == 0:
+                    to_delete.append((key, sub_key))
+        # 删除收集到的条目
+        for key, sub_key in to_delete:
+            del data[key][sub_key]
+        with open(file_path+'/'+filename, 'w') as file:
+            json.dump(data, file)
+#合并非机动车道逆行数据
+def mergeReverse():
+    folder_path = './static/data/DataProcess/freverse'
+    merged_data = {}
+# 遍历文件夹
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".json"):
+            file_path = os.path.join(folder_path, filename)
+            with open(file_path) as file:
+                data = json.load(file)
+            # 合并键值对
+                for key, value in data.items():
+                    if key not in merged_data:
+                        merged_data[key] = value
+                    else:
+                        merged_data[key].update(value)
+# 按键名从小到大排序
+    sorted_data = dict(sorted(merged_data.items(), key=lambda x: int(x[0])))
+# 将数据写入新的JSON文件
+    output_file = "./static/data/DataProcess/freverse/allReverse.json"
+    with open(output_file, "w") as file:
+        json.dump(sorted_data, file)
+#合并5分钟内、id相同的数据
+def mergeId():
+    file = "./static/data/DataProcess/freverse/allReverse.json"
+    with open(file,"r") as f :
+        data = json.load(f)
+    # 结果字典
+    result = collections.defaultdict(list)
+    # 初始时间戳
+    initial_timestamp = 1681315196
+   # 遍历数据
+    for timestamp_str, entries in data.items():
+    # 计算组别
+        group = initial_timestamp + ((int(timestamp_str) - initial_timestamp) // 300) * 300
+        for entry in entries.values():
+            id_ = entry['id']
+            type_ = entry['type']
+            time_meas = entry['time_meas']
+            velocity = entry['velocity']
+        # 忽略特定的 type
+            if type_ in {-1, 2, 7}:
+                continue;
+        # 查找已经存在的条目
+            for i, existing_entry in enumerate(result[str(group)]):
+                if existing_entry['id'] == id_:
+                    existing_entry['end_time'] = max(existing_entry['end_time'], time_meas)
+                    existing_entry['start_time'] = min(existing_entry['start_time'], time_meas)
+                    existing_entry['velocity'] = (existing_entry['velocity'] + velocity) / 2
+                    break
+            else:
+            # 创建新条目
+                result[str(group)].append({
+                    'id': id_,
+                    'type': type_,
+                    'start_time': time_meas,
+                    'end_time': time_meas,
+                    'velocity': velocity
+                })
+# 保存结果
+    with open('./static/data/DataProcess/freverse/mergeReverse.json', 'w') as f:
+        json.dump(result, f)
+
+#合并新雷达图数据
+def mergeRadar():
+    dir1 = './static/data/DataProcess/5m/merge'
+    dir2 = './static/data/DataProcess/5m/originFeature'
+    for filename in os.listdir(dir1):
+        if filename.endswith(".csv"):
+            output_file = os.path.join('./static/data/DataProcess/5m/newMerge/', filename)
+        try:
+            file1 = os.path.join(dir1, filename)
+            file2 = os.path.join(dir2, filename)
+            df1 = pd.read_csv(file1)
+            df2 = pd.read_csv(file2)
+            necessary_columns_1 = ['x','y','cluster','type','id','v_std','a_std','o_std','distance_mean','v_pca']
+            necessary_columns_2 = ['id','type','v_mean','v_max','v_min','a_mean']
+            if all(elem in df1.columns  for elem in necessary_columns_1) and all(elem in df2.columns  for elem in necessary_columns_2):
+                df = pd.merge(df1, df2, on=['id', 'type'])
+                df.to_csv(output_file, index=False)
+            else:
+                print(f"Skipping {file1} or {file2} due to missing columns.")
+        except Exception as e:
+            print(f"Error processing {file1} or {file2}: {e}")
+
+# 查看逆行的数据
+def readCsv():
+    file ='./static/data/DataProcess/idRoadCsv/1/269658033.csv'
+    df = pd.read_csv(file)
+    column_data = df["orientation"].to_list()
+    print(column_data)
+# 查看-1文件夹下是否有同名数据
+def validate():
+    main_folder = './static/data/DataProcess/idRoadCsv'  # 替换为你的文件夹路径
+    target_folder = os.path.join(main_folder, '-1')
+# 获取所有文件名
+    file_names = os.listdir(target_folder)
+    with alive_bar(len(file_names), title='Processing files') as bar:
+        for file_name in file_names:
+            file_path = os.path.join(target_folder, file_name)
+            for folder_name in os.listdir(main_folder):
+                if folder_name != '-1':  # 排除目标文件夹本身
+                    folder_path = os.path.join(main_folder, folder_name)
+                    if os.path.exists(os.path.join(folder_path, file_name)):
+                        print(f"文件 {file_name} 在文件夹 {folder_name} 中存在，目录为: {folder_path}")
+            bar()
+
+def jsonLen():
+    with open("./static/data/DataProcess/allFault.json") as f:
+        data = json.load(f)
+    print(len(data))
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3351,6 +3515,15 @@ if __name__ == '__main__':
     # getHighSceneCount()
     # mergeHV()
     # mergeHVCount()
-    # sortSimilarity()
+    # # sortSimilarity()
     # # proSim()
+    # dataTypebytime_meas()
+    # forecastToInt()
+    # noMoving()
+    # mergeReverse()
+    # mergeId()
+    # mergeRadar()
+    # readCsv()
+    # validate()
+    jsonLen()
     dataTypebytime_meas()

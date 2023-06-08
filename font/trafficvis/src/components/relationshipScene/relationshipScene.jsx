@@ -203,6 +203,7 @@ import "./relationShip.less";
 
 
 function RelationshipScene(props){
+  const {handleChangeTime}=props;
     const groupLinesRef = useRef(null);
     const toolRef = useRef(null);
     const [isZoomForAll, setIsZoomForAll] = useState("unify");
@@ -229,7 +230,8 @@ function RelationshipScene(props){
 
       return timestring;
   };
-  
+
+
     //16位时间戳转换
     const converTimestamp = (timestamp) => {
       // 将微秒时间戳转换为毫秒
@@ -395,11 +397,11 @@ function RelationshipScene(props){
       
       //点击点获取时间戳、中车道车号[0-6]对应[车道1-车道7]、高价值场景序号[0-7]分别对应['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速']
       myChart.on("click", function (param) {
-        //console.log(param);
         var getX = timestamp[param.dataIndex]-300;//横坐标的值
         var getName =parseInt(param.seriesId.split('-')[1]);
         var getScence = parseInt(param.seriesId.split('-')[0]);
         handleDetail(getX,getName,getScence);
+        handleChangeTime(getX)
         })
     }
 

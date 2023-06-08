@@ -8,11 +8,11 @@ const ForecastHeat = (props) => {
   const heatRef = useRef(null);
 
   useEffect(() => {
-    // console.log("flowtimeStamp",flowtimeStamp);
-    getFlow(1681376400).then((res)=>{
+    console.log("flowtimeStamp",flowtimeStamp);
+    getFlow(flowtimeStamp).then((res)=>{
       const flowData = Object.values(res["all"]);
   
-      console.log("flowData",typeof(flowData));
+      console.log("flowData",flowData);
       drawHeat(flowData);
     })
     // drawHeat();
@@ -67,7 +67,7 @@ const ForecastHeat = (props) => {
       .padding(0.01);
 
     const colorScale = d3.scaleSequential()
-    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d)/4)])
+    .domain([d3.min(colordata, d => d3.min(d)), d3.max(colordata, d => d3.max(d))])
     .interpolator(t => d3.interpolateRgb(
       d3.rgb(61, 106, 79,0.7),  // 黄色
       t < 0.5
@@ -75,6 +75,49 @@ const ForecastHeat = (props) => {
         : d3.rgb(180, 32,13,0.9)   // 红色
     )(t * 2));
 
+  const text = bounds.append("text")
+                     .attr("x", dimensions.margin.left+15)
+                     .attr("y",1)
+                     .text(d3.min(colordata, d => d3.min(d))+"~"+d3.max(colordata, d => d3.max(d))+"辆")
+// 创建渐变色块
+const colorBlockWidth = 50;
+const colorBlockHeight = 15;
+const colorBlock = svg
+  .append("rect")
+  .attr("x", dimensions.margin.left-40)
+  .attr("y",  8)
+  .attr("width", colorBlockWidth)
+  .attr("height", colorBlockHeight)
+  .style("fill", "url(#color-gradient)")
+// 创建渐变定义
+const gradient = svg
+  .append("defs")
+  .append("linearGradient")
+  .attr("id", "color-gradient")
+  .attr("x1", "0%")
+  .attr("y1", "0%")
+  .attr("x2", "100%")
+  .attr("y2", "0%")
+
+
+// 定义渐变的颜色范围
+gradient
+  .append("stop")
+  .attr("offset", "0%")
+  .attr("stop-color", colorScale(d3.min(colordata, (d) => d3.min(d))))
+  .attr("stop-opacity", 1);
+
+gradient
+  .append("stop")
+  .attr("offset", "50%")
+  .attr("stop-color", colorScale(d3.mean(colordata, (d) => d3.mean(d))))
+  .attr("stop-opacity", 1);
+
+gradient
+  .append("stop")
+  .attr("offset", "100%")
+  .attr("stop-color", colorScale(d3.max(colordata, (d) => d3.max(d))))
+  .attr("stop-opacity", 1);
     const tooltip = d3
       .select("body")
       .append("div")
@@ -89,7 +132,7 @@ const ForecastHeat = (props) => {
     .enter()
     .append("rect")
     .attr("x", (d) => xScale(d.j))
-    .attr("y", (d) => yScale(d.i))
+    .attr("y", (d) => yScale(d.i)+10)
     .attr("width", xScale.bandwidth())
     .attr("height", yScale.bandwidth())
     .attr("fill", (d) => colorScale(d.value))
@@ -97,11 +140,12 @@ const ForecastHeat = (props) => {
     .attr("stroke-width", 1.5)
     .attr("rx", 1) 
     .attr("ry", 1) 
+
     .on("mouseover", function (event, d) {
       d3.select(this).transition().duration("50").attr("opacity", ".85");
       tooltip.transition().duration(50).style("opacity", 0.8);
       tooltip
-        .html("Traffic Volume: " + d.value)
+        .html("车流量: " + d.value)
         .style("left", event.pageX + 10 + "px")  
         .style("top", event.pageY - 15 + "px");  
     })
@@ -136,13 +180,40 @@ const ForecastHeat = (props) => {
       .attr(
         "transform",
         `translate(${0}, ${
-          dimensions.height - dimensions.margin.bottom
+          dimensions.height - dimensions.margin.bottom+10
         })`
       )
       .call(xAxis)
       .select(".domain")
       .remove();
+      const flowRect = svg.append("g").attr("transform", "translate(,0)");
 
+    //   let gradient = svg
+    //   .append("defs")
+    //   .append("linearGradient")
+    //   .attr("id", "gradient")
+    //   .attr("x1", "0%")
+    //   .attr("y1", "0%")
+    //   .attr("x2", "100%")
+    //   .attr("y2", "0%");
+    // gradient
+    //   .append("stop")
+    //   .attr("offset", "0%")
+    //   .attr("stop-color", colorScale(0))
+    //   .attr("stop-opacity", 1);
+    // gradient
+    //   .append("stop")
+    //   .attr("offset", "100%")
+    //   .attr("stop-color", colorScale(1))
+    //   .attr("stop-opacity", 1);
+    // flowRect
+    //   .append("rect")
+    //   .attr("x", 20)
+    //   .attr("y", 3)
+    //   .attr("width", 50)
+    //   .attr("height", 20)
+    //   .style("fill", "url(#gradient)");
+    // flowRect.append("text").attr("x", 80).attr("y", 18).text(d3.max(colordata, d => d3.max(d)));
     // const legend = svg
     //   .selectAll(".legend")
     //   .data(colorScale.ticks(6).slice(1).reverse())

@@ -44,11 +44,20 @@ const Layout = () => {
   const [carNum, setcarNum] = useState(0);
   const [scence, setScence] = useState(0);
   const [flowtimeStamp,setFlowtimeStamp]=useState(1681372078);
-  const [hourindex,setHourIndex]=useState(0);
+  const [hourindex,setHourIndex]=useState(17);
   const [simCount, SetSimCount] = useState([]); //相似度矩阵中各个类别的个数
   const [allCluster, setAllCluster] = useState([]); //用来控制时间切换时候散点图的数组
+const [textId,setTextId] = useState(null);
+const [textType,setTextType] = useState(null);
   // ----------------------- 状态改变--------------------------
-
+//修改文本框中的id
+const handleTextId=(id,type)=>{
+  setTextId(id);
+  setTextType(type);
+}
+const inputTextId =(id)=>{
+  setTextId(id);
+}
   //控制allCluster
   const handleAllCluster = (cluter) => {
     setAllCluster(cluter);
@@ -76,6 +85,7 @@ const Layout = () => {
   };
   //玫瑰图时间戳改变
   const handleFlowtimeStamp = (newData) => {
+    console.log("newData",newData);
     setFlowtimeStamp(newData);
   };
   //玫瑰图传花瓣序号
@@ -119,8 +129,10 @@ const Layout = () => {
     >
       <Row style={{ width: "100%", height: "100%" }}>
         <Col span={14} id="left">
-          <Row style={{ width: "100%", height: "2%" }}>title </Row>
-          <Row style={{ width: "100%", height: "63%" }}>
+          <Row style={{ width: "100%", height: "3%" }}>
+            <div style={{width:"100%",height:"100%", fontSize:30,paddingLeft:450,fontWeight:"bolder",userSelect:"none",color:"black"}}>交通路口高价值场景与态势可视分析系统</div>
+          </Row>
+          <Row style={{ width: "100%", height: "62%" }}>
             <Col span={24} id="left_top">
               <div style={{ height: "100%" }}>
                 <Box
@@ -147,6 +159,7 @@ const Layout = () => {
                       carNum={carNum}
                       scence={scence}
                       handleDetail={handleDetail}
+                      handleChangeTime={handleChangeTime}
                     ></RelationshipScene>
                   }
                 ></Box>
@@ -181,6 +194,8 @@ const Layout = () => {
                       handleChangeTime={handleChangeTime}
                       handleSelectId={handleSelectId}
                       handleControlCamra={handleControlCamra}
+                      textId={textId}
+                      inputTextId={inputTextId}
                     ></ControlPanel>
                   }
                 ></Box>
@@ -188,7 +203,7 @@ const Layout = () => {
               <Row style={{ height: "82%", width: "100%" }}>
                 <div style={{ height: "100%", width: "50%" }}>
                   <Box
-                    title={"群体驾驶聚类散点图"}
+                    title={"群体驾驶行为聚类散点图"}
                     component={
                       <ClusterScatter
                         timeStamp={timeStamp}
@@ -203,7 +218,7 @@ const Layout = () => {
                 </div>
                 <div style={{ height: "100%", width: "50%" }}>
                   <Box
-                    title={"指标雷达图"}
+                    title={"车辆特征雷达图"}
                     component={<Radar timeStamp={timeStamp}></Radar>}
                   ></Box>
                 </div>
@@ -211,7 +226,7 @@ const Layout = () => {
             </Col>
             <Col span={9}>
               <Box
-                title={"相似度矩阵"}
+                title={"场景与驾驶行为相关性分析图"}
                 component={
                   <SimlarityMatrix
                     timeStamp={timeStamp}
@@ -228,7 +243,7 @@ const Layout = () => {
           <Row style={{ height: "13.5%", width: "100%" }}>
             <div style={{ width: "100%" }}>
               <Box
-                title={"高价值场景列表"}
+                title={"高价值场景详情列表图"}
                 component={
                   <SceneList
                     timeStamp={timeStamp}
@@ -252,6 +267,7 @@ const Layout = () => {
                     singleType={singleType}
                     handleChangeTime={handleChangeTime}
                     handleSelectId={handleSelectId}
+                    handleTextId={handleTextId}
                   ></SingleTrace>
                 }
               ></Box>
@@ -285,7 +301,7 @@ const Layout = () => {
             <Col span={9} id="right_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"Rose"}
+                  title={"拥堵识别玫瑰图"}
                   component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp} handleHourIndex={handleHourIndex}></RoseComponent>}
                 ></Box>
               </div>
@@ -310,7 +326,7 @@ const Layout = () => {
       <div
         style={{
           left: "42.6%",
-          top: "5.4%",
+          top: "6.4%",
           width: 400,
           height: 200,
           position: "absolute",
@@ -326,7 +342,7 @@ const Layout = () => {
       <div
         style={{
           left: "42.62%",
-          top: "4.01%",
+          top: "5.01%",
           width: 199,
           height: 20,
           position: "absolute",
