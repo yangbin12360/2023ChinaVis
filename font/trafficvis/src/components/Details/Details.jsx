@@ -13,8 +13,9 @@ function Details (props){
     const [specialContent,setSpecialContent] = useState("");
     const [veloContent,setVeloContent] = useState("");
     const{time,carNum,scence,handleDetail} = props;
+    const [carname,setCarName] = useState('中车道A');
 
-    var name=['车道0','车道1','车道2','车道3','车道4','车道5','车道6','车道7','车道8'];
+    var name=['中车道A','中车道B','中车道C','中车道D','中车道E','中车道F','中车道G','中车道H','路口','非机动车道'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
     var typecolor = ['','#5c677d','#79addc','#f19c79','#f4d35e','','#709775','','','','#ce4257'];
@@ -106,7 +107,13 @@ function Details (props){
 //速度比例尺
       var vscale = d3.scaleLinear()
                      .domain([0,d3.max(dataset.map(item => {
-                        return item.velocity
+                        if (item.velocity==0) {
+                              return 0.01;
+                        }
+                        else{
+                              return item.velocity;
+                        }
+      
                      }))])
                      .range([-0.3,0.3]);
         //将时间段数据转换为弧度点的形式
@@ -1149,6 +1156,7 @@ function Details (props){
        // console.log(carNum,time,scence)
       detail_item(time,carNum,scence).then(res => {
         var dataDetail = res;
+        setCarName(name[carNum]);
         DrawDetailScence(dataDetail);
       })
 
@@ -1170,7 +1178,7 @@ function Details (props){
         <text style={{color:'#709775'}}><b>客车</b>&nbsp;&nbsp;&nbsp;</text>
         <text style={{color:'#ce4257'}}><b>手推车</b> </text>
         </p>
-        <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>车道{carNum}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
+        <p id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>在<b>{converTimestampall(time)}</b>所在5分钟内,<b>{carname}</b>的<b>{label[scence]}</b>场景详细信息如下：</p>
         <div id = 'information' style={{lineHeight:'180%',textAlign:'center'}}>{specialContent},&nbsp;&nbsp;&nbsp;{veloContent}</div>
         </div>
         </div>
