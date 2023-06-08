@@ -113,7 +113,7 @@ def getActionAndRoadCount():
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
-        if index in [1,2,3,4]:
+        if index in [1,2,3,4,5]:
             for item in d_data:
                 if item['road']==-1:
                     continue
