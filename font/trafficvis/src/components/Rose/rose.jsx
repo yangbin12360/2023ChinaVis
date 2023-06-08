@@ -59,6 +59,10 @@ function RoseComponent(props) {
                 }
             ],
             tooltip: {},
+            legend: {
+                data: ['平均速度','停止频率'],  // 设置图例名称
+                bottom:'2%'
+            },
             angleAxis: [
                 {
                     type: 'category', // 类别型坐标轴

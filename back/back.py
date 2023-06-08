@@ -108,12 +108,12 @@ def getActionAndRoadCount():
     segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
-    all_count = [[[0 for _ in range(num_segments)] for _ in range(9)] for _ in range(8)]
+    all_count = [[[0 for _ in range(num_segments)] for _ in range(10)] for _ in range(8)]
     file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
-        if index in [1,2,3,4]:
+        if index in [1,2,3,4,5]:
             for item in d_data:
                 if item['road']==-1:
                     continue
