@@ -311,7 +311,7 @@ const inputTextId =(id)=>{
       </Row>
       <div
         style={{
-          left: "0%",
+          left: "0.5%",
           top: "5%",
           width: 200,
           height: 200,
