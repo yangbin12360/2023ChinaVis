@@ -354,7 +354,7 @@ function RelationshipScene(props){
         legend: {
           show: true,
           top: 0,
-          left: "10%",
+          left: "5%",
           selected: {
             // '车道1': true,
             // '车道2': true,
