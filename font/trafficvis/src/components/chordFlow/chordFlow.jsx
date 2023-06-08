@@ -28,7 +28,7 @@ function ChordFlow(props){
                             .attr('height',height)
                             .append("g")
                             .attr('id','traffic_flow')
-                            .attr('transform', 'translate(' + width/2 + "," + height/2 + ")");
+                            .attr('transform', 'translate(' + (width/2-2) + "," + (height/2+2) + ")");
     
         //准备数据
         var city_name = [];
@@ -141,14 +141,14 @@ function ChordFlow(props){
                     if(i.source.index != i.target.index){
                         //console.log("出："+i.source.value+"进："+i.target.value);
                         setTipyContent( "出："+i.source.value);
-                        setTipyX(g.offsetX+'px');;
-                        setTipyY(g.offsetY+'px');
+                        setTipyX(g.pageX+'px');;
+                        setTipyY(g.pageY+'px');
                     }
                     else{
                         setTipyFlag(flag);
                         setTipyContent("掉头:"+i.source.value);
-                        setTipyX(g.offsetX+'px');
-                        setTipyY(g.offsetY+'px');
+                        setTipyX(g.pageX+'px');
+                        setTipyY(g.pageY+'px');
                     }
     
                 }
@@ -283,19 +283,19 @@ function ChordFlow(props){
         function innertipy(flag){
             if(flag == true){
                 return function(g,i){
-                    //console.log(i);
+                    //console.log(g);
                     setTipyFlag(flag);
                     if(i.source.index != i.target.index){
                         //console.log("出："+i.source.value+"进："+i.target.value);
                         setTipyContent( "车道id:"+i.source.index+" 出："+i.source.value);
-                        setTipyX(g.offsetX+'px');;
-                        setTipyY(g.offsetY+'px');
+                        setTipyX(g.pageX+'px');;
+                        setTipyY(g.pageY+'px');
                     }
                     else{
                         setTipyFlag(flag);
                         setTipyContent("掉头:"+i.source.value);
-                        setTipyX(g.offsetX+'px');
-                        setTipyY(g.offsetY+'px');
+                        setTipyX(g.pageX+'px');
+                        setTipyY(g.pageY+'px');
                     }
     
                 }
@@ -354,16 +354,31 @@ function ChordFlow(props){
     },[update])
 
     return (
-        <div id ='flowContainer' style={{width:'100%',height:'100%'}}>
+        <>
 
-        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],opacity:1.5,background:'white',borderRadius:'50%'}}>
-                   {/* 提示框 */}
-         {tipyFlag ? <div className ="tip" id="flow_tip" 
-        style={{width:"150px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(161,161,161,0.6)',textAlign:'center',transform:[`rotateZ(-90deg) rotateY(-180deg)`]}}>
+        <div id ='flowContainer'style={{
+          left: "0%",
+          top: "5%",
+          width: 200,
+          height: 200,
+          position: "absolute",
+          background: "white",
+          borderRadius: "50%",
+          opacity:0.5
+        }}>
+
+        <div id="flow_div" style={{transform:[`rotateZ(-90deg) rotateY(180deg)`],background:'white',borderRadius:'50%'}}>
+
+        </div>
+        </div>
+
+                            {/* 提示框 */}
+                            {tipyFlag ? <div className ="tip" id="flow_tip" 
+        style={{width:"150px",height:"25px",position:'absolute',top:tipyY,left:tipyX,background:'rgba(255,255,255,0.3)',textAlign:'center'}}>
             {tipyContent}
             </div> : null }
-        </div>
-         </div>
+
+         </>
         );
 }
 

@@ -130,7 +130,7 @@ const inputTextId =(id)=>{
       <Row style={{ width: "100%", height: "100%" }}>
         <Col span={14} id="left">
           <Row style={{ width: "100%", height: "3%" }}>
-            <div style={{width:"100%",height:"100%", fontSize:30,paddingLeft:450,fontWeight:"bolder",userSelect:"none",color:"black"}}>城市路口高价值场景与态势可视分析系统</div>
+            <div style={{width:"99.9%",height:"90%", fontSize:25,paddingLeft:500,fontWeight:"bolder",userSelect:"none",color:"black",background:'#efefef'}}>城市路口高价值场景与态势可视分析系统</div>
           </Row>
           <Row style={{ width: "100%", height: "62%" }}>
             <Col span={24} id="left_top">
@@ -309,20 +309,19 @@ const inputTextId =(id)=>{
           </Row>
         </Col>
       </Row>
-      <div
+      {/* <div
         style={{
           left: "0.5%",
           top: "5%",
           width: 200,
           height: 200,
           position: "absolute",
-          opacity: 0.5,
           background: "white",
           borderRadius: "50%",
         }}
-      >
+      > */}
         <ChordFlow timeStamp={timeStamp}></ChordFlow>
-      </div>
+      {/* </div> */}
       <div
         style={{
           left: "42.6%",
