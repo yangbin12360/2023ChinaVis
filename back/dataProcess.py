@@ -12,13 +12,13 @@ import numpy as np
 import math
 import csv
 import pandas as pd
-from sklearn.cluster import DBSCAN
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.impute import SimpleImputer
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics.pairwise import cosine_similarity
+# from sklearn.cluster import DBSCAN
+# from sklearn.cluster import KMeans
+# from sklearn.preprocessing import MinMaxScaler
+# from sklearn.impute import SimpleImputer
+# from sklearn.decomposition import PCA
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import datetime as dt
 
@@ -3351,5 +3351,6 @@ if __name__ == '__main__':
     # getHighSceneCount()
     # mergeHV()
     # mergeHVCount()
-    sortSimilarity()
+    # sortSimilarity()
     # # proSim()
+    dataTypebytime_meas()
