@@ -214,7 +214,7 @@ function RelationshipScene(props){
     const [tipyY,setTipyY] = useState('0px');
     const{time,carNum,scence,handleDetail} = props;
     // const [dataset,setDataTese] = useState([]);
-    var name=['中车道A','中车道B','中车道C','中车道D','中车道E','中车道F','中车道G','中车道H','路口'];
+    var name=['中车道A','中车道B','中车道C','中车道D','中车道E','中车道F','中车道G','中车道H','路口','非机动车道'];
     var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
 
@@ -259,7 +259,7 @@ function RelationshipScene(props){
     console.log(time);
 
     console.log(dataset);
-    var color=['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'];
+    var color=['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)','rgb(252,202,70)'];
     const title = [];
     const xAxis = [];
     const yAxis = [];
@@ -326,7 +326,7 @@ function RelationshipScene(props){
       });
       //console.log(series);
       const option = {
-        color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)'],
+        color:['rgb(46, 196, 182)','rgb(217,164, 14)','rgb(118, 200, 147)','rgb(82, 182, 154)','rgb(52, 160, 164)','rgb(169, 214, 229)','rgb(5, 130, 202)','rgb(30, 96, 145)','rgb(20, 33, 61)','rgb(252,202,70)'],
         title: title,
         tooltip: {
           trigger: "axis",
@@ -356,15 +356,15 @@ function RelationshipScene(props){
           top: 0,
           left: "10%",
           selected: {
-            '车道1': true,
-            '车道2': true,
-            '车道3': true,
-            '车道4': true,
-            '车道5': true,
-            '车道6': false,
-            '车道7': false,
-            '车道8': false,
-            '车道9': false,
+            // '车道1': true,
+            // '车道2': true,
+            // '车道3': true,
+            // '车道4': true,
+            // '车道5': true,
+            // '车道6': false,
+            // '车道7': false,
+            // '车道8': false,
+            // '车道9': false,
         }
         },
         dataZoom: [
