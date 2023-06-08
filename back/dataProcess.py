@@ -3365,7 +3365,7 @@ def getSingleFlow():
 
 #去除非机动车逆行数据中没有移动的数据
 def noMoving():
-    file_path='./static/data/DataProcess/freverse'
+    file_path='./static/data/DataProcess/reversePart'
     for filename in os.listdir(file_path):
         # 收集要删除的条目
         to_delete = []
@@ -3383,7 +3383,7 @@ def noMoving():
             json.dump(data, file)
 #合并非机动车道逆行数据
 def mergeReverse():
-    folder_path = './static/data/DataProcess/freverse'
+    folder_path = './static/data/DataProcess/reversePart'
     merged_data = {}
 # 遍历文件夹
     for filename in os.listdir(folder_path):
@@ -3400,12 +3400,12 @@ def mergeReverse():
 # 按键名从小到大排序
     sorted_data = dict(sorted(merged_data.items(), key=lambda x: int(x[0])))
 # 将数据写入新的JSON文件
-    output_file = "./static/data/DataProcess/freverse/allReverse.json"
+    output_file = "./static/data/DataProcess/reversePart/allReverse.json"
     with open(output_file, "w") as file:
         json.dump(sorted_data, file)
 #合并5分钟内、id相同的数据
 def mergeId():
-    file = "./static/data/DataProcess/freverse/allReverse.json"
+    file = "./static/data/DataProcess/reversePart/allReverse.json"
     with open(file,"r") as f :
         data = json.load(f)
     # 结果字典
@@ -3441,7 +3441,7 @@ def mergeId():
                     'velocity': velocity
                 })
 # 保存结果
-    with open('./static/data/DataProcess/freverse/mergeReverse.json', 'w') as f:
+    with open('./static/data/DataProcess/reversePart/mergeReverse.json', 'w') as f:
         json.dump(result, f)
 
 #合并新雷达图数据
@@ -3492,6 +3492,78 @@ def jsonLen():
     with open("./static/data/DataProcess/allFault.json") as f:
         data = json.load(f)
     print(len(data))
+
+def getDriveReserve():
+    laneAll = open("./static/data/DataProcess/laneAll.json", "r")
+    laneAll = json.load(laneAll)
+    # 判断是否同号
+    def same_sign(a, b):
+        product = a * b
+        if product >= 0:
+            return True  # 同号
+        else:
+            return False  # 异号
+    for i in laneAll:
+        print(i)
+        for j in laneAll[i]:
+            print(j)
+            for k in laneAll[i][j]:
+                driveReserve = {}
+                nowDataStart = laneAll[i][j][k][0]["geometry"]["coordinates"][0]
+                nowDataEnd = laneAll[i][j][k][-1]["geometry"]["coordinates"][-1]
+                slope = (nowDataEnd[1] - nowDataStart[1]) / \
+                    (nowDataEnd[0] - nowDataStart[0])
+                useLaneData = open(
+                    "./static/data/DataProcess/part/part" + str(k) + ".json", "r")
+                useLaneData = json.load(useLaneData)
+                radin = math.atan(slope)
+                if(nowDataEnd[1] < nowDataStart[1]):
+                    radin = radin - math.pi
+                with alive_bar(len(useLaneData), title='Processing files') as bar:
+                    for l in useLaneData:
+                        driveReserve[l] = {}
+                        for m in useLaneData[l]:
+                            if(same_sign(math.cos(useLaneData[l][m]["heading"]),math.cos(radin)) and abs(useLaneData[l][m]["heading"]-radin)>math.pi/2):
+                                    driveReserve[l][m] = useLaneData[l][m]
+                        bar()
+                # # 当前方向左右各加90度是正向范围
+                # if(radin < math.pi / 2 and radin > -math.pi / 2):
+                #     radinS = radin - math.pi / 2
+                #     radinE = radin + math.pi / 2
+                #     for l in useLaneData:
+                #         driveReserve[l] = {}
+                #         for m in useLaneData[l]:
+                #             if(useLaneData[l][m]["heading"] < radinS or useLaneData[l][m]["heading"] > radinE):
+                #                 driveReserve[l][m] = useLaneData[l][m]
+                # elif(radin < -math.pi / 2):
+                #     radinS = radin + math.pi / 2 * 3
+                #     radinE = radin + math.pi / 2
+                #     for l in useLaneData:
+                #         driveReserve[l] = {}
+                #         for m in useLaneData[l]:
+                #             if(useLaneData[l][m]["heading"] < radinS and useLaneData[l][m]["heading"] > radinE):
+                #                 driveReserve[l][m] = useLaneData[l][m]
+                # elif(radin > math.pi / 2):
+                #     radinS = radin - math.pi / 2
+                #     radinE = radin - math.pi / 2 * 3
+                #     for l in useLaneData:
+                #         driveReserve[l] = {}
+                #         for m in useLaneData[l]:
+                #             if(useLaneData[l][m]["heading"] < radinS and useLaneData[l][m]["heading"] > radinE):
+                #                 driveReserve[l][m] = useLaneData[l][m]
+
+                useLaneData = open(
+                    "./static/data/DataProcess/reversePart/" + str(k) + ".json", "w")
+                useLaneData.write(json.dumps(driveReserve))
+
+def mergeJsonToCsv():
+    with open('./static/data/DataProcess/highSceneCsv/motor_reverse.json', 'r') as f:
+        data = json.load(f)
+    with open('./static/data/DataProcess/highSceneCsv/output.csv', 'w', newline='') as file:
+        writer = csv.writer(file) 
+        writer.writerow(["type", "id", "road", "start_time", "action_name"])
+        for item in data:
+            writer.writerow([item['type'], item['id'], item['road'], item['start_time'], "reverse"])
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3525,5 +3597,7 @@ if __name__ == '__main__':
     # mergeRadar()
     # readCsv()
     # validate()
-    jsonLen()
+    # jsonLen()
+    # getDriveReserve()
+    mergeJsonToCsv()
     dataTypebytime_meas()
