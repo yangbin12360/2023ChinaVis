@@ -349,10 +349,10 @@ def getIdHighValue():
     # 结束点位置的索引
     endIndex = len(realLaneRoadList)-1
     for i in newRes["highValue"]:
-        print(i["action_name"])
+        # print(i["action_name"])
         # print("^^^^^^^^^^^^^^^^^^^^^^^^^")
         if i["action_name"]!="carCross":
-            print("进入了！！！！！！！！！！")
+            # print("进入了！！！！！！！！！！")
             tempDict = {}
             tempDict["x"] = i["start_time"]
             tempDict["y"] = "888"
@@ -360,7 +360,7 @@ def getIdHighValue():
             tempDict["nowTime"] = i["start_time"]
             realLaneRoadList.append(tempDict)
 
-    print("realLaneRoadList",realLaneRoadList)
+    # print("realLaneRoadList",realLaneRoadList)
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
     #获取到了flow文件中的车道号值了
@@ -456,6 +456,7 @@ def getIdHighValue():
         i["y"] = finalY
         # 对realLaneRoadList 进行y坐标的替换
     index = 0
+    print("realLaneRoadList",realLaneRoadList)
     for i in realLaneRoadList:
         tempStr =str(int(i["y"]))
         tempStr=tempStr.split('.')[0]
