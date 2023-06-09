@@ -171,7 +171,7 @@ def getHighValue():
     file_name = os.listdir('../back/static/data/DataProcess/highSceneCsv')
     file = '../back/static/data/DataProcess/highSceneCsv'
     res = {}
-    endTime = startTime+300
+    endTime = startTime+600
     startTime = startTime*1000000
     endTime = endTime*1000000
     for name in file_name:

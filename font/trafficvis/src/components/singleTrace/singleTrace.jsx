@@ -138,8 +138,8 @@ const SingleTrace = (props) => {
       .style("font-size", "12px") // 设置文本字体大小
       .text((d) => {
         if (d == 32) {
-          return "路口";
-        } else return `road:${d}`;
+          return "中心岛";
+        } else return `道路:${d}`;
       });
     //添加vy轴以及设置vy轴
     const yVelocityScale = d3
