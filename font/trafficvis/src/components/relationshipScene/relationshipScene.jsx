@@ -370,7 +370,7 @@ function RelationshipScene(props){
         dataZoom: [
           {
             type: "inside",
-            xAxisIndex: [0, 1, 2,3,4,5,6,7],
+            xAxisIndex: [0, 1, 2,3,4,5,6,7,8],
             start: 0,
             end: 20,
             x:20,
@@ -380,7 +380,7 @@ function RelationshipScene(props){
             type: "slider",
             start: 0,
             end: 20,
-             xAxisIndex: [0, 1, 2,3,4,5,6,7],
+             xAxisIndex: [0, 1, 2,3,4,5,6,7,8],
             height: 20,
             bottom:20 ,
           },
