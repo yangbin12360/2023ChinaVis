@@ -1150,6 +1150,127 @@ function Details (props){
   
       })
     }
+        //占用非机动车道
+        else if( scence == 8){
+            setSpecialContent("最长持续时间："+maxTime.toFixed(2)+"s");
+            setVeloContent("最大平均速度："+(maxV*3.6).toFixed(2)+"km/h");
+            dataset.map((item,index) => {
+              arcsvg.append("path")
+                    .attr("d",arcPath(arcdata))	
+                    .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
+                    .attr("stroke","black")
+                    .attr("stroke-width","1px")
+                    .attr("fill","white");
+             var info =  arcsvg.append("path")
+                    .attr("d",arcPath(transformDataInfo(item.duration)))	
+                    .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
+                    .attr("stroke","black")
+                    .attr("stroke-width","1px")
+                    .attr("fill","#bae1f2")
+                    .on('mouseover',function(event){
+                        var svgContainer = d3.select("#detailInformation").node();
+                        var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                        var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                        tipytool.html('时间段：'+item.duration.toFixed(2)+'s');
+                        tipytool.style("left", xOffset+ "px")
+                                .style("top", yOffset + "px")
+                                .transition()
+                                .duration(200)
+                                .style('opacity',0.9);
+                        info.transition()
+                            .duration(200)
+                            .attr("stroke-width","2px");
+                    })
+                  .on('mouseout',function(){
+                        tipytool.transition()
+                                .duration(200)
+                                .style('opacity',0);
+                        info.transition()
+                            .duration(200)
+                            .attr("stroke-width","1px");
+                  });
+              arcsvg.append("path")
+                    .attr("d",arcPathSmall(arcdata))	
+                    .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
+                    .attr("stroke","black")
+                    .attr("stroke-width","1px")
+                    .attr("fill","white");
+              var velo = arcsvg.append("path")
+                    .attr("d",arcPathSmall(transformDataVelo(item.velocity)))	
+                    .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+")")
+                    .attr("stroke","black")
+                    .attr("stroke-width","1px")
+                    .attr("fill","#fedf86")
+                    .on('mouseover',function(event){
+                        var svgContainer = d3.select("#detailInformation").node();
+                        var xOffset = window.scrollX + svgContainer.getBoundingClientRect().left + d3.pointer(event, svgContainer)[0] + 10;
+                        var yOffset = window.scrollY + svgContainer.getBoundingClientRect().top + d3.pointer(event, svgContainer)[1] + 10;
+                        tipytool.html('速度：'+(item.velocity*3.6).toFixed(2)+'km/h');
+                        tipytool.style("left", xOffset+ "px")
+                                .style("top", yOffset + "px")
+                                .transition()
+                                .duration(200)
+                                .style('opacity',0.9);
+                        velo.transition()
+                            .duration(200)
+                            .attr("stroke-width","2px");
+                    })
+                  .on('mouseout',function(){
+                        tipytool.transition()
+                                .duration(200)
+                                .style('opacity',0);
+                        velo.transition()
+                              .duration(200)
+                              .attr("stroke-width","1px");
+                  });
+              arcsvg.append("path")
+                    .attr("d", triangle)
+                    .attr("stroke", 'black')
+                    .attr("fill", function(d,i){
+                      return typecolor[item.type];
+                   })
+                    .attr("transform","translate("+(80*((index%4)+1)+padding*(index%4)-80*(index%4))+','+(100*parseInt((index/4)+1)+20+70*parseInt((index/4))-40)+") rotate(180)");
+              arcsvg.append("text")
+                    .text('持续时间')
+                    .attr('font-size','11px')
+                    .attr("transform","translate("+(10)+','+((100*parseInt((index/4)+1)+70*parseInt((index/4)))-50-40)+")");
+              arcsvg.append("text")
+                    .text('平均速度')
+                    .attr('font-size','11px')
+                    .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+70*parseInt((index/4))-40)+")")
+              arcsvg.append("text")
+                    .text('id：')
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
+              arcsvg.append("text")
+                    .text('开始：')
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");      
+              arcsvg.append("text")
+                    .text('结束：')
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(10)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");            
+              arcsvg.append("text")
+                    .text(item.id)
+                    .style('fill',function(d,i){
+                        return typecolor[item.type];
+                    })
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+45)+','+(100*parseInt((index/4)+1)+45+70*parseInt((index/4))-40)+")");
+              arcsvg.append("text")
+                    .text(converTimestampS(item.start_time/1000000))
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+55)+','+(100*parseInt((index/4)+1)+65+70*parseInt((index/4))-40)+")");
+              arcsvg.append("text")
+                    .text(converTimestampS(item.end_time/1000000))
+                    .attr('font-size','13px')
+                    .attr("transform","translate("+(80*((index%4))+padding*(index%4)-80*(index%4)+55)+','+(100*parseInt((index/4)+1)+85+70*parseInt((index/4))-40)+")");
+        
+            var svgS1 = document.getElementById('arcsvg');
+            var svgh = svgS1.getBBox();
+            svgS1.style.height = svgh.y+svgh.height+20;
+            })
+          }
     }
 
     useEffect(() => {

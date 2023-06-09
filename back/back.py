@@ -108,12 +108,12 @@ def getActionAndRoadCount():
     segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
-    all_count = [[[0 for _ in range(num_segments)] for _ in range(10)] for _ in range(8)]
+    all_count = [[[0 for _ in range(num_segments)] for _ in range(10)] for _ in range(9)]
     file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
-        if index in [1,2,3,4,5]:
+        if index in [1,2,3,4,5,8]:
             for item in d_data:
                 if item['road']==-1:
                     continue
@@ -638,7 +638,7 @@ def detail_item():
                 # 判断是否在该五分钟内
                 if segment_index==segment_index1:
                     car_data.append(item)
-            elif actionName in [1,2,3,4,5]:
+            elif actionName in [1,2,3,4,5,8]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
