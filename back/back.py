@@ -638,7 +638,7 @@ def detail_item():
                 # 判断是否在该五分钟内
                 if segment_index==segment_index1:
                     car_data.append(item)
-            elif actionName in [1,2,3,4,5]:
+            elif actionName in [1,2,3,4,5,8]:
                 # 将时间戳转换为日期时间
                 dt1 = datetime.datetime.fromtimestamp(item['start_time'] / 1000000)
                 dt2 = datetime.datetime.fromtimestamp(item['end_time'] / 1000000)
