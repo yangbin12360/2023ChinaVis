@@ -215,7 +215,7 @@ function RelationshipScene(props){
     const{time,carNum,scence,handleDetail} = props;
     // const [dataset,setDataTese] = useState([]);
     var name=['中车道A','中车道B','中车道C','中车道D','中车道E','中车道F','中车道G','中车道H','路口','非机动车道'];
-    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速'];
+    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速','占用非机动车道'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
 
     //时间戳的完整转换
