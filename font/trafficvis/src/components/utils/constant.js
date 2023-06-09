@@ -172,7 +172,7 @@ export const CLUSTER_LABEL_LIST = [ "#5fa8d3","#febf54", "#90a955"]; // 蓝 红 
 // export const CLUSTER_TYPE_LIST = ["#89fc00", "#d0f4ea", "#64dfdf"];
 export const CLUSTER_TYPE_LIST = ["#5c677d", "#f4d35e", "#709775"];
 export const LANE_ID_LIST = [
-  "1912", "1910", "1910_2", '1910_1',
+  "1912", "1911", "1910_2", '1910_1',
   "1898_1", "1898_2", "1900", "1901",
   "1957_4", "1957_3", "1956", "1955",
   "1934", "1935", "1936_3", "1936_4",
