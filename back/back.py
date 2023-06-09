@@ -108,12 +108,12 @@ def getActionAndRoadCount():
     segment_duration = datetime.timedelta(minutes=5)  # 时间段时长为5分钟
     num_segments = 288  # 时间段数量
     # 创建一个三维数组
-    all_count = [[[0 for _ in range(num_segments)] for _ in range(10)] for _ in range(8)]
+    all_count = [[[0 for _ in range(num_segments)] for _ in range(10)] for _ in range(9)]
     file_path = './static/data/Result/new_decomposition_data.json'
     with open(file_path, "r", encoding="utf-8") as f:
         decomposition_data = json.load(f)
     for index,d_data in enumerate(decomposition_data):
-        if index in [1,2,3,4,5]:
+        if index in [1,2,3,4,5,8]:
             for item in d_data:
                 if item['road']==-1:
                     continue
@@ -349,10 +349,10 @@ def getIdHighValue():
     # 结束点位置的索引
     endIndex = len(realLaneRoadList)-1
     for i in newRes["highValue"]:
-        print(i["action_name"])
+        # print(i["action_name"])
         # print("^^^^^^^^^^^^^^^^^^^^^^^^^")
         if i["action_name"]!="carCross":
-            print("进入了！！！！！！！！！！")
+            # print("进入了！！！！！！！！！！")
             tempDict = {}
             tempDict["x"] = i["start_time"]
             tempDict["y"] = "888"
@@ -360,7 +360,7 @@ def getIdHighValue():
             tempDict["nowTime"] = i["start_time"]
             realLaneRoadList.append(tempDict)
 
-    print("realLaneRoadList",realLaneRoadList)
+    # print("realLaneRoadList",realLaneRoadList)
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
     #获取到了flow文件中的车道号值了
@@ -456,6 +456,7 @@ def getIdHighValue():
         i["y"] = finalY
         # 对realLaneRoadList 进行y坐标的替换
     index = 0
+    print("realLaneRoadList",realLaneRoadList)
     for i in realLaneRoadList:
         tempStr =str(int(i["y"]))
         tempStr=tempStr.split('.')[0]

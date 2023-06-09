@@ -12,13 +12,13 @@ import numpy as np
 import math
 import csv
 import pandas as pd
-# from sklearn.cluster import DBSCAN
-# from sklearn.cluster import KMeans
-# from sklearn.preprocessing import MinMaxScaler
-# from sklearn.impute import SimpleImputer
-# from sklearn.decomposition import PCA
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import SimpleImputer
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import datetime as dt
 from datetime import datetime, timedelta
@@ -3002,15 +3002,15 @@ def forDbscan():
 
 #对聚类结果进行降维
 def dimReduction_cluster():
-    file_list = os.listdir('../back/static/data\DataProcess/5m/cluster_results')
+    file_list = os.listdir('../back/static/data\DataProcess/5m/feature_extraction_dim')
     startR = 300
     for file in file_list:
-        data = pd.read_csv('../back/static/data/DataProcess/5m/cluster_results/'+ str(startR) +'s.csv')
+        data = pd.read_csv('../back/static/data/DataProcess/5m/feature_extraction_dim/'+ file)
         row_count = len(data)
-        print(row_count)
+        print(data)
             # 小于两行，跳出当前循环
         if row_count < 3:
-            data .to_csv('../back/static/data\DataProcess/5m/pca_results/'+ str(startR) +'s.csv', index=False)
+            data .to_csv('../back/static/data\DataProcess/5m/clusterAll/'+ str(startR) +'s.csv', index=False)
             startR += 300
             print('跳出循环')
             continue;
@@ -3018,11 +3018,14 @@ def dimReduction_cluster():
         pca = PCA(n_components=2)
         reduced_features = pca.fit_transform(features)
         reduced_data = pd.DataFrame(data=reduced_features, columns=['x', 'y'])
-        reduced_data['cluster'] = data['cluster']
+        reduced_data['cluster'] = data['cluster_label']
         reduced_data['type'] = data['type']
         reduced_data['id'] = data['id']
+        reduced_data["o_std"] =data["o_std"]
+        reduced_data["distance_mean"] =data["distance_mean"]
+        reduced_data["a_std"] =data["a_std"]
     # 保存降维结果到新的CSV文件
-        reduced_data.to_csv('../back/static/data\DataProcess/5m/pca_results/'+ str(startR) +'s.csv', index=False)
+        reduced_data.to_csv('../back/static/data\DataProcess/5m/clusterAll/'+ str(startR) +'s.csv', index=False)
         startR += 300
     # 绘制降维结果的散点图
         # plt.scatter(reduced_data['x'], reduced_data['y'], c=reduced_data['cluster'])
@@ -3446,17 +3449,17 @@ def mergeId():
 
 #合并新雷达图数据
 def mergeRadar():
-    dir1 = './static/data/DataProcess/5m/merge'
+    dir1 = './static/data/DataProcess/5m/clusterAll'
     dir2 = './static/data/DataProcess/5m/originFeature'
     for filename in os.listdir(dir1):
         if filename.endswith(".csv"):
-            output_file = os.path.join('./static/data/DataProcess/5m/newMerge/', filename)
+            output_file = os.path.join('./static/data/DataProcess/5m/newMergeAll/', filename)
         try:
             file1 = os.path.join(dir1, filename)
             file2 = os.path.join(dir2, filename)
             df1 = pd.read_csv(file1)
             df2 = pd.read_csv(file2)
-            necessary_columns_1 = ['x','y','cluster','type','id','v_std','a_std','o_std','distance_mean','v_pca']
+            necessary_columns_1 = ['x','y','cluster','type','id','o_std','a_std','distance_mean']
             necessary_columns_2 = ['id','type','v_mean','v_max','v_min','a_mean']
             if all(elem in df1.columns  for elem in necessary_columns_1) and all(elem in df2.columns  for elem in necessary_columns_2):
                 df = pd.merge(df1, df2, on=['id', 'type'])
@@ -3564,6 +3567,27 @@ def mergeJsonToCsv():
         writer.writerow(["type", "id", "road", "start_time", "action_name"])
         for item in data:
             writer.writerow([item['type'], item['id'], item['road'], item['start_time'], "reverse"])
+
+def kmeansAll():
+    all_data = pd.DataFrame()
+# 文件夹路径
+    folder_path = './static/data/DataProcess/5m/feature_extraction_dim'
+# 遍历文件夹下的所有csv文件
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".csv"):
+            file_path = os.path.join(folder_path, filename)
+            df = pd.read_csv(file_path)
+            df['filename'] = filename  # 添加一个列来记录每行数据来自哪个文件
+            all_data = all_data.append(df, ignore_index=True)
+    # 对于没有数值型数据的列，该列全为NaN，fillna无法处理，需要手动删除该列
+    all_data= all_data.fillna(0)
+# 进行聚类
+    kmeans = KMeans(n_clusters=3)  # 选择合适的聚类数量
+    all_data['cluster_label'] = kmeans.fit_predict(all_data.drop(columns=['filename']))
+# 将聚类标签写回到每个csv文件中
+    for filename in all_data['filename'].unique():
+        df = all_data[all_data['filename'] == filename]
+        df.drop(columns=['filename']).to_csv(os.path.join(folder_path, filename), index=False)
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3594,10 +3618,12 @@ if __name__ == '__main__':
     # noMoving()
     # mergeReverse()
     # mergeId()
-    # mergeRadar()
+    mergeRadar()
     # readCsv()
     # validate()
     # jsonLen()
     # getDriveReserve()
-    mergeJsonToCsv()
-    dataTypebytime_meas()
+    # mergeJsonToCsv()
+    # dataTypebytime_meas()
+    # kmeansAll()
+    # dimReduction_cluster()
