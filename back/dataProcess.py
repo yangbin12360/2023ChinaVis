@@ -3384,9 +3384,10 @@ def noMoving():
             del data[key][sub_key]
         with open(file_path+'/'+filename, 'w') as file:
             json.dump(data, file)
-#合并非机动车道逆行数据
+
+#合并非机动车道逆行数据//合并json文件
 def mergeReverse():
-    folder_path = './static/data/DataProcess/reversePart'
+    folder_path = './static/data/DataProcess/feijizhanyong'
     merged_data = {}
 # 遍历文件夹
     for filename in os.listdir(folder_path):
@@ -3403,12 +3404,14 @@ def mergeReverse():
 # 按键名从小到大排序
     sorted_data = dict(sorted(merged_data.items(), key=lambda x: int(x[0])))
 # 将数据写入新的JSON文件
-    output_file = "./static/data/DataProcess/reversePart/allReverse.json"
+    output_file = "./static/data/DataProcess/feijizhanyong/allOccupy.json"
     with open(output_file, "w") as file:
         json.dump(sorted_data, file)
+
+
 #合并5分钟内、id相同的数据
 def mergeId():
-    file = "./static/data/DataProcess/reversePart/allReverse.json"
+    file = "./static/data/DataProcess/feijizhanyong/allOccupy.json"
     with open(file,"r") as f :
         data = json.load(f)
     # 结果字典
@@ -3444,7 +3447,7 @@ def mergeId():
                     'velocity': velocity
                 })
 # 保存结果
-    with open('./static/data/DataProcess/reversePart/mergeReverse.json', 'w') as f:
+    with open('./static/data/DataProcess/feijizhanyong/mergeOccupy.json', 'w') as f:
         json.dump(result, f)
 
 #合并新雷达图数据
@@ -3529,32 +3532,6 @@ def getDriveReserve():
                             if(same_sign(math.cos(useLaneData[l][m]["heading"]),math.cos(radin)) and abs(useLaneData[l][m]["heading"]-radin)>math.pi/2):
                                     driveReserve[l][m] = useLaneData[l][m]
                         bar()
-                # # 当前方向左右各加90度是正向范围
-                # if(radin < math.pi / 2 and radin > -math.pi / 2):
-                #     radinS = radin - math.pi / 2
-                #     radinE = radin + math.pi / 2
-                #     for l in useLaneData:
-                #         driveReserve[l] = {}
-                #         for m in useLaneData[l]:
-                #             if(useLaneData[l][m]["heading"] < radinS or useLaneData[l][m]["heading"] > radinE):
-                #                 driveReserve[l][m] = useLaneData[l][m]
-                # elif(radin < -math.pi / 2):
-                #     radinS = radin + math.pi / 2 * 3
-                #     radinE = radin + math.pi / 2
-                #     for l in useLaneData:
-                #         driveReserve[l] = {}
-                #         for m in useLaneData[l]:
-                #             if(useLaneData[l][m]["heading"] < radinS and useLaneData[l][m]["heading"] > radinE):
-                #                 driveReserve[l][m] = useLaneData[l][m]
-                # elif(radin > math.pi / 2):
-                #     radinS = radin - math.pi / 2
-                #     radinE = radin - math.pi / 2 * 3
-                #     for l in useLaneData:
-                #         driveReserve[l] = {}
-                #         for m in useLaneData[l]:
-                #             if(useLaneData[l][m]["heading"] < radinS and useLaneData[l][m]["heading"] > radinE):
-                #                 driveReserve[l][m] = useLaneData[l][m]
-
                 useLaneData = open(
                     "./static/data/DataProcess/reversePart/" + str(k) + ".json", "w")
                 useLaneData.write(json.dumps(driveReserve))
@@ -3588,6 +3565,25 @@ def kmeansAll():
     for filename in all_data['filename'].unique():
         df = all_data[all_data['filename'] == filename]
         df.drop(columns=['filename']).to_csv(os.path.join(folder_path, filename), index=False)
+
+# 获取非机动车道中type为1、4、6的数据
+def getAllType():
+    file_path = "./static/data/DataProcess/flaneData/"
+    typeList =[1,4,6,"1","4","6"]
+    for filename in os.listdir(file_path):
+        targetData = {}
+        with open(file_path+filename, "r") as f:
+            useLaneData = json.load(f)
+        with alive_bar(len(useLaneData), title='Processing files') as bar:
+            for i in useLaneData:
+                targetData[i] = {} 
+                for j in useLaneData[i]:
+                    if useLaneData[i][j]["type"] in typeList:
+                        targetData[i][j] = useLaneData[i][j]
+                bar()
+        useLaneData = open("./static/data/DataProcess/feijizhanyong/"+filename, "w")
+        useLaneData.write(json.dumps(targetData))
+    
 if __name__ == '__main__':
     # 驾驶行为
     # featureAll()
@@ -3618,7 +3614,7 @@ if __name__ == '__main__':
     # noMoving()
     # mergeReverse()
     # mergeId()
-    mergeRadar()
+    # mergeRadar()
     # readCsv()
     # validate()
     # jsonLen()
@@ -3627,3 +3623,6 @@ if __name__ == '__main__':
     # dataTypebytime_meas()
     # kmeansAll()
     # dimReduction_cluster()
+    # getAllType()
+    # mergeReverse()
+    mergeId()
