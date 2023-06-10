@@ -263,17 +263,16 @@ const SingleTrace = (props) => {
       })
       .style("cursor", "pointer")
       .style("stroke", "black")
-      .style("stroke-width", (d,i)=>{
-        if (i==0||i==data.length-1) {
-          return 0
-        }else
-        return 1
+      .style("stroke-width", (d, i) => {
+        if (i == 0 || i == data.length - 1) {
+          return 0;
+        } else return 1;
       })
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget)
           .transition()
           .duration(50)
-          .attr("r", 5 * 1.5)
+          .attr("r", 4 * 1.5)
           .attr("fill", "white"); // 改变高亮颜色
         tooltip.transition().duration(200).style("opacity", 0.9);
         tooltip
@@ -291,7 +290,7 @@ const SingleTrace = (props) => {
         d3.select(event.currentTarget)
           .transition()
           .duration(50)
-          .attr("r", 5)
+          .attr("r", 4)
           .attr("fill", (d) => HV_NAME_LIST_CN_COLOR[d.type]); // 恢复原颜色
         tooltip.transition().duration(500).style("opacity", 0);
       })
@@ -303,7 +302,7 @@ const SingleTrace = (props) => {
         // handleSelectId(selectTraceId,singleType)
         handleTextId(selectTraceId, singleType);
       });
-      
+
     // 设置点的颜色
     const zoom = d3
       .zoom()
