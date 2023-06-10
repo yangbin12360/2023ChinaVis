@@ -323,9 +323,15 @@ def getIdHighValue():
             # 将16位的时间戳转为10位并作为'nowTime'和'x'存储
                 row_dict['nowTime'] = row_dict['x'] = int(row['time_meas'] / 1e6)           
             # 如果lineFid为空，填充为-1，并作为'y'存储
-                row_dict['y'] = row['lineFid'] if pd.notnull(row['lineFid']) else -1           
+                row_dict['y'] = row['lineFid'] if pd.notnull(row['lineFid']) else -1    
+                print("row[type]",row['type'])       
             # 设置'type'为'carCross'
-                row_dict['type'] = 'carCross'
+                if row["type"] == 2:
+                    row_dict['type'] = 'peopleCross'
+                elif row["type"] == 3:
+                    row_dict["type"]="noMotorCross"
+                else:
+                    row_dict['type'] = 'carCross'
             # 将处理后的行添加到结果列表
                 results.append(row_dict)
         return results
@@ -348,18 +354,19 @@ def getIdHighValue():
     # 将高价值场景点加入realLaneRoadList
     # 结束点位置的索引
     endIndex = len(realLaneRoadList)-1
+    flagType = ""
     for i in newRes["highValue"]:
         # print(i["action_name"])
         # print("^^^^^^^^^^^^^^^^^^^^^^^^^")
         if i["action_name"]!="carCross":
-            # print("进入了！！！！！！！！！！")
+            print("进入了！！！！！！！！！！")
             tempDict = {}
             tempDict["x"] = i["start_time"]
             tempDict["y"] = "888"
             tempDict["type"] = i["action_name"]
             tempDict["nowTime"] = i["start_time"]
+            flagType = i["action_name"]
             realLaneRoadList.append(tempDict)
-
     # print("realLaneRoadList",realLaneRoadList)
     # 获取中车道的键名
     keys = find_set_in_dict(laneRoadList,laneDict)
@@ -456,7 +463,7 @@ def getIdHighValue():
         i["y"] = finalY
         # 对realLaneRoadList 进行y坐标的替换
     index = 0
-    print("realLaneRoadList",realLaneRoadList)
+
     for i in realLaneRoadList:
         tempStr =str(int(i["y"]))
         tempStr=tempStr.split('.')[0]

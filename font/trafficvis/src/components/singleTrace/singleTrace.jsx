@@ -263,11 +263,10 @@ const SingleTrace = (props) => {
       })
       .style("cursor", "pointer")
       .style("stroke", "black")
-      .style("stroke-width", (d,i)=>{
-        if (i==0||i==data.length-1) {
-          return 0
-        }else
-        return 1
+      .style("stroke-width", (d, i) => {
+        if (i == 0 || i == data.length - 1) {
+          return 0;
+        } else return 1;
       })
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget)
@@ -303,7 +302,7 @@ const SingleTrace = (props) => {
         // handleSelectId(selectTraceId,singleType)
         handleTextId(selectTraceId, singleType);
       });
-      
+
     // 设置点的颜色
     const zoom = d3
       .zoom()
