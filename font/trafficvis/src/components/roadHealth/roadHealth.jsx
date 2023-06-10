@@ -8,7 +8,7 @@ const RoadHealth =(props)=>{
     const roadHealthRef = useRef(null);
     const roadNewHealthRef = useRef(null);
     const [chartType,setchartType] = useState(true);
-    const [buttonContent,setButtonContent] = useState('切换至中车道健康度');
+    const [buttonContent,setButtonContent] = useState('切换至道路健康度');
     const {hourindex} = props;
     const maxFlow = [140, 390, 187, 214, 248, 327, 486, 172, 134, 627, 651, 511, 465, 541, 533, 324, 135, 242, 323, 302, 64, 184, 374, 287, 132, 189, 169, 16, 60, 33, 29, 85, 8, 0];
     const maxVelo = [29.088037626809125, 36.4941257043837, 28.287433249875004, 54.30020157428571, 41.262377635826084, 39.4493577285, 32.756548534143526, 52.1522524, 33.3207456944762, 40.082529188571435, 37.6563883164, 24.372225905596093, 26.449291380175236, 33.556669049142855, 23.71443768, 30.697397342142857, 41.06758643999999, 35.45950868307692, 41.29865946260778, 42.51536898, 33.547326600000005, 33.19892429399453, 37.93535573531986, 33.28717776884917, 29.432005057948054, 20.440789626797393, 30.79506251273274, 41.10554378, 16.809003937338463, 31.2858088425, 18.330809000874076, 29.222140693025644, 10.87309008, 0.0];
@@ -138,9 +138,9 @@ const r8 = healthData[8];
     { name: 'flow', index: 0, text: '车流量' },
     { name: 'velocity', index: 1, text: '速度' },
     { name: 'bus', index: 2, text: '社会车辆/公交比' },
-    { name: 'num', index: 3, text: ' 小车道号' },
+    { name: 'num', index: 3, text: ' 车道号' },
     { name: 'health', index: 4, text: ' 健康度' },
-    { name: 'bignum', index: 5, text: ' 中车道号' },
+    { name: 'bignum', index: 5, text: ' 道路号' },
   ];
   var lineStyle = {
     width: 1,
@@ -364,10 +364,10 @@ const r8 = healthData[8];
         <button onClick={() => {
           setchartType(!chartType)
           if(chartType){
-            setButtonContent('切换至小车道健康度');
+            setButtonContent('切换至车道健康度');
           }
           else{
-            setButtonContent('切换至中车道健康度');
+            setButtonContent('切换至道路健康度');
           }
         } } style = {{position:'absolute',background:"#e8e8e4",width:130,height:20,top:"92%",left:"80%",borderRadius:20,border:'2px solid #cccccc',fontSize:'12px'}}>{buttonContent}</button>
         </>

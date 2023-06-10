@@ -214,8 +214,8 @@ function RelationshipScene(props){
     const [tipyY,setTipyY] = useState('0px');
     const{time,carNum,scence,handleDetail} = props;
     // const [dataset,setDataTese] = useState([]);
-    var name=['中车道A','中车道B','中车道C','中车道D','中车道E','中车道F','中车道G','中车道H','路口','非机动车道'];
-    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速','占用非机动车道'];
+    var name=['道路A','道路B','道路C','道路D','道路E','道路F','道路G','道路H','路口','非机动车道'];
+    var label = ['切入切出','停止过久','非机动车异常','超速','行人异常','逆行','急减速','急加速','占用非机动车道','占用公交车道'];
     var type = ['','小型车辆','行人','非机动车','卡车','','客车','静态物体','','','手推车、三轮车'];
 
     //时间戳的完整转换
@@ -370,7 +370,7 @@ function RelationshipScene(props){
         dataZoom: [
           {
             type: "inside",
-            xAxisIndex: [0, 1, 2,3,4,5,6,7,8],
+            xAxisIndex: [0, 1, 2,3,4,5,6,7,8,9],
             start: 0,
             end: 20,
             x:20,
@@ -380,7 +380,7 @@ function RelationshipScene(props){
             type: "slider",
             start: 0,
             end: 20,
-             xAxisIndex: [0, 1, 2,3,4,5,6,7,8],
+             xAxisIndex: [0, 1, 2,3,4,5,6,7,8,9],
             height: 20,
             bottom:20 ,
           },

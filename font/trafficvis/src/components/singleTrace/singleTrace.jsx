@@ -139,7 +139,7 @@ const SingleTrace = (props) => {
       .text((d) => {
         if (d == 32) {
           return "中心岛";
-        } else return `道路:${d}`;
+        } else return `车道:${d}`;
       });
     //添加vy轴以及设置vy轴
     const yVelocityScale = d3
