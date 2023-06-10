@@ -273,7 +273,7 @@ const SingleTrace = (props) => {
         d3.select(event.currentTarget)
           .transition()
           .duration(50)
-          .attr("r", 5 * 1.5)
+          .attr("r", 4 * 1.5)
           .attr("fill", "white"); // 改变高亮颜色
         tooltip.transition().duration(200).style("opacity", 0.9);
         tooltip
@@ -291,7 +291,7 @@ const SingleTrace = (props) => {
         d3.select(event.currentTarget)
           .transition()
           .duration(50)
-          .attr("r", 5)
+          .attr("r", 4)
           .attr("fill", (d) => HV_NAME_LIST_CN_COLOR[d.type]); // 恢复原颜色
         tooltip.transition().duration(500).style("opacity", 0);
       })
