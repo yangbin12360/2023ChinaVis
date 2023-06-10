@@ -3387,7 +3387,7 @@ def noMoving():
 
 #合并非机动车道逆行数据//合并json文件
 def mergeReverse():
-    folder_path = './static/data/DataProcess/feijizhanyong'
+    folder_path = './static/data/DataProcess/oBus'
     merged_data = {}
 # 遍历文件夹
     for filename in os.listdir(folder_path):
@@ -3404,14 +3404,14 @@ def mergeReverse():
 # 按键名从小到大排序
     sorted_data = dict(sorted(merged_data.items(), key=lambda x: int(x[0])))
 # 将数据写入新的JSON文件
-    output_file = "./static/data/DataProcess/feijizhanyong/allOccupy.json"
+    output_file = "./static/data/DataProcess/oBus/allOBus.json"
     with open(output_file, "w") as file:
         json.dump(sorted_data, file)
 
 
 #合并5分钟内、id相同的数据
 def mergeId():
-    file = "./static/data/DataProcess/feijizhanyong/allOccupy.json"
+    file = "./static/data/DataProcess/oBus/allOBus.json"
     with open(file,"r") as f :
         data = json.load(f)
     # 结果字典
@@ -3427,6 +3427,7 @@ def mergeId():
             type_ = entry['type']
             time_meas = entry['time_meas']
             velocity = entry['velocity']
+            lineFid = entry['lineFid']
         # 忽略特定的 type
             if type_ in {-1, 2, 7}:
                 continue;
@@ -3444,10 +3445,11 @@ def mergeId():
                     'type': type_,
                     'start_time': time_meas,
                     'end_time': time_meas,
-                    'velocity': velocity
+                    'velocity': velocity,
+                    'lineFid': lineFid
                 })
 # 保存结果
-    with open('./static/data/DataProcess/feijizhanyong/mergeOccupy.json', 'w') as f:
+    with open('./static/data/DataProcess/oBus/mergeOBus.json', 'w') as f:
         json.dump(result, f)
 
 #合并新雷达图数据
@@ -3568,11 +3570,12 @@ def kmeansAll():
 
 # 获取非机动车道中type为1、4、6的数据
 def getAllType():
-    file_path = "./static/data/DataProcess/flaneData/"
-    typeList =[1,4,6,"1","4","6"]
-    for filename in os.listdir(file_path):
+    file_path = "./static/data/DataProcess/part/"
+    partList =["1912","1901","1450","1445"]
+    typeList =[1,3,4,10,"1","3","4","10"]
+    for filename in partList:
         targetData = {}
-        with open(file_path+filename, "r") as f:
+        with open(file_path+"part"+filename+".json", "r") as f:
             useLaneData = json.load(f)
         with alive_bar(len(useLaneData), title='Processing files') as bar:
             for i in useLaneData:
@@ -3581,7 +3584,7 @@ def getAllType():
                     if useLaneData[i][j]["type"] in typeList:
                         targetData[i][j] = useLaneData[i][j]
                 bar()
-        useLaneData = open("./static/data/DataProcess/feijizhanyong/"+filename, "w")
+        useLaneData = open("./static/data/DataProcess/oBus/"+"part"+filename+".json", "w")
         useLaneData.write(json.dumps(targetData))
     
 if __name__ == '__main__':
@@ -3626,3 +3629,4 @@ if __name__ == '__main__':
     # getAllType()
     # mergeReverse()
     mergeId()
+    # getAllType()

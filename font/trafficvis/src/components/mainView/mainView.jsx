@@ -343,7 +343,7 @@ const MainView = (props) => {
     const interval = setInterval(() => {
       setStandardTimeMsg(converTimestamp(timeMsg));
       setTimeMsg(timeMsg + 1);
-    }, 600);
+    }, 700);
     return () => clearInterval(interval);
   }, [timeMsg]);
 
