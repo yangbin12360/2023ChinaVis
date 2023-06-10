@@ -96,6 +96,7 @@ function RoseComponent(props) {
                 },
                 {
                     type: 'category', // 设置角度轴类型为分类型
+                    boundaryGap:false,
                     data: [
                         '00:00',
                         '01:00',
@@ -223,7 +224,7 @@ function RoseComponent(props) {
                 {
                     type: 'category',
                     polarIndex:3,
-                    data: Array.from({ length: 8 }, (_, i) => `${i + 1}`),
+                    data: ['A','B','C','D','E','F','G','H'],
                     axisLine: {
                       show: false // 不显示坐标轴线
                     },
@@ -557,7 +558,7 @@ function RoseComponent(props) {
             if (currentView === 'original') {
               var newSeries = {
                 type: 'bar',
-                name: '中车道车流量',
+                name: '道路车流量',
                 data: bardata[dataIndex],
                 coordinateSystem: 'polar',
                 polarIndex:3

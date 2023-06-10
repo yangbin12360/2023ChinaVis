@@ -4,7 +4,7 @@ import { lasso } from "d3-lasso";
 import React, { useEffect, useRef, useState } from "react";
 import "./clusterScatter.css";
 import { getCluster } from "../../apis/api";
-import { CLUSTER_LABEL_LIST, CLUSTER_TYPE_LIST } from "../utils/constant";
+import { CLUSTER_LABEL_LIST, CLUSTER_TYPE_LIST,TYPE_NAME_LIST } from "../utils/constant";
 const ClusterScatter = (props) => {
   const { timeStamp, handleClusterNum, handleSimCount,selectDir,handleAllCluster} = props;
   const clusterRef = useRef(null);
@@ -130,7 +130,7 @@ const ClusterScatter = (props) => {
       .attr("stroke-width", 1)
       .on("mouseover", function (event, d) {
         tooltip.transition().duration(200).style("opacity", 0.9);
-        tooltip.html("ID: " + d.id + "\nType:" + d.type);
+        tooltip.html("ID: " + d.id + "\n类型:" +TYPE_NAME_LIST[d.type] );
 
         var svgContainer = d3.select("#cluster").node();
         var xOffset =
