@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react"; // 导入 React 和 
 import * as THREE from "three"; // 导入 Three.js 库
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { getJson, getTimeJson } from "../../apis/api";
-import traffic from "../../assets/gltf/traffic_modifiedV6.gltf";
+import traffic from "../../assets/gltf/traffic_modifiedV11.gltf";
 import car from "../../assets/gltf/testcar.gltf";
 import onecar from "../../assets/gltf/compressed1.glb";
 import ferrari from "../../assets/gltf/fcar.gltf";
@@ -343,7 +343,7 @@ const MainView = (props) => {
     const interval = setInterval(() => {
       setStandardTimeMsg(converTimestamp(timeMsg));
       setTimeMsg(timeMsg + 1);
-    }, 600);
+    }, 700);
     return () => clearInterval(interval);
   }, [timeMsg]);
 
