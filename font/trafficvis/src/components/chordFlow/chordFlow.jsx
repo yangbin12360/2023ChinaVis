@@ -14,6 +14,7 @@ function ChordFlow(props){
     const [temp,setTemp] = useState(20);
     // console.log(timeStamp);
     var colorarray = ['rgb(34, 148, 83)','rgb(217,164, 14)','rgb(34, 162, 195)','rgb(222, 118, 34)'];
+    //var colorarray = ['green','green','green','green','green','green','green','green','green','blue','blue','blue','blue','blue','blue','blue','blue','orange','orange','orange','orange','orange','orange','orange','orange','orange','red','red','red','red','red','red','red'];
     // var color20 = d3.scaleOrdinal(colorarray);
     var color20 = d3.scaleOrdinal()
                         .domain([0,32])

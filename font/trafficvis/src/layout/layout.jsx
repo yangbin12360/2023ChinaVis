@@ -301,7 +301,7 @@ const inputTextId =(id)=>{
             <Col span={9} id="right_bottom_right">
               <div style={{ height: "100%" }}>
                 <Box
-                  title={"拥堵分析玫瑰图"}
+                  title={"车况概览与拥堵分析玫瑰图"}
                   component={<RoseComponent handleFlowtimeStamp={handleFlowtimeStamp} handleHourIndex={handleHourIndex}></RoseComponent>}
                 ></Box>
               </div>

@@ -71,6 +71,7 @@ def getTimeJson():
     def calculate_average(lst):
         if len(lst) == 0:
             return 0  # 如果列表为空，则返回0或者其他你认为合适的默认值
+            # return 0
         else:
             average = sum(lst) / len(lst)
             return round(average, 2)
@@ -706,7 +707,7 @@ def getCrossWalkData():
     file_path1 = './static/data/Result/people_flow.json'
     with open(file_path1, "r", encoding="utf-8") as f:
         people_flow = json.load(f)
-    file_path2 = './static/data/Result/people_velocity.json'
+    file_path2 = './static/data/Result/people_velocit y.json'
     with open(file_path2, "r", encoding="utf-8") as f:
         people_velocity = json.load(f)
     file_path3 = './static/data/Result/crosswalkroad_high_value.json'

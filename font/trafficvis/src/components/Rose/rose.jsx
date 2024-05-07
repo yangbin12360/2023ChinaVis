@@ -511,7 +511,7 @@ function RoseComponent(props) {
             //   console.log(unixTimestamp);
             // console.log("timeToTimestamp(dataIndex)",timeToTimestamp(dataIndex));
               handleFlowtimeStamp(timeToTimestamp(dataIndex));
-              handleHourIndex(dataIndex);
+              handleHourIndex(dataIndex+1);
               // 获取当前 echarts 实例的配置项
               var option = myChart.getOption();
               // 获取玫瑰图的系列配置
